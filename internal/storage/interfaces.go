@@ -12,3 +12,9 @@ type TextDataRepository interface {
 	UpdateTextData(ctx context.Context, td TextData) error
 	DeleteTextData(ctx context.Context, td TextData) error
 }
+
+type BankDataRepository interface {
+	AddBankData(ctx context.Context, bd BankData) error
+	UpdateBankData(ctx context.Context, bd BankData) error
+	DeleteBankData(ctx context.Context, bd BankData) error
+}

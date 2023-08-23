@@ -9,3 +9,11 @@ type TextData struct {
 	TextData string
 	MetaInfo string
 }
+
+type BankData struct {
+	ID         int
+	CardNumber string
+	CardExpire string
+	CVV        string
+	MetaInfo   string
+}
