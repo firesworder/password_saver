@@ -60,6 +60,17 @@ func TestMockTextData_AddTextData(t *testing.T) {
 			wantLastUsedID: lastUsedID,
 			wantError:      ErrEmptyData,
 		},
+		{
+			name: "Test 4. Add text data, with metaInfo",
+			td:   storage.TextData{TextData: "Ahoy! Me Hearties", MetaInfo: "i am meta info"},
+			wantState: map[int]storage.TextData{
+				1: {ID: 1, TextData: "Hello world!"},
+				3: {ID: 3, TextData: "Ayayaka"},
+				4: {ID: 4, TextData: "Ahoy! Me Hearties", MetaInfo: "i am meta info"},
+			},
+			wantLastUsedID: 4,
+			wantError:      nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -102,6 +113,21 @@ func TestMockTextData_UpdateTextData(t *testing.T) {
 			td:        storage.TextData{ID: 3, TextData: ""},
 			wantState: getStateMap(textDataState),
 			wantError: ErrEmptyData,
+		},
+		{
+			name:      "Test 4. Update text data, only metaInfo",
+			td:        storage.TextData{ID: 1, MetaInfo: "Neeko!"},
+			wantState: getStateMap(textDataState),
+			wantError: ErrEmptyData,
+		},
+		{
+			name: "Test 5. Update text data, change metaInfo with non empty content",
+			td:   storage.TextData{ID: 1, TextData: "Neeko is the best decision!", MetaInfo: "Neeko!"},
+			wantState: map[int]storage.TextData{
+				1: {ID: 1, TextData: "Neeko is the best decision!", MetaInfo: "Neeko!"},
+				3: {ID: 3, TextData: "Ayayaka"},
+			},
+			wantError: nil,
 		},
 	}
 	for _, tt := range tests {
