@@ -3,15 +3,15 @@ package textdata
 import (
 	"context"
 	"errors"
-	"password_saver/internal/storage"
+	"github.com/firesworder/password_saver/internal/storage"
 )
 
 var ErrNotFound = errors.New("element not found")
 var ErrEmptyData = errors.New("element can not be empty")
 
 type MockTextData struct {
-	textDataMap map[int]storage.TextData
-	lastUsedID  int
+	TextDataMap map[int]storage.TextData
+	LastUsedID  int
 }
 
 func (m *MockTextData) AddTextData(ctx context.Context, td storage.TextData) error {
@@ -19,9 +19,9 @@ func (m *MockTextData) AddTextData(ctx context.Context, td storage.TextData) err
 		return ErrEmptyData
 	}
 
-	m.lastUsedID++
-	td.ID = m.lastUsedID
-	m.textDataMap[td.ID] = td
+	m.LastUsedID++
+	td.ID = m.LastUsedID
+	m.TextDataMap[td.ID] = td
 	return nil
 }
 
@@ -29,17 +29,17 @@ func (m *MockTextData) UpdateTextData(ctx context.Context, td storage.TextData) 
 	if len(td.TextData) == 0 {
 		return ErrEmptyData
 	}
-	if _, ok := m.textDataMap[td.ID]; !ok {
+	if _, ok := m.TextDataMap[td.ID]; !ok {
 		return ErrNotFound
 	}
-	m.textDataMap[td.ID] = td
+	m.TextDataMap[td.ID] = td
 	return nil
 }
 
 func (m *MockTextData) DeleteTextData(ctx context.Context, td storage.TextData) error {
-	if _, ok := m.textDataMap[td.ID]; !ok {
+	if _, ok := m.TextDataMap[td.ID]; !ok {
 		return ErrNotFound
 	}
-	delete(m.textDataMap, td.ID)
+	delete(m.TextDataMap, td.ID)
 	return nil
 }

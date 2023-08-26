@@ -2,8 +2,8 @@ package bankdata
 
 import (
 	"context"
+	"github.com/firesworder/password_saver/internal/storage"
 	"github.com/stretchr/testify/assert"
-	"password_saver/internal/storage"
 	"testing"
 )
 
@@ -116,12 +116,12 @@ func TestMockBankData_AddBankData(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rep := MockBankData{bankData: getStateMap(bankDataState), lastUsedID: lastUsedID}
+			rep := MockBankData{BankData: getStateMap(bankDataState), LastUsedID: lastUsedID}
 
 			gotError := rep.AddBankData(ctx, tt.bd)
 			assert.ErrorIs(t, gotError, tt.wantError)
-			assert.Equal(t, tt.wantState, rep.bankData)
-			assert.Equal(t, tt.wantLastUsedID, rep.lastUsedID)
+			assert.Equal(t, tt.wantState, rep.BankData)
+			assert.Equal(t, tt.wantLastUsedID, rep.LastUsedID)
 		})
 	}
 }
@@ -159,11 +159,11 @@ func TestMockBankData_UpdateBankData(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rep := MockBankData{bankData: getStateMap(bankDataState), lastUsedID: lastUsedID}
+			rep := MockBankData{BankData: getStateMap(bankDataState), LastUsedID: lastUsedID}
 
 			gotError := rep.UpdateBankData(ctx, tt.bd)
 			assert.ErrorIs(t, gotError, tt.wantError)
-			assert.Equal(t, tt.wantState, rep.bankData)
+			assert.Equal(t, tt.wantState, rep.BankData)
 		})
 	}
 }
@@ -203,11 +203,11 @@ func TestMockBankData_DeleteBankData(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rep := MockBankData{bankData: getStateMap(bankDataState), lastUsedID: lastUsedID}
+			rep := MockBankData{BankData: getStateMap(bankDataState), LastUsedID: lastUsedID}
 
 			gotError := rep.DeleteBankData(ctx, tt.bd)
 			assert.ErrorIs(t, gotError, tt.wantError)
-			assert.Equal(t, tt.wantState, rep.bankData)
+			assert.Equal(t, tt.wantState, rep.BankData)
 		})
 	}
 }

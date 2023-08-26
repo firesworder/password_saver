@@ -2,8 +2,8 @@ package textdata
 
 import (
 	"context"
+	"github.com/firesworder/password_saver/internal/storage"
 	"github.com/stretchr/testify/assert"
-	"password_saver/internal/storage"
 	"testing"
 )
 
@@ -74,12 +74,12 @@ func TestMockTextData_AddTextData(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rep := MockTextData{textDataMap: getStateMap(textDataState), lastUsedID: lastUsedID}
+			rep := MockTextData{TextDataMap: getStateMap(textDataState), LastUsedID: lastUsedID}
 
 			gotError := rep.AddTextData(ctx, tt.td)
 			assert.ErrorIs(t, gotError, tt.wantError)
-			assert.Equal(t, tt.wantState, rep.textDataMap)
-			assert.Equal(t, tt.wantLastUsedID, rep.lastUsedID)
+			assert.Equal(t, tt.wantState, rep.TextDataMap)
+			assert.Equal(t, tt.wantLastUsedID, rep.LastUsedID)
 		})
 	}
 }
@@ -132,12 +132,12 @@ func TestMockTextData_UpdateTextData(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rep := MockTextData{textDataMap: getStateMap(textDataState), lastUsedID: lastUsedID}
+			rep := MockTextData{TextDataMap: getStateMap(textDataState), LastUsedID: lastUsedID}
 
 			gotError := rep.UpdateTextData(ctx, tt.td)
 			assert.ErrorIs(t, gotError, tt.wantError)
-			assert.Equal(t, tt.wantState, rep.textDataMap)
-			assert.Equal(t, rep.lastUsedID, lastUsedID)
+			assert.Equal(t, tt.wantState, rep.TextDataMap)
+			assert.Equal(t, rep.LastUsedID, lastUsedID)
 		})
 	}
 }
@@ -168,12 +168,12 @@ func TestMockTextData_DeleteTextData(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rep := MockTextData{textDataMap: getStateMap(textDataState), lastUsedID: lastUsedID}
+			rep := MockTextData{TextDataMap: getStateMap(textDataState), LastUsedID: lastUsedID}
 
 			gotError := rep.DeleteTextData(ctx, tt.td)
 			assert.ErrorIs(t, gotError, tt.wantError)
-			assert.Equal(t, tt.wantState, rep.textDataMap)
-			assert.Equal(t, rep.lastUsedID, lastUsedID)
+			assert.Equal(t, tt.wantState, rep.TextDataMap)
+			assert.Equal(t, rep.LastUsedID, lastUsedID)
 		})
 	}
 }

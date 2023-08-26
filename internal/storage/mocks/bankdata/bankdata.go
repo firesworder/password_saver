@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/firesworder/password_saver/internal/storage"
 	"log"
-	"password_saver/internal/storage"
 	"regexp"
 )
 
@@ -31,8 +31,8 @@ var ErrNotFound = errors.New("element not found")
 var ErrDataInvalid = errors.New("bank data invalid")
 
 type MockBankData struct {
-	bankData   map[int]storage.BankData
-	lastUsedID int
+	BankData   map[int]storage.BankData
+	LastUsedID int
 }
 
 func (m *MockBankData) AddBankData(ctx context.Context, bd storage.BankData) error {
@@ -40,9 +40,9 @@ func (m *MockBankData) AddBankData(ctx context.Context, bd storage.BankData) err
 		return err
 	}
 
-	m.lastUsedID++
-	bd.ID = m.lastUsedID
-	m.bankData[bd.ID] = bd
+	m.LastUsedID++
+	bd.ID = m.LastUsedID
+	m.BankData[bd.ID] = bd
 	return nil
 }
 
@@ -50,18 +50,18 @@ func (m *MockBankData) UpdateBankData(ctx context.Context, bd storage.BankData) 
 	if err := checkBankData(bd); err != nil {
 		return err
 	}
-	if _, ok := m.bankData[bd.ID]; !ok {
+	if _, ok := m.BankData[bd.ID]; !ok {
 		return ErrNotFound
 	}
-	m.bankData[bd.ID] = bd
+	m.BankData[bd.ID] = bd
 	return nil
 }
 
 func (m *MockBankData) DeleteBankData(ctx context.Context, bd storage.BankData) error {
-	if _, ok := m.bankData[bd.ID]; !ok {
+	if _, ok := m.BankData[bd.ID]; !ok {
 		return ErrNotFound
 	}
-	delete(m.bankData, bd.ID)
+	delete(m.BankData, bd.ID)
 	return nil
 }
 
