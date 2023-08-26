@@ -3,13 +3,13 @@ module github.com/firesworder/password_saver
 go 1.20
 
 require (
+	github.com/caarlos0/env/v7 v7.1.0
 	github.com/stretchr/testify v1.8.4
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
 )
 
 require (
-	github.com/caarlos0/env/v7 v7.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
