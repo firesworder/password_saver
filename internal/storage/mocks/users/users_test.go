@@ -2,8 +2,8 @@ package users
 
 import (
 	"context"
+	"github.com/firesworder/password_saver/internal/storage"
 	"github.com/stretchr/testify/assert"
-	"password_saver/internal/storage"
 	"testing"
 )
 
@@ -60,11 +60,11 @@ func TestMockUser_CreateUser(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rep.users = getUserState(usersState)
+			rep.Users = getUserState(usersState)
 
 			gotError := rep.CreateUser(ctx, tt.user)
 			assert.ErrorIs(t, gotError, tt.wantError)
-			assert.Equal(t, tt.wantUsers, rep.users)
+			assert.Equal(t, tt.wantUsers, rep.Users)
 		})
 	}
 }
@@ -104,7 +104,7 @@ func TestMockUser_GetUser(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rep.users = getUserState(usersState)
+			rep.Users = getUserState(usersState)
 
 			gotUser, gotError := rep.GetUser(ctx, tt.user)
 			assert.ErrorIs(t, gotError, tt.wantError)
