@@ -1,4 +1,4 @@
-package bankdata
+package binarydata
 
 import (
 	"context"
