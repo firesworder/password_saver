@@ -18,3 +18,9 @@ type BankDataRepository interface {
 	UpdateBankData(ctx context.Context, bd BankData) error
 	DeleteBankData(ctx context.Context, bd BankData) error
 }
+
+type BinaryDataRepository interface {
+	AddBinaryData(ctx context.Context, bd BinaryData) error
+	UpdateBinaryData(ctx context.Context, bd BinaryData) error
+	DeleteBinaryData(ctx context.Context, bd BinaryData) error
+}

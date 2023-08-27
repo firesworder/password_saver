@@ -17,3 +17,9 @@ type BankData struct {
 	CVV        string
 	MetaInfo   string
 }
+
+type BinaryData struct {
+	ID         int
+	BinaryData []byte
+	MetaInfo   string
+}
