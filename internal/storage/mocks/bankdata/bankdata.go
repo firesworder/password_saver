@@ -82,3 +82,11 @@ func checkBankData(bd storage.BankData) error {
 
 	return nil
 }
+
+func (m *MockBankData) GetAllRecords(ctx context.Context) ([]storage.BankData, error) {
+	result := make([]storage.BankData, 0, len(m.BankData))
+	for _, v := range m.BankData {
+		result = append(result, v)
+	}
+	return result, nil
+}

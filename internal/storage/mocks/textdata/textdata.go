@@ -43,3 +43,11 @@ func (m *MockTextData) DeleteTextData(ctx context.Context, td storage.TextData) 
 	delete(m.TextDataMap, td.ID)
 	return nil
 }
+
+func (m *MockTextData) GetAllRecords(ctx context.Context) ([]storage.TextData, error) {
+	result := make([]storage.TextData, 0, len(m.TextDataMap))
+	for _, v := range m.TextDataMap {
+		result = append(result, v)
+	}
+	return result, nil
+}

@@ -43,3 +43,11 @@ func (m *MockBinaryData) DeleteBinaryData(ctx context.Context, bd storage.Binary
 	delete(m.BinaryData, bd.ID)
 	return nil
 }
+
+func (m *MockBinaryData) GetAllRecords(ctx context.Context) ([]storage.BinaryData, error) {
+	result := make([]storage.BinaryData, 0, len(m.BinaryData))
+	for _, v := range m.BinaryData {
+		result = append(result, v)
+	}
+	return result, nil
+}

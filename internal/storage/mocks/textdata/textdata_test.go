@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/firesworder/password_saver/internal/storage"
 	"github.com/stretchr/testify/assert"
+	"sort"
 	"testing"
 )
 
@@ -174,6 +175,51 @@ func TestMockTextData_DeleteTextData(t *testing.T) {
 			assert.ErrorIs(t, gotError, tt.wantError)
 			assert.Equal(t, tt.wantState, rep.TextDataMap)
 			assert.Equal(t, rep.LastUsedID, lastUsedID)
+		})
+	}
+}
+
+func TestMockTextData_GetAllRecords(t *testing.T) {
+	ctx := context.Background()
+
+	tests := []struct {
+		name         string
+		state        map[int]storage.TextData
+		wantRecSlice []storage.TextData
+		wantError    error
+	}{
+		{
+			name:         "Test 1. Empty state",
+			state:        map[int]storage.TextData{},
+			wantRecSlice: []storage.TextData{},
+			wantError:    nil,
+		},
+		{
+			name:  "Test 2. Filled state",
+			state: getStateMap(textDataState),
+			wantRecSlice: []storage.TextData{
+				{ID: 1, TextData: "Hello world!"},
+				{ID: 3, TextData: "Ayayaka"},
+			},
+			wantError: nil,
+		},
+		{
+			name:         "Test 3. nil state",
+			state:        nil,
+			wantRecSlice: []storage.TextData{},
+			wantError:    nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rep := MockTextData{TextDataMap: tt.state, LastUsedID: lastUsedID}
+
+			gotRecords, gotErr := rep.GetAllRecords(ctx)
+			sort.Slice(gotRecords, func(i, j int) bool {
+				return gotRecords[i].ID < gotRecords[j].ID
+			})
+			assert.EqualValues(t, tt.wantRecSlice, gotRecords)
+			assert.Equal(t, tt.wantError, gotErr)
 		})
 	}
 }

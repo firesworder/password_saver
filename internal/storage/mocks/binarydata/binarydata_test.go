@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/firesworder/password_saver/internal/storage"
 	"github.com/stretchr/testify/assert"
+	"sort"
 	"testing"
 )
 
@@ -166,6 +167,51 @@ func TestMockBinaryData_DeleteBinaryData(t *testing.T) {
 			assert.ErrorIs(t, gotError, tt.wantError)
 			assert.Equal(t, tt.wantState, rep.BinaryData)
 			assert.Equal(t, rep.LastUsedID, lastUsedID)
+		})
+	}
+}
+
+func TestMockBinaryData_GetAllRecords(t *testing.T) {
+	ctx := context.Background()
+
+	tests := []struct {
+		name         string
+		state        map[int]storage.BinaryData
+		wantRecSlice []storage.BinaryData
+		wantError    error
+	}{
+		{
+			name:         "Test 1. Empty state",
+			state:        map[int]storage.BinaryData{},
+			wantRecSlice: []storage.BinaryData{},
+			wantError:    nil,
+		},
+		{
+			name:  "Test 2. Filled state",
+			state: getStateMap(binaryDataState),
+			wantRecSlice: []storage.BinaryData{
+				{ID: 1, BinaryData: []byte("Ayaka"), MetaInfo: "1 record"},
+				{ID: 3, BinaryData: []byte("Ayato")},
+			},
+			wantError: nil,
+		},
+		{
+			name:         "Test 3. nil state",
+			state:        nil,
+			wantRecSlice: []storage.BinaryData{},
+			wantError:    nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rep := MockBinaryData{BinaryData: tt.state, LastUsedID: lastUsedID}
+
+			gotRecords, gotErr := rep.GetAllRecords(ctx)
+			sort.Slice(gotRecords, func(i, j int) bool {
+				return gotRecords[i].ID < gotRecords[j].ID
+			})
+			assert.EqualValues(t, tt.wantRecSlice, gotRecords)
+			assert.Equal(t, tt.wantError, gotErr)
 		})
 	}
 }

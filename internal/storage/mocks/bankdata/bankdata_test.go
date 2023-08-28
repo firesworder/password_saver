@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/firesworder/password_saver/internal/storage"
 	"github.com/stretchr/testify/assert"
+	"sort"
 	"testing"
 )
 
@@ -208,6 +209,51 @@ func TestMockBankData_DeleteBankData(t *testing.T) {
 			gotError := rep.DeleteBankData(ctx, tt.bd)
 			assert.ErrorIs(t, gotError, tt.wantError)
 			assert.Equal(t, tt.wantState, rep.BankData)
+		})
+	}
+}
+
+func TestMockBankData_GetAllRecords(t *testing.T) {
+	ctx := context.Background()
+
+	tests := []struct {
+		name         string
+		state        map[int]storage.BankData
+		wantRecSlice []storage.BankData
+		wantError    error
+	}{
+		{
+			name:         "Test 1. Empty state",
+			state:        map[int]storage.BankData{},
+			wantRecSlice: []storage.BankData{},
+			wantError:    nil,
+		},
+		{
+			name:  "Test 2. Filled state",
+			state: getStateMap(bankDataState),
+			wantRecSlice: []storage.BankData{
+				{ID: 1, CardNumber: "0099 8877 6655 4433", CardExpire: "09/23", CVV: "123"},
+				{ID: 3, CardNumber: "1122 3344 5566 7788", CardExpire: "06/24", CVV: "987"},
+			},
+			wantError: nil,
+		},
+		{
+			name:         "Test 3. nil state",
+			state:        nil,
+			wantRecSlice: []storage.BankData{},
+			wantError:    nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rep := MockBankData{BankData: getStateMap(tt.state), LastUsedID: lastUsedID}
+
+			gotRecords, gotErr := rep.GetAllRecords(ctx)
+			sort.Slice(gotRecords, func(i, j int) bool {
+				return gotRecords[i].ID < gotRecords[j].ID
+			})
+			assert.EqualValues(t, tt.wantRecSlice, gotRecords)
+			assert.Equal(t, tt.wantError, gotErr)
 		})
 	}
 }
