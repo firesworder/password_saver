@@ -114,6 +114,16 @@ message DeleteBinaryDataRequest {
 message DeleteBinaryDataResponse {
 }
 
+message GetAllRecordsRequest {
+
+}
+
+message GetAllRecordsResponse {
+  repeated TextData TextDataList = 1;
+  repeated BankData BankDataList = 2;
+  repeated BinaryData BinaryDataList = 3;
+}
+
 // методы
 service PasswordSaver {
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
@@ -133,4 +143,7 @@ service PasswordSaver {
   rpc AddBinaryDataRecord(AddBinaryDataRequest) returns (AddBinaryDataResponse);
   rpc UpdateBinaryDataRecord(UpdateBinaryDataRequest) returns (UpdateBinaryDataResponse);
   rpc DeleteBinaryDataRecord(DeleteBinaryDataRequest) returns (DeleteBinaryDataResponse);
+
+  // показать все приватные данные
+  rpc GetAllRecords(GetAllRecordsRequest) returns (GetAllRecordsResponse);
 }

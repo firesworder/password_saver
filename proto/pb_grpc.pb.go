@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.24.0--rc3
-// source: proto/grpc.proto
+// source: proto/pb.proto
 
 package grpc
 
@@ -30,6 +30,7 @@ const (
 	PasswordSaver_AddBinaryDataRecord_FullMethodName    = "/PasswordSaver/AddBinaryDataRecord"
 	PasswordSaver_UpdateBinaryDataRecord_FullMethodName = "/PasswordSaver/UpdateBinaryDataRecord"
 	PasswordSaver_DeleteBinaryDataRecord_FullMethodName = "/PasswordSaver/DeleteBinaryDataRecord"
+	PasswordSaver_GetAllRecords_FullMethodName          = "/PasswordSaver/GetAllRecords"
 )
 
 // PasswordSaverClient is the client API for PasswordSaver service.
@@ -50,6 +51,8 @@ type PasswordSaverClient interface {
 	AddBinaryDataRecord(ctx context.Context, in *AddBinaryDataRequest, opts ...grpc.CallOption) (*AddBinaryDataResponse, error)
 	UpdateBinaryDataRecord(ctx context.Context, in *UpdateBinaryDataRequest, opts ...grpc.CallOption) (*UpdateBinaryDataResponse, error)
 	DeleteBinaryDataRecord(ctx context.Context, in *DeleteBinaryDataRequest, opts ...grpc.CallOption) (*DeleteBinaryDataResponse, error)
+	// показать все приватные данные
+	GetAllRecords(ctx context.Context, in *GetAllRecordsRequest, opts ...grpc.CallOption) (*GetAllRecordsResponse, error)
 }
 
 type passwordSaverClient struct {
@@ -159,6 +162,15 @@ func (c *passwordSaverClient) DeleteBinaryDataRecord(ctx context.Context, in *De
 	return out, nil
 }
 
+func (c *passwordSaverClient) GetAllRecords(ctx context.Context, in *GetAllRecordsRequest, opts ...grpc.CallOption) (*GetAllRecordsResponse, error) {
+	out := new(GetAllRecordsResponse)
+	err := c.cc.Invoke(ctx, PasswordSaver_GetAllRecords_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PasswordSaverServer is the server API for PasswordSaver service.
 // All implementations must embed UnimplementedPasswordSaverServer
 // for forward compatibility
@@ -177,6 +189,8 @@ type PasswordSaverServer interface {
 	AddBinaryDataRecord(context.Context, *AddBinaryDataRequest) (*AddBinaryDataResponse, error)
 	UpdateBinaryDataRecord(context.Context, *UpdateBinaryDataRequest) (*UpdateBinaryDataResponse, error)
 	DeleteBinaryDataRecord(context.Context, *DeleteBinaryDataRequest) (*DeleteBinaryDataResponse, error)
+	// показать все приватные данные
+	GetAllRecords(context.Context, *GetAllRecordsRequest) (*GetAllRecordsResponse, error)
 	mustEmbedUnimplementedPasswordSaverServer()
 }
 
@@ -216,6 +230,9 @@ func (UnimplementedPasswordSaverServer) UpdateBinaryDataRecord(context.Context, 
 }
 func (UnimplementedPasswordSaverServer) DeleteBinaryDataRecord(context.Context, *DeleteBinaryDataRequest) (*DeleteBinaryDataResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteBinaryDataRecord not implemented")
+}
+func (UnimplementedPasswordSaverServer) GetAllRecords(context.Context, *GetAllRecordsRequest) (*GetAllRecordsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllRecords not implemented")
 }
 func (UnimplementedPasswordSaverServer) mustEmbedUnimplementedPasswordSaverServer() {}
 
@@ -428,6 +445,24 @@ func _PasswordSaver_DeleteBinaryDataRecord_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PasswordSaver_GetAllRecords_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllRecordsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PasswordSaverServer).GetAllRecords(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PasswordSaver_GetAllRecords_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PasswordSaverServer).GetAllRecords(ctx, req.(*GetAllRecordsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PasswordSaver_ServiceDesc is the grpc.ServiceDesc for PasswordSaver service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -479,7 +514,11 @@ var PasswordSaver_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "DeleteBinaryDataRecord",
 			Handler:    _PasswordSaver_DeleteBinaryDataRecord_Handler,
 		},
+		{
+			MethodName: "GetAllRecords",
+			Handler:    _PasswordSaver_GetAllRecords_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/grpc.proto",
+	Metadata: "proto/pb.proto",
 }

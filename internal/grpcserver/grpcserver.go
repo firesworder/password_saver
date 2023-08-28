@@ -95,3 +95,8 @@ func (gs *GRPCServer) DeleteBinaryDataRecord(ctx context.Context, request *pb.De
 	//TODO implement me
 	panic("implement me")
 }
+
+func (gs *GRPCServer) GetAllRecords(ctx context.Context, request *pb.GetAllRecordsRequest) (*pb.GetAllRecordsResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
