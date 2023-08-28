@@ -46,7 +46,7 @@ message UpdateTextDataResponse {
 }
 
 message DeleteTextDataRequest {
-  TextData textData = 1;
+  int64 id = 1;
 }
 
 message DeleteTextDataResponse {
@@ -93,7 +93,7 @@ message BinaryData {
 }
 
 message AddBinaryDataRequest {
-  BinaryData bankData = 1;
+  BinaryData binaryData = 1;
 }
 
 message AddBinaryDataResponse {
@@ -101,7 +101,7 @@ message AddBinaryDataResponse {
 }
 
 message UpdateBinaryDataRequest {
-  BinaryData bankData = 1;
+  BinaryData binaryData = 1;
 }
 
 message UpdateBinaryDataResponse {
