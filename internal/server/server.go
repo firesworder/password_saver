@@ -169,3 +169,21 @@ func (s *Server) DeleteBinaryData(ctx context.Context, binaryData storage.Binary
 	}
 	return nil
 }
+
+func (s *Server) GetAllRecords(ctx context.Context) (*storage.RecordsList, error) {
+	var err error
+	recList := &storage.RecordsList{}
+	recList.TextDataList, err = s.tRep.GetAllRecords(ctx)
+	if err != nil {
+		return nil, err
+	}
+	recList.BankDataList, err = s.bankRep.GetAllRecords(ctx)
+	if err != nil {
+		return nil, err
+	}
+	recList.BinaryDataList, err = s.binRep.GetAllRecords(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return recList, nil
+}

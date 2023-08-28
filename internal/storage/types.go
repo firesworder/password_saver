@@ -23,3 +23,9 @@ type BinaryData struct {
 	BinaryData []byte
 	MetaInfo   string
 }
+
+type RecordsList struct {
+	TextDataList   []TextData
+	BankDataList   []BankData
+	BinaryDataList []BinaryData
+}
