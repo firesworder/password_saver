@@ -66,6 +66,7 @@ func (gs *GRPCServer) AddTextDataRecord(ctx context.Context, request *pb.AddText
 
 func (gs *GRPCServer) UpdateTextDataRecord(ctx context.Context, request *pb.UpdateTextDataRequest) (*pb.UpdateTextDataResponse, error) {
 	err := gs.serv.UpdateTextData(ctx, storage.TextData{
+		ID:       int(request.TextData.Id),
 		TextData: request.TextData.TextData,
 		MetaInfo: request.TextData.MetaInfo,
 	})

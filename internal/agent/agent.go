@@ -13,7 +13,7 @@ func scanMetaInfo() (string, error) {
 	if _, err := fmt.Scan(&metaInfo); err != nil {
 		return "", err
 	}
-	return "", nil
+	return metaInfo, nil
 }
 
 type Agent struct {
