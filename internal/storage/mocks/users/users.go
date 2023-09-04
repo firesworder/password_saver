@@ -10,15 +10,18 @@ var ErrUserExist = errors.New("user already exist")
 var ErrUserNotExist = errors.New("user not exist")
 
 type MockUser struct {
-	Users map[string]storage.User
+	Users      map[string]storage.User
+	LastUsedID int
 }
 
-func (m *MockUser) CreateUser(ctx context.Context, u storage.User) error {
+func (m *MockUser) CreateUser(ctx context.Context, u storage.User) (*storage.User, error) {
 	if _, ok := m.Users[u.Login]; ok {
-		return ErrUserExist
+		return nil, ErrUserExist
 	}
+	m.LastUsedID++
+	u.ID = m.LastUsedID
 	m.Users[u.Login] = u
-	return nil
+	return &u, nil
 }
 
 func (m *MockUser) GetUser(ctx context.Context, u storage.User) (*storage.User, error) {

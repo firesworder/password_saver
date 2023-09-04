@@ -18,53 +18,59 @@ func getUserState(src map[string]storage.User) map[string]storage.User {
 func TestMockUser_CreateUser(t *testing.T) {
 	ctx := context.Background()
 	usersState := map[string]storage.User{
-		"user1": {Login: "user1", HashedPassword: "pass1"},
-		"user2": {Login: "user2", HashedPassword: "pass2"},
+		"user1": {ID: 1, Login: "user1", HashedPassword: "pass1"},
+		"user2": {ID: 2, Login: "user2", HashedPassword: "pass2"},
 	}
-	rep := MockUser{}
 
 	tests := []struct {
-		name      string
-		user      storage.User
-		wantUsers map[string]storage.User
-		wantError error
+		name       string
+		user       storage.User
+		lastUsedID int
+
+		wantUsers      map[string]storage.User
+		wantUser       *storage.User
+		wantLastUsedID int
+		wantError      error
 	}{
 		{
-			name: "Test 1. User not exist",
-			user: storage.User{Login: "user3", HashedPassword: "pass_3"},
+			name:       "Test 1. User not exist",
+			user:       storage.User{Login: "user3", HashedPassword: "pass_3"},
+			lastUsedID: 2,
 			wantUsers: map[string]storage.User{
-				"user1": {Login: "user1", HashedPassword: "pass1"},
-				"user2": {Login: "user2", HashedPassword: "pass2"},
-				"user3": {Login: "user3", HashedPassword: "pass_3"},
+				"user1": {ID: 1, Login: "user1", HashedPassword: "pass1"},
+				"user2": {ID: 2, Login: "user2", HashedPassword: "pass2"},
+				"user3": {ID: 3, Login: "user3", HashedPassword: "pass_3"},
 			},
-			wantError: nil,
+			wantUser:       &storage.User{ID: 3, Login: "user3", HashedPassword: "pass_3"},
+			wantLastUsedID: 3,
+			wantError:      nil,
 		},
 		{
-			name: "Test 2. User already exist",
-			user: storage.User{Login: "user2", HashedPassword: "pass2"},
-			wantUsers: map[string]storage.User{
-				"user1": {Login: "user1", HashedPassword: "pass1"},
-				"user2": {Login: "user2", HashedPassword: "pass2"},
-			},
-			wantError: ErrUserExist,
+			name:           "Test 2. User already exist",
+			user:           storage.User{Login: "user2", HashedPassword: "pass2"},
+			lastUsedID:     2,
+			wantUsers:      getUserState(usersState),
+			wantUser:       nil,
+			wantLastUsedID: 2,
+			wantError:      ErrUserExist,
 		},
 		{
-			name: "Test 3. User already exist(login same, pass differs)",
-			user: storage.User{Login: "user2", HashedPassword: "pass2"},
-			wantUsers: map[string]storage.User{
-				"user1": {Login: "user1", HashedPassword: "pass1"},
-				"user2": {Login: "user2", HashedPassword: "pass2"},
-			},
-			wantError: ErrUserExist,
+			name:           "Test 3. User already exist(login same, pass differs)",
+			user:           storage.User{Login: "user2", HashedPassword: "pass2"},
+			wantUsers:      getUserState(usersState),
+			wantUser:       nil,
+			wantLastUsedID: 2,
+			wantError:      ErrUserExist,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rep.Users = getUserState(usersState)
+			rep := MockUser{Users: getUserState(usersState), LastUsedID: tt.lastUsedID}
 
-			gotError := rep.CreateUser(ctx, tt.user)
+			gotUser, gotError := rep.CreateUser(ctx, tt.user)
 			assert.ErrorIs(t, gotError, tt.wantError)
 			assert.Equal(t, tt.wantUsers, rep.Users)
+			assert.Equal(t, tt.wantUser, gotUser)
 		})
 	}
 }

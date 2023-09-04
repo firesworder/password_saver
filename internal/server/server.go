@@ -64,7 +64,8 @@ func generateToken() ([]byte, error) {
 func (s *Server) RegisterUser(ctx context.Context, user storage.User) error {
 	// хеширование пароля
 
-	err := s.uRep.CreateUser(ctx, user)
+	// todo: возвращать newUser
+	_, err := s.uRep.CreateUser(ctx, user)
 	if err != nil {
 		return err
 	}

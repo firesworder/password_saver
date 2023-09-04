@@ -3,7 +3,7 @@ package storage
 import "context"
 
 type UserRepository interface {
-	CreateUser(ctx context.Context, u User) error
+	CreateUser(ctx context.Context, u User) (*User, error)
 	GetUser(ctx context.Context, u User) (*User, error)
 }
 

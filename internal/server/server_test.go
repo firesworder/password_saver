@@ -59,24 +59,36 @@ func TestServer_RegisterUser(t *testing.T) {
 		{
 			name: "Test 1. Successful user reg",
 			user: storage.User{Login: "Ayaka", HashedPassword: "hashed_pass1"},
-			uRepState: &users.MockUser{Users: map[string]storage.User{
-				"Ayato": {Login: "Ayato", HashedPassword: "hashed_pass2"},
-			}},
-			wantURepState: &users.MockUser{Users: map[string]storage.User{
-				"Ayato": {Login: "Ayato", HashedPassword: "hashed_pass2"},
-				"Ayaka": {Login: "Ayaka", HashedPassword: "hashed_pass1"},
-			}},
+			uRepState: &users.MockUser{
+				Users: map[string]storage.User{
+					"Ayato": {ID: 1, Login: "Ayato", HashedPassword: "hashed_pass2"},
+				},
+				LastUsedID: 1,
+			},
+			wantURepState: &users.MockUser{
+				Users: map[string]storage.User{
+					"Ayato": {ID: 1, Login: "Ayato", HashedPassword: "hashed_pass2"},
+					"Ayaka": {ID: 2, Login: "Ayaka", HashedPassword: "hashed_pass1"},
+				},
+				LastUsedID: 2,
+			},
 			wantError: false,
 		},
 		{
 			name: "Test 2. Error user reg, user exists",
 			user: storage.User{Login: "Ayato", HashedPassword: "hashed_pass1"},
-			uRepState: &users.MockUser{Users: map[string]storage.User{
-				"Ayato": {Login: "Ayato", HashedPassword: "hashed_pass2"},
-			}},
-			wantURepState: &users.MockUser{Users: map[string]storage.User{
-				"Ayato": {Login: "Ayato", HashedPassword: "hashed_pass2"},
-			}},
+			uRepState: &users.MockUser{
+				Users: map[string]storage.User{
+					"Ayato": {ID: 1, Login: "Ayato", HashedPassword: "hashed_pass2"},
+				},
+				LastUsedID: 1,
+			},
+			wantURepState: &users.MockUser{
+				Users: map[string]storage.User{
+					"Ayato": {ID: 1, Login: "Ayato", HashedPassword: "hashed_pass2"},
+				},
+				LastUsedID: 1,
+			},
 			wantError: true,
 		},
 	}

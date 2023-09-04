@@ -1,6 +1,7 @@
 package storage
 
 type User struct {
+	ID                    int
 	Login, HashedPassword string
 }
 
