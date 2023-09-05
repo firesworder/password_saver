@@ -100,7 +100,8 @@ func (s *Server) LoginUser(ctx context.Context, user storage.User) error {
 }
 
 func (s *Server) AddTextData(ctx context.Context, textData storage.TextData) error {
-	err := s.tRep.AddTextData(ctx, textData)
+	// todo: добавить возвращение ID
+	_, err := s.tRep.AddTextData(ctx, textData)
 	if err != nil {
 		return err
 	}
@@ -124,7 +125,8 @@ func (s *Server) DeleteTextData(ctx context.Context, textData storage.TextData) 
 }
 
 func (s *Server) AddBankData(ctx context.Context, bankData storage.BankData) error {
-	err := s.bankRep.AddBankData(ctx, bankData)
+	// todo: добавить возвращение ID
+	_, err := s.bankRep.AddBankData(ctx, bankData)
 	if err != nil {
 		return err
 	}
@@ -148,7 +150,8 @@ func (s *Server) DeleteBankData(ctx context.Context, bankData storage.BankData) 
 }
 
 func (s *Server) AddBinaryData(ctx context.Context, binaryData storage.BinaryData) error {
-	err := s.binRep.AddBinaryData(ctx, binaryData)
+	// todo: добавить возвращение ID
+	_, err := s.binRep.AddBinaryData(ctx, binaryData)
 	if err != nil {
 		return err
 	}

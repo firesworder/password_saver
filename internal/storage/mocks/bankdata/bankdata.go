@@ -35,15 +35,15 @@ type MockBankData struct {
 	LastUsedID int
 }
 
-func (m *MockBankData) AddBankData(ctx context.Context, bd storage.BankData) error {
+func (m *MockBankData) AddBankData(ctx context.Context, bd storage.BankData) (int, error) {
 	if err := checkBankData(bd); err != nil {
-		return err
+		return 0, err
 	}
 
 	m.LastUsedID++
 	bd.ID = m.LastUsedID
 	m.BankData[bd.ID] = bd
-	return nil
+	return bd.ID, nil
 }
 
 func (m *MockBankData) UpdateBankData(ctx context.Context, bd storage.BankData) error {

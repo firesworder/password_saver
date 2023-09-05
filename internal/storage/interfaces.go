@@ -8,7 +8,7 @@ type UserRepository interface {
 }
 
 type TextDataRepository interface {
-	AddTextData(ctx context.Context, td TextData) error
+	AddTextData(ctx context.Context, td TextData) (int, error)
 	UpdateTextData(ctx context.Context, td TextData) error
 	DeleteTextData(ctx context.Context, td TextData) error
 
@@ -16,7 +16,7 @@ type TextDataRepository interface {
 }
 
 type BankDataRepository interface {
-	AddBankData(ctx context.Context, bd BankData) error
+	AddBankData(ctx context.Context, bd BankData) (int, error)
 	UpdateBankData(ctx context.Context, bd BankData) error
 	DeleteBankData(ctx context.Context, bd BankData) error
 
@@ -24,7 +24,7 @@ type BankDataRepository interface {
 }
 
 type BinaryDataRepository interface {
-	AddBinaryData(ctx context.Context, bd BinaryData) error
+	AddBinaryData(ctx context.Context, bd BinaryData) (int, error)
 	UpdateBinaryData(ctx context.Context, bd BinaryData) error
 	DeleteBinaryData(ctx context.Context, bd BinaryData) error
 

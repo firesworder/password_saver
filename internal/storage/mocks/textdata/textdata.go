@@ -14,15 +14,15 @@ type MockTextData struct {
 	LastUsedID  int
 }
 
-func (m *MockTextData) AddTextData(ctx context.Context, td storage.TextData) error {
+func (m *MockTextData) AddTextData(ctx context.Context, td storage.TextData) (int, error) {
 	if len(td.TextData) == 0 {
-		return ErrEmptyData
+		return 0, ErrEmptyData
 	}
 
 	m.LastUsedID++
 	td.ID = m.LastUsedID
 	m.TextDataMap[td.ID] = td
-	return nil
+	return td.ID, nil
 }
 
 func (m *MockTextData) UpdateTextData(ctx context.Context, td storage.TextData) error {

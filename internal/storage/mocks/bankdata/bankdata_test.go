@@ -119,9 +119,12 @@ func TestMockBankData_AddBankData(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			rep := MockBankData{BankData: getStateMap(bankDataState), LastUsedID: lastUsedID}
 
-			gotError := rep.AddBankData(ctx, tt.bd)
+			id, gotError := rep.AddBankData(ctx, tt.bd)
 			assert.ErrorIs(t, gotError, tt.wantError)
 			assert.Equal(t, tt.wantState, rep.BankData)
+			if gotError == nil {
+				assert.Equal(t, tt.wantLastUsedID, id)
+			}
 			assert.Equal(t, tt.wantLastUsedID, rep.LastUsedID)
 		})
 	}

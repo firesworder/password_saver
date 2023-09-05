@@ -69,9 +69,12 @@ func TestMockBinaryData_AddBinaryData(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			rep := MockBinaryData{BinaryData: getStateMap(binaryDataState), LastUsedID: lastUsedID}
 
-			gotError := rep.AddBinaryData(ctx, tt.bd)
+			id, gotError := rep.AddBinaryData(ctx, tt.bd)
 			assert.ErrorIs(t, gotError, tt.wantError)
 			assert.Equal(t, tt.wantState, rep.BinaryData)
+			if gotError == nil {
+				assert.Equal(t, tt.wantLastUsedID, id)
+			}
 			assert.Equal(t, tt.wantLastUsedID, rep.LastUsedID)
 		})
 	}

@@ -77,9 +77,12 @@ func TestMockTextData_AddTextData(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			rep := MockTextData{TextDataMap: getStateMap(textDataState), LastUsedID: lastUsedID}
 
-			gotError := rep.AddTextData(ctx, tt.td)
+			id, gotError := rep.AddTextData(ctx, tt.td)
 			assert.ErrorIs(t, gotError, tt.wantError)
 			assert.Equal(t, tt.wantState, rep.TextDataMap)
+			if gotError == nil {
+				assert.Equal(t, tt.wantLastUsedID, id)
+			}
 			assert.Equal(t, tt.wantLastUsedID, rep.LastUsedID)
 		})
 	}

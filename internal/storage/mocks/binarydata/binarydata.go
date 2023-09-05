@@ -14,15 +14,15 @@ type MockBinaryData struct {
 	LastUsedID int
 }
 
-func (m *MockBinaryData) AddBinaryData(ctx context.Context, bd storage.BinaryData) error {
+func (m *MockBinaryData) AddBinaryData(ctx context.Context, bd storage.BinaryData) (int, error) {
 	if len(bd.BinaryData) == 0 {
-		return ErrEmptyData
+		return 0, ErrEmptyData
 	}
 
 	m.LastUsedID++
 	bd.ID = m.LastUsedID
 	m.BinaryData[bd.ID] = bd
-	return nil
+	return bd.ID, nil
 }
 
 func (m *MockBinaryData) UpdateBinaryData(ctx context.Context, bd storage.BinaryData) error {
