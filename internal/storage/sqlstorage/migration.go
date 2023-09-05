@@ -1,4 +1,4 @@
-package sql
+package sqlstorage
 
 const createTablesSQL = `
 CREATE TABLE IF NOT EXISTS Users
