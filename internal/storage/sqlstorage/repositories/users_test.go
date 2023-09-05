@@ -2,27 +2,16 @@ package repositories
 
 import (
 	"context"
-	"database/sql"
 	"github.com/firesworder/password_saver/internal/storage"
-	"github.com/firesworder/password_saver/internal/storage/sqlstorage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
 
-var Storage, storageErr = sqlstorage.NewStorage(storage.DevDSN)
-
-func clearUserTable(t *testing.T, db *sql.DB) {
-	_, err := db.ExecContext(context.Background(), "DELETE FROM users")
-	require.NoError(t, err)
-}
-
 func TestUser_CreateUser(t *testing.T) {
-	clearUserTable(t, Storage.Connection)
-	if storageErr != nil {
-		t.Skipf("test skipped, db connection is not avail: %s", storageErr)
-	}
-	uRep := User{Conn: Storage.Connection}
+	conn := getConnection(t)
+	defer clearUserTable(t, conn)
+	uRep := User{Conn: conn}
 
 	tests := []struct {
 		name     string
@@ -57,15 +46,13 @@ func TestUser_CreateUser(t *testing.T) {
 			assert.ErrorIs(t, gotErr, tt.wantErr)
 		})
 	}
-	clearUserTable(t, Storage.Connection)
 }
 
 func TestUser_GetUser(t *testing.T) {
-	if storageErr != nil {
-		t.Skipf("test skipped, db connection is not avail: %s", storageErr)
-	}
+	conn := getConnection(t)
+	defer clearUserTable(t, conn)
+	uRep := User{Conn: conn}
 
-	uRep := User{Conn: Storage.Connection}
 	newUser, err := uRep.CreateUser(context.Background(), storage.User{Login: "Ayaka", HashedPassword: "Kamisato"})
 	require.NoError(t, err)
 
@@ -95,5 +82,4 @@ func TestUser_GetUser(t *testing.T) {
 			assert.ErrorIs(t, gotErr, tt.wantErr)
 		})
 	}
-	clearUserTable(t, Storage.Connection)
 }

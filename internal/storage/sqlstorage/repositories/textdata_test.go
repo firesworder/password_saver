@@ -2,25 +2,16 @@ package repositories
 
 import (
 	"context"
-	"database/sql"
 	"github.com/firesworder/password_saver/internal/storage"
-	"github.com/firesworder/password_saver/internal/storage/sqlstorage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
 
-func clearTextDataTable(t *testing.T, db *sql.DB) {
-	_, err := db.ExecContext(context.Background(), "DELETE FROM textdata")
-	require.NoError(t, err)
-}
-
 func TestTextDataCommon(t *testing.T) {
 	var err error
 	ctx := context.Background()
-	sqlS, err := sqlstorage.NewStorage(storage.DevDSN)
-	conn := sqlS.Connection
-	require.NoError(t, err)
+	conn := getConnection(t)
 
 	defer clearUserTable(t, conn)
 	defer clearTextDataTable(t, conn)
