@@ -9,6 +9,7 @@ type TextData struct {
 	ID       int
 	TextData string
 	MetaInfo string
+	UserID   int
 }
 
 type BankData struct {
@@ -17,12 +18,14 @@ type BankData struct {
 	CardExpire string
 	CVV        string
 	MetaInfo   string
+	UserID     int
 }
 
 type BinaryData struct {
 	ID         int
 	BinaryData []byte
 	MetaInfo   string
+	UserID     int
 }
 
 type RecordsList struct {
