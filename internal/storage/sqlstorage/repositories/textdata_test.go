@@ -15,7 +15,7 @@ func clearTextDataTable(t *testing.T, db *sql.DB) {
 	require.NoError(t, err)
 }
 
-func TestCommon(t *testing.T) {
+func TestTextDataCommon(t *testing.T) {
 	var err error
 	ctx := context.Background()
 	sqlS, err := sqlstorage.NewStorage(storage.DevDSN)
@@ -30,13 +30,12 @@ func TestCommon(t *testing.T) {
 	require.NoError(t, err)
 	user2, err := uRep.CreateUser(ctx, storage.User{Login: "Ayato", HashedPassword: "Kamisato"})
 	require.NoError(t, err)
-	uid1, _ := user1.ID, user2.ID
+	uid1, uid2 := user1.ID, user2.ID
 
 	tdRep := TextData{conn: conn}
-	td1 := storage.TextData{TextData: "Ayaka note", MetaInfo: "td1", UserID: uid1}
-	tid1, err := tdRep.AddTextData(ctx, td1)
+	tid1, err := tdRep.AddTextData(ctx, storage.TextData{TextData: "Ayaka note", MetaInfo: "td1", UserID: uid1})
 	require.NoError(t, err)
-	tid2, err := tdRep.AddTextData(ctx, storage.TextData{TextData: "Ayato note", MetaInfo: "td2", UserID: uid1})
+	tid2, err := tdRep.AddTextData(ctx, storage.TextData{TextData: "Ayato note", MetaInfo: "td2", UserID: uid2})
 	require.NoError(t, err)
 
 	err = tdRep.UpdateTextData(ctx, storage.TextData{ID: tid1, TextData: "Ayaka updated!", MetaInfo: "updtd1"})
