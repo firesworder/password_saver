@@ -25,14 +25,14 @@ func TestBankDataCommon(t *testing.T) {
 	defer clearUserTable(t, conn)
 	defer clearBankDataTable(t, conn)
 
-	uRep := User{conn: conn}
+	uRep := User{Conn: conn}
 	user1, err := uRep.CreateUser(ctx, storage.User{Login: "Ayaka", HashedPassword: "Kamisato"})
 	require.NoError(t, err)
 	user2, err := uRep.CreateUser(ctx, storage.User{Login: "Ayato", HashedPassword: "Kamisato"})
 	require.NoError(t, err)
 	uid1, uid2 := user1.ID, user2.ID
 
-	bdRep := BankData{conn: conn}
+	bdRep := BankData{Conn: conn}
 	bid1, err := bdRep.AddBankData(ctx, storage.BankData{
 		CardNumber: "1122334455667788", CardExpire: "11/23", CVV: "852", MetaInfo: "Ayaka note", UserID: uid1,
 	})

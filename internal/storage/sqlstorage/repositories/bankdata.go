@@ -7,13 +7,13 @@ import (
 )
 
 type BankData struct {
-	conn *sql.DB
+	Conn *sql.DB
 }
 
 func (br *BankData) AddBankData(ctx context.Context, bd storage.BankData) (int, error) {
 	var id int
 
-	err := br.conn.QueryRowContext(ctx,
+	err := br.Conn.QueryRowContext(ctx,
 		`INSERT INTO bankdata(card_number, card_expiry, cvv, meta_info, user_id) VALUES ($1, $2, $3, $4, $5) 
                                                                         RETURNING id`,
 		bd.CardNumber, bd.CardExpire, bd.CVV, bd.MetaInfo, bd.UserID,
@@ -26,7 +26,7 @@ func (br *BankData) AddBankData(ctx context.Context, bd storage.BankData) (int, 
 }
 
 func (br *BankData) UpdateBankData(ctx context.Context, bd storage.BankData) error {
-	result, err := br.conn.ExecContext(ctx,
+	result, err := br.Conn.ExecContext(ctx,
 		`UPDATE bankdata SET card_number = $1, card_expiry = $2, cvv = $3, meta_info = $4 WHERE id = $5`,
 		bd.CardNumber, bd.CardExpire, bd.CVV, bd.MetaInfo, bd.ID)
 	if err != nil {
@@ -43,7 +43,7 @@ func (br *BankData) UpdateBankData(ctx context.Context, bd storage.BankData) err
 }
 
 func (br *BankData) DeleteBankData(ctx context.Context, bd storage.BankData) error {
-	result, err := br.conn.ExecContext(ctx,
+	result, err := br.Conn.ExecContext(ctx,
 		"DELETE FROM bankdata WHERE id = $1", bd.ID)
 	if err != nil {
 		return err
@@ -60,7 +60,7 @@ func (br *BankData) DeleteBankData(ctx context.Context, bd storage.BankData) err
 
 func (br *BankData) GetAllRecords(ctx context.Context) ([]storage.BankData, error) {
 	result := make([]storage.BankData, 0)
-	rows, err := br.conn.QueryContext(ctx,
+	rows, err := br.Conn.QueryContext(ctx,
 		"SELECT id, card_number, card_expiry, cvv, meta_info, user_id FROM bankdata")
 	if err != nil {
 		return nil, nil

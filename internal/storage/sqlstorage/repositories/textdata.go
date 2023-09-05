@@ -7,13 +7,13 @@ import (
 )
 
 type TextData struct {
-	conn *sql.DB
+	Conn *sql.DB
 }
 
 func (tr *TextData) AddTextData(ctx context.Context, td storage.TextData) (int, error) {
 	var id int
 
-	err := tr.conn.QueryRowContext(ctx,
+	err := tr.Conn.QueryRowContext(ctx,
 		"INSERT INTO textdata(text_data, meta_info, user_id) VALUES ($1, $2, $3) RETURNING id",
 		td.TextData, td.MetaInfo, td.UserID,
 	).Scan(&id)
@@ -25,7 +25,7 @@ func (tr *TextData) AddTextData(ctx context.Context, td storage.TextData) (int, 
 }
 
 func (tr *TextData) UpdateTextData(ctx context.Context, td storage.TextData) error {
-	result, err := tr.conn.ExecContext(ctx,
+	result, err := tr.Conn.ExecContext(ctx,
 		`UPDATE textdata SET text_data = $1, meta_info = $2 WHERE id = $3`, td.TextData, td.MetaInfo, td.ID)
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func (tr *TextData) UpdateTextData(ctx context.Context, td storage.TextData) err
 }
 
 func (tr *TextData) DeleteTextData(ctx context.Context, td storage.TextData) error {
-	result, err := tr.conn.ExecContext(ctx,
+	result, err := tr.Conn.ExecContext(ctx,
 		"DELETE FROM textdata WHERE id = $1", td.ID)
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func (tr *TextData) DeleteTextData(ctx context.Context, td storage.TextData) err
 // todo: добавить зависимость от пользователя(мб даже во всех методах!)
 func (tr *TextData) GetAllRecords(ctx context.Context) ([]storage.TextData, error) {
 	result := make([]storage.TextData, 0)
-	rows, err := tr.conn.QueryContext(ctx, "SELECT id, text_data, meta_info, user_id FROM textdata")
+	rows, err := tr.Conn.QueryContext(ctx, "SELECT id, text_data, meta_info, user_id FROM textdata")
 	if err != nil {
 		return nil, nil
 	}

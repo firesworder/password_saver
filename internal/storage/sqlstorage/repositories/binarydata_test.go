@@ -25,14 +25,14 @@ func TestBinaryDataCommon(t *testing.T) {
 	defer clearUserTable(t, conn)
 	defer clearBinaryDataTable(t, conn)
 
-	uRep := User{conn: conn}
+	uRep := User{Conn: conn}
 	user1, err := uRep.CreateUser(ctx, storage.User{Login: "Ayaka", HashedPassword: "Kamisato"})
 	require.NoError(t, err)
 	user2, err := uRep.CreateUser(ctx, storage.User{Login: "Ayato", HashedPassword: "Kamisato"})
 	require.NoError(t, err)
 	uid1, uid2 := user1.ID, user2.ID
 
-	bdRep := BinaryData{conn: conn}
+	bdRep := BinaryData{Conn: conn}
 	bid1, err := bdRep.AddBinaryData(ctx,
 		storage.BinaryData{BinaryData: []byte("Ayaka note"), MetaInfo: "td1", UserID: uid1})
 	require.NoError(t, err)

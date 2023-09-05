@@ -22,7 +22,7 @@ func TestUser_CreateUser(t *testing.T) {
 	if storageErr != nil {
 		t.Skipf("test skipped, db connection is not avail: %s", storageErr)
 	}
-	uRep := User{conn: Storage.Connection}
+	uRep := User{Conn: Storage.Connection}
 
 	tests := []struct {
 		name     string
@@ -65,7 +65,7 @@ func TestUser_GetUser(t *testing.T) {
 		t.Skipf("test skipped, db connection is not avail: %s", storageErr)
 	}
 
-	uRep := User{conn: Storage.Connection}
+	uRep := User{Conn: Storage.Connection}
 	newUser, err := uRep.CreateUser(context.Background(), storage.User{Login: "Ayaka", HashedPassword: "Kamisato"})
 	require.NoError(t, err)
 
@@ -95,5 +95,5 @@ func TestUser_GetUser(t *testing.T) {
 			assert.ErrorIs(t, gotErr, tt.wantErr)
 		})
 	}
-	//clearUserTable(t, Storage.Connection)
+	clearUserTable(t, Storage.Connection)
 }

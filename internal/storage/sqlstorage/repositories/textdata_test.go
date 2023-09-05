@@ -25,14 +25,14 @@ func TestTextDataCommon(t *testing.T) {
 	defer clearUserTable(t, conn)
 	defer clearTextDataTable(t, conn)
 
-	uRep := User{conn: conn}
+	uRep := User{Conn: conn}
 	user1, err := uRep.CreateUser(ctx, storage.User{Login: "Ayaka", HashedPassword: "Kamisato"})
 	require.NoError(t, err)
 	user2, err := uRep.CreateUser(ctx, storage.User{Login: "Ayato", HashedPassword: "Kamisato"})
 	require.NoError(t, err)
 	uid1, uid2 := user1.ID, user2.ID
 
-	tdRep := TextData{conn: conn}
+	tdRep := TextData{Conn: conn}
 	tid1, err := tdRep.AddTextData(ctx, storage.TextData{TextData: "Ayaka note", MetaInfo: "td1", UserID: uid1})
 	require.NoError(t, err)
 	tid2, err := tdRep.AddTextData(ctx, storage.TextData{TextData: "Ayato note", MetaInfo: "td2", UserID: uid2})
