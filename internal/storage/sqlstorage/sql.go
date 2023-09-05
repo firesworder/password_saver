@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/firesworder/password_saver/internal/storage"
+	"github.com/firesworder/password_saver/internal/storage/sqlstorage/repositories"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
@@ -20,14 +21,21 @@ func NewStorage(DSN string) (*Storage, error) {
 	// Этот метод вызывается при инициализации сервера, поэтому использую общий контекст
 	ctx := context.Background()
 
+	var err error
 	db := Storage{}
-	err := db.openDBConnection(DSN)
-	if err != nil {
+	if err = db.openDBConnection(DSN); err != nil {
 		return nil, err
 	}
-	err = db.createTablesIfNotExist(ctx)
-	if err != nil {
+	if err = db.createTablesIfNotExist(ctx); err != nil {
 		return nil, err
+	}
+
+	db = Storage{
+		Connection: db.Connection,
+		uRep:       &repositories.User{Conn: db.Connection},
+		tRep:       &repositories.TextData{Conn: db.Connection},
+		bankRep:    &repositories.BankData{Conn: db.Connection},
+		binRep:     &repositories.BinaryData{Conn: db.Connection},
 	}
 	return &db, nil
 }
