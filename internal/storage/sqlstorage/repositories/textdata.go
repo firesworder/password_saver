@@ -10,12 +10,12 @@ type TextData struct {
 	Conn *sql.DB
 }
 
-func (tr *TextData) AddTextData(ctx context.Context, td storage.TextData) (int, error) {
+func (tr *TextData) AddTextData(ctx context.Context, td storage.TextData, u *storage.User) (int, error) {
 	var id int
 
 	err := tr.Conn.QueryRowContext(ctx,
 		"INSERT INTO textdata(text_data, meta_info, user_id) VALUES ($1, $2, $3) RETURNING id",
-		td.TextData, td.MetaInfo, td.UserID,
+		td.TextData, td.MetaInfo, u.ID,
 	).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -24,9 +24,11 @@ func (tr *TextData) AddTextData(ctx context.Context, td storage.TextData) (int, 
 	return id, nil
 }
 
-func (tr *TextData) UpdateTextData(ctx context.Context, td storage.TextData) error {
+func (tr *TextData) UpdateTextData(ctx context.Context, td storage.TextData, u *storage.User) error {
 	result, err := tr.Conn.ExecContext(ctx,
-		`UPDATE textdata SET text_data = $1, meta_info = $2 WHERE id = $3`, td.TextData, td.MetaInfo, td.ID)
+		`UPDATE textdata SET text_data = $1, meta_info = $2 WHERE id = $3 AND user_id = $4`,
+		td.TextData, td.MetaInfo, td.ID, u.ID,
+	)
 	if err != nil {
 		return err
 	}
@@ -40,9 +42,9 @@ func (tr *TextData) UpdateTextData(ctx context.Context, td storage.TextData) err
 	return nil
 }
 
-func (tr *TextData) DeleteTextData(ctx context.Context, td storage.TextData) error {
+func (tr *TextData) DeleteTextData(ctx context.Context, td storage.TextData, u *storage.User) error {
 	result, err := tr.Conn.ExecContext(ctx,
-		"DELETE FROM textdata WHERE id = $1", td.ID)
+		"DELETE FROM textdata WHERE id = $1 AND user_id = $2", td.ID, u.ID)
 	if err != nil {
 		return err
 	}
@@ -56,10 +58,10 @@ func (tr *TextData) DeleteTextData(ctx context.Context, td storage.TextData) err
 	return nil
 }
 
-// todo: добавить зависимость от пользователя(мб даже во всех методах!)
-func (tr *TextData) GetAllRecords(ctx context.Context) ([]storage.TextData, error) {
+func (tr *TextData) GetAllRecords(ctx context.Context, u *storage.User) ([]storage.TextData, error) {
 	result := make([]storage.TextData, 0)
-	rows, err := tr.Conn.QueryContext(ctx, "SELECT id, text_data, meta_info, user_id FROM textdata")
+	rows, err := tr.Conn.QueryContext(ctx,
+		"SELECT id, text_data, meta_info, user_id FROM textdata WHERE user_id = $1", u.ID)
 	if err != nil {
 		return nil, nil
 	}

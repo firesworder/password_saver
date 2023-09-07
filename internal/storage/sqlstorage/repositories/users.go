@@ -16,8 +16,7 @@ func (ur *User) CreateUser(ctx context.Context, u storage.User) (*storage.User, 
 	var id int
 
 	err := ur.Conn.QueryRowContext(ctx,
-		"INSERT INTO users(login, password) VALUES ($1, $2) RETURNING id",
-		u.Login, u.HashedPassword,
+		"INSERT INTO users(login, password) VALUES ($1, $2) RETURNING id", u.Login, u.HashedPassword,
 	).Scan(&id)
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
@@ -32,8 +31,8 @@ func (ur *User) CreateUser(ctx context.Context, u storage.User) (*storage.User, 
 func (ur *User) GetUser(ctx context.Context, u storage.User) (*storage.User, error) {
 	gotUser := storage.User{}
 	err := ur.Conn.QueryRowContext(ctx,
-		"SELECT id, login, password FROM users WHERE login = $1 LIMIT 1",
-		u.Login).Scan(&gotUser.ID, &gotUser.Login, &gotUser.HashedPassword)
+		"SELECT id, login, password FROM users WHERE login = $1 LIMIT 1", u.Login,
+	).Scan(&gotUser.ID, &gotUser.Login, &gotUser.HashedPassword)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, storage.ErrLoginNotExist

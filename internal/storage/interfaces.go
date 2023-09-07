@@ -8,25 +8,22 @@ type UserRepository interface {
 }
 
 type TextDataRepository interface {
-	AddTextData(ctx context.Context, td TextData) (int, error)
-	UpdateTextData(ctx context.Context, td TextData) error
-	DeleteTextData(ctx context.Context, td TextData) error
-
-	GetAllRecords(ctx context.Context) ([]TextData, error)
+	AddTextData(ctx context.Context, td TextData, u *User) (int, error)
+	UpdateTextData(ctx context.Context, td TextData, u *User) error
+	DeleteTextData(ctx context.Context, td TextData, u *User) error
+	GetAllRecords(ctx context.Context, u *User) ([]TextData, error)
 }
 
 type BankDataRepository interface {
-	AddBankData(ctx context.Context, bd BankData) (int, error)
-	UpdateBankData(ctx context.Context, bd BankData) error
-	DeleteBankData(ctx context.Context, bd BankData) error
-
-	GetAllRecords(ctx context.Context) ([]BankData, error)
+	AddBankData(ctx context.Context, bd BankData, u *User) (int, error)
+	UpdateBankData(ctx context.Context, bd BankData, u *User) error
+	DeleteBankData(ctx context.Context, bd BankData, u *User) error
+	GetAllRecords(ctx context.Context, u *User) ([]BankData, error)
 }
 
 type BinaryDataRepository interface {
-	AddBinaryData(ctx context.Context, bd BinaryData) (int, error)
-	UpdateBinaryData(ctx context.Context, bd BinaryData) error
-	DeleteBinaryData(ctx context.Context, bd BinaryData) error
-
-	GetAllRecords(ctx context.Context) ([]BinaryData, error)
+	AddBinaryData(ctx context.Context, bd BinaryData, u *User) (int, error)
+	UpdateBinaryData(ctx context.Context, bd BinaryData, u *User) error
+	DeleteBinaryData(ctx context.Context, bd BinaryData, u *User) error
+	GetAllRecords(ctx context.Context, u *User) ([]BinaryData, error)
 }

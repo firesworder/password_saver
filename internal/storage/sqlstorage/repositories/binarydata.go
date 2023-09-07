@@ -10,12 +10,12 @@ type BinaryData struct {
 	Conn *sql.DB
 }
 
-func (br *BinaryData) AddBinaryData(ctx context.Context, bd storage.BinaryData) (int, error) {
+func (br *BinaryData) AddBinaryData(ctx context.Context, bd storage.BinaryData, u *storage.User) (int, error) {
 	var id int
 
 	err := br.Conn.QueryRowContext(ctx,
 		"INSERT INTO binarydata(binary_data, meta_info, user_id) VALUES ($1, $2, $3) RETURNING id",
-		bd.BinaryData, bd.MetaInfo, bd.UserID,
+		bd.BinaryData, bd.MetaInfo, u.ID,
 	).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -24,9 +24,10 @@ func (br *BinaryData) AddBinaryData(ctx context.Context, bd storage.BinaryData) 
 	return id, nil
 }
 
-func (br *BinaryData) UpdateBinaryData(ctx context.Context, bd storage.BinaryData) error {
+func (br *BinaryData) UpdateBinaryData(ctx context.Context, bd storage.BinaryData, u *storage.User) error {
 	result, err := br.Conn.ExecContext(ctx,
-		`UPDATE binarydata SET binary_data = $1, meta_info = $2 WHERE id = $3`, bd.BinaryData, bd.MetaInfo, bd.ID)
+		`UPDATE binarydata SET binary_data = $1, meta_info = $2 WHERE id = $3 AND user_id = $4`,
+		bd.BinaryData, bd.MetaInfo, bd.ID, u.ID)
 	if err != nil {
 		return err
 	}
@@ -40,9 +41,9 @@ func (br *BinaryData) UpdateBinaryData(ctx context.Context, bd storage.BinaryDat
 	return nil
 }
 
-func (br *BinaryData) DeleteBinaryData(ctx context.Context, bd storage.BinaryData) error {
+func (br *BinaryData) DeleteBinaryData(ctx context.Context, bd storage.BinaryData, u *storage.User) error {
 	result, err := br.Conn.ExecContext(ctx,
-		"DELETE FROM binarydata WHERE id = $1", bd.ID)
+		"DELETE FROM binarydata WHERE id = $1 AND user_id = $2", bd.ID, u.ID)
 	if err != nil {
 		return err
 	}
@@ -56,10 +57,10 @@ func (br *BinaryData) DeleteBinaryData(ctx context.Context, bd storage.BinaryDat
 	return nil
 }
 
-// todo: добавить зависимость от пользователя(мб даже во всех методах!)
-func (br *BinaryData) GetAllRecords(ctx context.Context) ([]storage.BinaryData, error) {
+func (br *BinaryData) GetAllRecords(ctx context.Context, u *storage.User) ([]storage.BinaryData, error) {
 	result := make([]storage.BinaryData, 0)
-	rows, err := br.Conn.QueryContext(ctx, "SELECT id, binary_data, meta_info, user_id FROM binarydata")
+	rows, err := br.Conn.QueryContext(ctx,
+		"SELECT id, binary_data, meta_info, user_id FROM binarydata WHERE user_id = $1", u.ID)
 	if err != nil {
 		return nil, nil
 	}

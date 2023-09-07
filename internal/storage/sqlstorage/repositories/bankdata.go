@@ -10,13 +10,13 @@ type BankData struct {
 	Conn *sql.DB
 }
 
-func (br *BankData) AddBankData(ctx context.Context, bd storage.BankData) (int, error) {
+func (br *BankData) AddBankData(ctx context.Context, bd storage.BankData, u *storage.User) (int, error) {
 	var id int
 
 	err := br.Conn.QueryRowContext(ctx,
 		`INSERT INTO bankdata(card_number, card_expiry, cvv, meta_info, user_id) VALUES ($1, $2, $3, $4, $5) 
                                                                         RETURNING id`,
-		bd.CardNumber, bd.CardExpire, bd.CVV, bd.MetaInfo, bd.UserID,
+		bd.CardNumber, bd.CardExpire, bd.CVV, bd.MetaInfo, u.ID,
 	).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -25,10 +25,11 @@ func (br *BankData) AddBankData(ctx context.Context, bd storage.BankData) (int, 
 	return id, nil
 }
 
-func (br *BankData) UpdateBankData(ctx context.Context, bd storage.BankData) error {
+func (br *BankData) UpdateBankData(ctx context.Context, bd storage.BankData, u *storage.User) error {
 	result, err := br.Conn.ExecContext(ctx,
-		`UPDATE bankdata SET card_number = $1, card_expiry = $2, cvv = $3, meta_info = $4 WHERE id = $5`,
-		bd.CardNumber, bd.CardExpire, bd.CVV, bd.MetaInfo, bd.ID)
+		`UPDATE bankdata SET card_number = $1, card_expiry = $2, cvv = $3, meta_info = $4 
+                WHERE id = $5 AND user_id = $6`,
+		bd.CardNumber, bd.CardExpire, bd.CVV, bd.MetaInfo, bd.ID, u.ID)
 	if err != nil {
 		return err
 	}
@@ -42,9 +43,9 @@ func (br *BankData) UpdateBankData(ctx context.Context, bd storage.BankData) err
 	return nil
 }
 
-func (br *BankData) DeleteBankData(ctx context.Context, bd storage.BankData) error {
+func (br *BankData) DeleteBankData(ctx context.Context, bd storage.BankData, u *storage.User) error {
 	result, err := br.Conn.ExecContext(ctx,
-		"DELETE FROM bankdata WHERE id = $1", bd.ID)
+		"DELETE FROM bankdata WHERE id = $1 AND user_id=$2", bd.ID, u.ID)
 	if err != nil {
 		return err
 	}
@@ -58,10 +59,10 @@ func (br *BankData) DeleteBankData(ctx context.Context, bd storage.BankData) err
 	return nil
 }
 
-func (br *BankData) GetAllRecords(ctx context.Context) ([]storage.BankData, error) {
+func (br *BankData) GetAllRecords(ctx context.Context, u *storage.User) ([]storage.BankData, error) {
 	result := make([]storage.BankData, 0)
 	rows, err := br.Conn.QueryContext(ctx,
-		"SELECT id, card_number, card_expiry, cvv, meta_info, user_id FROM bankdata")
+		"SELECT id, card_number, card_expiry, cvv, meta_info, user_id FROM bankdata WHERE user_id=$1", u.ID)
 	if err != nil {
 		return nil, nil
 	}
