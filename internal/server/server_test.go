@@ -38,12 +38,6 @@ func Test_generateRandom(t *testing.T) {
 	assert.Equal(t, bytesLen, len(randBytes))
 }
 
-func Test_generateToken(t *testing.T) {
-	token, err := generateToken()
-	require.NoError(t, err)
-	assert.Equal(t, 32, len(token))
-}
-
 func TestServer_RegisterUser(t *testing.T) {
 	s, err := NewServer()
 	require.NoError(t, err)
@@ -96,9 +90,13 @@ func TestServer_RegisterUser(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s.uRep = tt.uRepState
 
-			gotErr := s.RegisterUser(ctx, tt.user)
+			gotToken, gotErr := s.RegisterUser(ctx, tt.user)
 			assert.Equal(t, tt.wantError, gotErr != nil)
 			assert.Equal(t, tt.wantURepState, s.uRep)
+			require.Equal(t, tt.wantError, gotErr != nil)
+			if !tt.wantError {
+				assert.NotEmpty(t, gotToken)
+			}
 		})
 	}
 }
@@ -145,8 +143,11 @@ func TestServer_LoginUser(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s.uRep = tt.uRepState
 
-			gotErr := s.LoginUser(ctx, tt.user)
-			assert.Equal(t, tt.wantError, gotErr != nil)
+			gotToken, gotErr := s.LoginUser(ctx, tt.user)
+			require.Equal(t, tt.wantError, gotErr != nil)
+			if !tt.wantError {
+				assert.NotEmpty(t, gotToken)
+			}
 		})
 	}
 }
