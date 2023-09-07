@@ -71,6 +71,7 @@ type Agent struct {
 	state     state
 	grpcAgent *grpcagent.GRPCAgent
 	stdin     io.Reader // todo: для тестов
+	isAuth    bool
 }
 
 func NewAgent() (*Agent, error) {

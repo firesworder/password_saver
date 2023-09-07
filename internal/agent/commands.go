@@ -45,6 +45,10 @@ func (a *Agent) LoginUserCommand() {
 // create commands
 
 func (a *Agent) CreateRecordCommand() {
+	if !a.isAuth {
+		log.Println("auth required")
+	}
+
 	var err error
 	var dataType string
 	fmt.Println("Choose data type(enter name type): text, bank or binary")
@@ -151,6 +155,9 @@ func (a *Agent) CreateBinaryDataCommand() {
 // open commands
 
 func (a *Agent) OpenRecordCommand() {
+	if !a.isAuth {
+		log.Println("auth required")
+	}
 	var err error
 	var recordID int
 	fmt.Println("Choose record ID")
@@ -188,6 +195,9 @@ func (a *Agent) OpenRecordCommand() {
 // update commands
 
 func (a *Agent) UpdateRecordCommand() {
+	if !a.isAuth {
+		log.Println("auth required")
+	}
 	var err error
 	var recordID int
 	fmt.Println("Choose record ID")
@@ -296,6 +306,9 @@ func (a *Agent) UpdateBinaryDataCommand(ID int) {
 // other commands
 
 func (a *Agent) DeleteRecordCommand() {
+	if !a.isAuth {
+		log.Println("auth required")
+	}
 	var err error
 	var recordID int
 	fmt.Println("Choose record ID")
@@ -325,6 +338,9 @@ func (a *Agent) DeleteRecordCommand() {
 }
 
 func (a *Agent) ShowAllRecordsCommand() {
+	if !a.isAuth {
+		log.Println("auth required")
+	}
 	currentState, err := a.grpcAgent.ShowAllRecords()
 	if err != nil {
 		log.Println(err)
