@@ -6,6 +6,7 @@ import (
 	"github.com/firesworder/password_saver/internal/server/env"
 	"github.com/firesworder/password_saver/internal/storage"
 	"github.com/firesworder/password_saver/internal/storage/sqlstorage"
+	"google.golang.org/grpc/metadata"
 )
 
 const ctxTokenParam = "userToken"
@@ -48,10 +49,18 @@ func NewServer() (*Server, error) {
 }
 
 func (s *Server) getUserFromContext(ctx context.Context) (*storage.User, error) {
-	token, ok := ctx.Value(ctxTokenParam).(string)
+	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
+		return nil, fmt.Errorf("can not access request metadata")
+	}
+
+	var token string
+	if tokenParam := md.Get(ctxTokenParam); len(tokenParam) != 0 {
+		token = tokenParam[0]
+	} else {
 		return nil, fmt.Errorf("userToken is not set")
 	}
+
 	user, ok := s.authUsers[token]
 	if !ok {
 		return nil, fmt.Errorf("user is not auth")
