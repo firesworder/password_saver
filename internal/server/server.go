@@ -99,13 +99,12 @@ func (s *Server) LoginUser(ctx context.Context, user storage.User) error {
 	return nil
 }
 
-func (s *Server) AddTextData(ctx context.Context, textData storage.TextData) error {
-	// todo: добавить возвращение ID
-	_, err := s.tRep.AddTextData(ctx, textData)
+func (s *Server) AddTextData(ctx context.Context, textData storage.TextData) (int, error) {
+	id, err := s.tRep.AddTextData(ctx, textData)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return id, nil
 }
 
 func (s *Server) UpdateTextData(ctx context.Context, textData storage.TextData) error {
@@ -124,13 +123,12 @@ func (s *Server) DeleteTextData(ctx context.Context, textData storage.TextData) 
 	return nil
 }
 
-func (s *Server) AddBankData(ctx context.Context, bankData storage.BankData) error {
-	// todo: добавить возвращение ID
-	_, err := s.bankRep.AddBankData(ctx, bankData)
+func (s *Server) AddBankData(ctx context.Context, bankData storage.BankData) (int, error) {
+	id, err := s.bankRep.AddBankData(ctx, bankData)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return id, nil
 }
 
 func (s *Server) UpdateBankData(ctx context.Context, bankData storage.BankData) error {
@@ -149,13 +147,12 @@ func (s *Server) DeleteBankData(ctx context.Context, bankData storage.BankData) 
 	return nil
 }
 
-func (s *Server) AddBinaryData(ctx context.Context, binaryData storage.BinaryData) error {
-	// todo: добавить возвращение ID
-	_, err := s.binRep.AddBinaryData(ctx, binaryData)
+func (s *Server) AddBinaryData(ctx context.Context, binaryData storage.BinaryData) (int, error) {
+	id, err := s.binRep.AddBinaryData(ctx, binaryData)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return id, nil
 }
 
 func (s *Server) UpdateBinaryData(ctx context.Context, binaryData storage.BinaryData) error {

@@ -82,11 +82,12 @@ func (a *Agent) CreateTextDataCommand() {
 		return
 	}
 
-	_, err = a.grpcAgent.CreateTextDataRecord(textData)
+	textData.ID, err = a.grpcAgent.CreateTextDataRecord(textData)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	a.state.set(textData)
 }
 
 func (a *Agent) CreateBankDataCommand() {
@@ -104,11 +105,12 @@ func (a *Agent) CreateBankDataCommand() {
 		return
 	}
 
-	_, err = a.grpcAgent.CreateBankDataRecord(bankData)
+	bankData.ID, err = a.grpcAgent.CreateBankDataRecord(bankData)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	a.state.set(bankData)
 }
 
 func (a *Agent) CreateBinaryDataCommand() {
@@ -138,11 +140,12 @@ func (a *Agent) CreateBinaryDataCommand() {
 		return
 	}
 
-	_, err = a.grpcAgent.CreateBinaryDataRecord(binaryData)
+	binaryData.ID, err = a.grpcAgent.CreateBinaryDataRecord(binaryData)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	a.state.set(binaryData)
 }
 
 // open commands
@@ -230,16 +233,19 @@ func (a *Agent) UpdateRecordCommand() {
 		log.Println(err)
 		return
 	}
+	record, err := a.state.get(recordID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
-	// todo: заглушка
-	recordDT := "text"
-	switch recordDT {
-	case "text":
-		a.UpdateTextDataCommand(recordID)
-	case "bank":
-		a.UpdateBankDataCommand(recordID)
-	case "binary":
-		a.UpdateBinaryDataCommand(recordID)
+	switch v := record.(type) {
+	case storage.TextData:
+		a.UpdateTextDataCommand(v.ID)
+	case storage.BankData:
+		a.UpdateBankDataCommand(v.ID)
+	case storage.BinaryData:
+		a.UpdateBinaryDataCommand(v.ID)
 	}
 }
 
@@ -263,6 +269,7 @@ func (a *Agent) UpdateTextDataCommand(ID int) {
 		log.Println(err)
 		return
 	}
+	a.state.set(textData)
 }
 
 func (a *Agent) UpdateBankDataCommand(ID int) {
@@ -285,6 +292,7 @@ func (a *Agent) UpdateBankDataCommand(ID int) {
 		log.Println(err)
 		return
 	}
+	a.state.set(bankData)
 }
 
 func (a *Agent) UpdateBinaryDataCommand(ID int) {
@@ -319,6 +327,7 @@ func (a *Agent) UpdateBinaryDataCommand(ID int) {
 		log.Println(err)
 		return
 	}
+	a.state.set(binaryData)
 }
 
 // other commands
@@ -332,16 +341,23 @@ func (a *Agent) DeleteRecordCommand() {
 		log.Println(err)
 		return
 	}
+	record, err := a.state.get(recordID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
-	// todo: заглушка
-	recordDT := "text"
-	switch recordDT {
-	case "text":
-		err = a.grpcAgent.DeleteTextDataRecord(storage.TextData{ID: recordID})
-	case "bank":
-		err = a.grpcAgent.DeleteBankDataRecord(storage.BankData{ID: recordID})
-	case "binary":
-		err = a.grpcAgent.DeleteBinaryDataRecord(storage.BinaryData{ID: recordID})
+	switch v := record.(type) {
+	case storage.TextData:
+		err = a.grpcAgent.DeleteTextDataRecord(storage.TextData{ID: v.ID})
+	case storage.BankData:
+		err = a.grpcAgent.DeleteBankDataRecord(storage.BankData{ID: v.ID})
+	case storage.BinaryData:
+		err = a.grpcAgent.DeleteBinaryDataRecord(storage.BinaryData{ID: v.ID})
+	}
+	if err = a.state.delete(recordID); err != nil {
+		log.Println("element was not found")
+		return
 	}
 }
 

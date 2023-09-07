@@ -52,7 +52,7 @@ func (gs *GRPCServer) LoginUser(ctx context.Context, request *pb.LoginUserReques
 }
 
 func (gs *GRPCServer) AddTextDataRecord(ctx context.Context, request *pb.AddTextDataRequest) (*pb.AddTextDataResponse, error) {
-	err := gs.serv.AddTextData(ctx, storage.TextData{
+	id, err := gs.serv.AddTextData(ctx, storage.TextData{
 		TextData: request.TextData.TextData,
 		MetaInfo: request.TextData.MetaInfo,
 	})
@@ -60,7 +60,7 @@ func (gs *GRPCServer) AddTextDataRecord(ctx context.Context, request *pb.AddText
 		return nil, err
 	}
 
-	resp := &pb.AddTextDataResponse{}
+	resp := &pb.AddTextDataResponse{Id: int64(id)}
 	return resp, nil
 }
 
@@ -91,7 +91,7 @@ func (gs *GRPCServer) DeleteTextDataRecord(ctx context.Context, request *pb.Dele
 }
 
 func (gs *GRPCServer) AddBankDataRecord(ctx context.Context, request *pb.AddBankDataRequest) (*pb.AddBankDataResponse, error) {
-	err := gs.serv.AddBankData(ctx, storage.BankData{
+	id, err := gs.serv.AddBankData(ctx, storage.BankData{
 		CardNumber: request.BankData.CardNumber,
 		CardExpire: request.BankData.CardExpiry,
 		CVV:        request.BankData.Cvv,
@@ -101,7 +101,7 @@ func (gs *GRPCServer) AddBankDataRecord(ctx context.Context, request *pb.AddBank
 		return nil, err
 	}
 
-	resp := &pb.AddBankDataResponse{}
+	resp := &pb.AddBankDataResponse{Id: int64(id)}
 	return resp, nil
 }
 
@@ -134,7 +134,7 @@ func (gs *GRPCServer) DeleteBankDataRecord(ctx context.Context, request *pb.Dele
 }
 
 func (gs *GRPCServer) AddBinaryDataRecord(ctx context.Context, request *pb.AddBinaryDataRequest) (*pb.AddBinaryDataResponse, error) {
-	err := gs.serv.AddBinaryData(ctx, storage.BinaryData{
+	id, err := gs.serv.AddBinaryData(ctx, storage.BinaryData{
 		BinaryData: request.BinaryData.BinaryData,
 		MetaInfo:   request.BinaryData.MetaInfo,
 	})
@@ -142,7 +142,7 @@ func (gs *GRPCServer) AddBinaryDataRecord(ctx context.Context, request *pb.AddBi
 		return nil, err
 	}
 
-	resp := &pb.AddBinaryDataResponse{}
+	resp := &pb.AddBinaryDataResponse{Id: int64(id)}
 	return resp, nil
 }
 
