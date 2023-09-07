@@ -23,16 +23,14 @@ func (gs *GRPCServer) RegisterUser(ctx context.Context, request *pb.RegisterUser
 	if request.Login == "" || request.Password == "" {
 		return nil, fmt.Errorf("login and password fields can not be empty")
 	}
-	// todo: добавить хеширование пароля на сервере
-	rUser := storage.User{Login: request.Login, HashedPassword: request.Password}
 
-	// todo: отсюда нужно вернуть токен
-	err := gs.serv.RegisterUser(ctx, rUser)
+	rUser := storage.User{Login: request.Login, HashedPassword: request.Password}
+	userToken, err := gs.serv.RegisterUser(ctx, rUser)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := pb.RegisterUserResponse{Token: "token_template_reg"}
+	resp := pb.RegisterUserResponse{Token: userToken}
 	return &resp, nil
 }
 
@@ -42,12 +40,12 @@ func (gs *GRPCServer) LoginUser(ctx context.Context, request *pb.LoginUserReques
 	}
 
 	rUser := storage.User{Login: request.Login, HashedPassword: request.Password}
-	err := gs.serv.LoginUser(ctx, rUser)
+	userToken, err := gs.serv.LoginUser(ctx, rUser)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := pb.LoginUserResponse{Token: "token_template_login"}
+	resp := pb.LoginUserResponse{Token: userToken}
 	return &resp, nil
 }
 
