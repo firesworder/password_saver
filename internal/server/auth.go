@@ -61,18 +61,12 @@ func (s *Server) RegisterUser(ctx context.Context, user storage.User) (string, e
 }
 
 func (s *Server) LoginUser(ctx context.Context, user storage.User) (string, error) {
-	// хеширование пароля
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.HashedPassword), bcryptCost)
-	if err != nil {
-		return "", err
-	}
-	user.HashedPassword = string(hashedPassword)
-
 	bdUser, err := s.uRep.GetUser(ctx, user)
 	if err != nil {
 		return "", err
 	}
-	if bdUser.HashedPassword != user.HashedPassword {
+
+	if err = bcrypt.CompareHashAndPassword([]byte(bdUser.HashedPassword), []byte(user.HashedPassword)); err != nil {
 		return "", ErrWrongPassword
 	}
 

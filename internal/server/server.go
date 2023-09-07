@@ -27,17 +27,18 @@ func NewServer() (*Server, error) {
 	var tRep storage.TextDataRepository
 	var bankRep storage.BankDataRepository
 	var binRep storage.BinaryDataRepository
-	// todo: удалить после разработки
-	if true {
+
+	// todo: dev
+	ssql, err := sqlstorage.NewStorage(storage.DevDSN)
+	//if err != nil {
+	//	return nil, err
+	//}
+	if err != nil {
 		uRep = &users.MockUser{Users: map[string]storage.User{}}
 		tRep = &textdata.MockTextData{TextDataMap: map[int]storage.TextData{}}
 		bankRep = &bankdata.MockBankData{BankData: map[int]storage.BankData{}}
 		binRep = &binarydata.MockBinaryData{BinaryData: map[int]storage.BinaryData{}}
 	} else {
-		ssql, err := sqlstorage.NewStorage(storage.DevDSN)
-		if err != nil {
-			return nil, err
-		}
 		uRep = ssql.UserRep
 		tRep = ssql.TextRep
 		bankRep = ssql.BankRep
