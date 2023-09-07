@@ -76,6 +76,6 @@ func (s *Server) LoginUser(ctx context.Context, user storage.User) (string, erro
 	}
 	uToken := hex.EncodeToString(uTokenBytes)
 
-	s.authUsers[uToken] = user
+	s.authUsers[uToken] = *bdUser
 	return uToken, nil
 }
