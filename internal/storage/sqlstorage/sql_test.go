@@ -13,8 +13,8 @@ func TestCommon(t *testing.T) {
 	require.NotEmpty(t, stor)
 	assert.NotEmpty(t, stor.Connection)
 	// reps
-	assert.NotEmpty(t, stor.uRep)
-	assert.NotEmpty(t, stor.tRep)
-	assert.NotEmpty(t, stor.bankRep)
-	assert.NotEmpty(t, stor.binRep)
+	assert.NotEmpty(t, stor.UserRep)
+	assert.NotEmpty(t, stor.TextRep)
+	assert.NotEmpty(t, stor.BankRep)
+	assert.NotEmpty(t, stor.BinaryRep)
 }

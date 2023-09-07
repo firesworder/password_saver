@@ -11,10 +11,10 @@ import (
 type Storage struct {
 	Connection *sql.DB
 
-	uRep    storage.UserRepository
-	tRep    storage.TextDataRepository
-	bankRep storage.BankDataRepository
-	binRep  storage.BinaryDataRepository
+	UserRep   storage.UserRepository
+	TextRep   storage.TextDataRepository
+	BankRep   storage.BankDataRepository
+	BinaryRep storage.BinaryDataRepository
 }
 
 func NewStorage(DSN string) (*Storage, error) {
@@ -32,10 +32,10 @@ func NewStorage(DSN string) (*Storage, error) {
 
 	db = Storage{
 		Connection: db.Connection,
-		uRep:       &repositories.User{Conn: db.Connection},
-		tRep:       &repositories.TextData{Conn: db.Connection},
-		bankRep:    &repositories.BankData{Conn: db.Connection},
-		binRep:     &repositories.BinaryData{Conn: db.Connection},
+		UserRep:    &repositories.User{Conn: db.Connection},
+		TextRep:    &repositories.TextData{Conn: db.Connection},
+		BankRep:    &repositories.BankData{Conn: db.Connection},
+		BinaryRep:  &repositories.BinaryData{Conn: db.Connection},
 	}
 	return &db, nil
 }

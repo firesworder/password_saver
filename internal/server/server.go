@@ -11,6 +11,7 @@ import (
 	"github.com/firesworder/password_saver/internal/storage/mocks/binarydata"
 	"github.com/firesworder/password_saver/internal/storage/mocks/textdata"
 	"github.com/firesworder/password_saver/internal/storage/mocks/users"
+	"github.com/firesworder/password_saver/internal/storage/sqlstorage"
 )
 
 var ErrWrongPassword = errors.New("wrong password")
@@ -35,6 +36,15 @@ func NewServer() (*Server, error) {
 		tRep = &textdata.MockTextData{TextDataMap: map[int]storage.TextData{}}
 		bankRep = &bankdata.MockBankData{BankData: map[int]storage.BankData{}}
 		binRep = &binarydata.MockBinaryData{BinaryData: map[int]storage.BinaryData{}}
+	} else {
+		ssql, err := sqlstorage.NewStorage(storage.DevDSN)
+		if err != nil {
+			return nil, err
+		}
+		uRep = ssql.UserRep
+		tRep = ssql.TextRep
+		bankRep = ssql.BankRep
+		binRep = ssql.BinaryRep
 	}
 	s := &Server{
 		env:       &env.Env,
