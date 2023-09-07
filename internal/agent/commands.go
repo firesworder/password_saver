@@ -159,66 +159,29 @@ func (a *Agent) OpenRecordCommand() {
 		log.Println(err)
 		return
 	}
-
-	// todo: заглушка
-	recordDT := "text"
-	switch recordDT {
-	case "text":
-		a.OpenTextDataRecordCommand(recordID)
-	case "bank":
-		a.OpenBankDataRecordCommand(recordID)
-	case "binary":
-		a.OpenBinaryDataRecordCommand(recordID)
-	}
-}
-
-func (a *Agent) OpenTextDataRecordCommand(ID int) {
-	textDataExample := storage.TextData{
-		ID:       ID,
-		TextData: "Text data example",
-		MetaInfo: "td1",
-	}
-
-	fmt.Println("Text content:")
-	fmt.Println(textDataExample.TextData)
-}
-
-func (a *Agent) OpenBankDataRecordCommand(ID int) {
-	textDataExample := storage.BankData{
-		ID:         ID,
-		CardNumber: "5566 7788 9900 1122",
-		CardExpire: "12/23",
-		CVV:        "465",
-		MetaInfo:   "bd2",
-	}
-
-	fmt.Println("Bank content:")
-	fmt.Printf("CardNumber: %s\n", textDataExample.CardNumber)
-	fmt.Printf("CardExpiry: %s CVV:%s\n", textDataExample.CardNumber, textDataExample.CVV)
-}
-
-func (a *Agent) OpenBinaryDataRecordCommand(ID int) {
-	textDataExample := storage.BinaryData{
-		ID:         ID,
-		BinaryData: []byte("Binary data"),
-		MetaInfo:   "binD2",
-	}
-
-	var binaryFP string
-	fmt.Println("Enter binary data filepath to save")
-	_, err := fmt.Scan(&binaryFP)
+	record, err := a.state.get(recordID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	f, err := os.Open(binaryFP)
-	if err != nil {
-		log.Println(err)
-	}
-	_, err = f.Write(textDataExample.BinaryData)
-	if err != nil {
-		log.Println(err)
+	switch v := record.(type) {
+	case storage.TextData:
+		fmt.Printf("Text data record:")
+		fmt.Printf("ID: %d\n", v.ID)
+		fmt.Printf("Content: %s\n", v.TextData)
+		fmt.Printf("ID: %s\n", v.MetaInfo)
+	case storage.BankData:
+		fmt.Printf("Text data record:")
+		fmt.Printf("ID: %d\n", v.ID)
+		fmt.Printf("CardNumber: %s\n", v.CardNumber)
+		fmt.Printf("CardExpiry: %s | CVV: %sn", v.CardExpire, v.CVV)
+		fmt.Printf("ID: %s\n", v.MetaInfo)
+	case storage.BinaryData:
+		fmt.Printf("Text data record:")
+		fmt.Printf("ID: %d\n", v.ID)
+		fmt.Printf("Content: %s\n", v.BinaryData)
+		fmt.Printf("ID: %s\n", v.MetaInfo)
 	}
 }
 
@@ -388,11 +351,10 @@ func (a *Agent) ShowAllRecordsCommand() {
 }
 
 func (a *Agent) HelpCommand() {
-	fmt.Print(`
-	Commands:
-	register_user, login_user
-	create_record, open_record, update_record, delete_record
-	show_all_records
-	help
+	fmt.Print(`Commands:
+register_user, login_user
+create_record, open_record, update_record, delete_record
+show_all_records
+help
 `)
 }
