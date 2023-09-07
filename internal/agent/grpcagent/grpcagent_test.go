@@ -7,6 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"log"
 	"net"
 	"testing"
 )
@@ -22,8 +24,15 @@ func startTestGRPCServer(t *testing.T, s *server.Server) *grpc.Server {
 	// инциал. сервис
 	service, err := grpcserver.NewGRPCServer(s)
 	require.NoError(t, err)
+	creds, err := credentials.NewServerTLSFromFile(
+		"C:\\Users\\person\\GolandProjects\\password_saver\\cert.pem",
+		"C:\\Users\\person\\GolandProjects\\password_saver\\privKey.pem",
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
 	// создаем пустой grpc сервер, без опций
-	serverGRPC := grpc.NewServer()
+	serverGRPC := grpc.NewServer(grpc.Creds(creds))
 	// регистрируем сервис на сервере
 	pb.RegisterPasswordSaverServer(serverGRPC, service)
 

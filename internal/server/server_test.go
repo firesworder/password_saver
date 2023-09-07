@@ -157,7 +157,7 @@ func TestServer_AddTextData(t *testing.T) {
 	require.NoError(t, err)
 
 	td := storage.TextData{TextData: "I will...Neeko!"}
-	err = s.AddTextData(ctx, td)
+	td.ID, err = s.AddTextData(ctx, td)
 	require.NoError(t, err)
 }
 
@@ -167,10 +167,10 @@ func TestServer_UpdateTextData(t *testing.T) {
 	require.NoError(t, err)
 
 	td := storage.TextData{TextData: "I will...Neeko!"}
-	err = s.AddTextData(ctx, td)
+	td.ID, err = s.AddTextData(ctx, td)
 	require.NoError(t, err)
 
-	tdUpdate := storage.TextData{ID: 1, TextData: "Definitely not Neeko!"}
+	tdUpdate := storage.TextData{ID: td.ID, TextData: "Definitely not Neeko!"}
 	err = s.UpdateTextData(ctx, tdUpdate)
 	require.NoError(t, err)
 }
@@ -181,10 +181,10 @@ func TestServer_DeleteTextData(t *testing.T) {
 	require.NoError(t, err)
 
 	td := storage.TextData{TextData: "I will...Neeko!"}
-	err = s.AddTextData(ctx, td)
+	td.ID, err = s.AddTextData(ctx, td)
 	require.NoError(t, err)
 
-	tdToDelete := storage.TextData{ID: 1}
+	tdToDelete := storage.TextData{ID: td.ID}
 	err = s.DeleteTextData(ctx, tdToDelete)
 	require.NoError(t, err)
 }
@@ -199,7 +199,7 @@ func TestServer_AddBankData(t *testing.T) {
 		CardExpire: "88/00",
 		CVV:        "456",
 	}
-	err = s.AddBankData(ctx, bankD)
+	bankD.ID, err = s.AddBankData(ctx, bankD)
 	require.NoError(t, err)
 }
 
@@ -213,11 +213,11 @@ func TestServer_UpdateBankData(t *testing.T) {
 		CardExpire: "88/00",
 		CVV:        "456",
 	}
-	err = s.AddBankData(ctx, bankD)
+	bankD.ID, err = s.AddBankData(ctx, bankD)
 	require.NoError(t, err)
 
 	bankDUpdate := storage.BankData{
-		ID:         1,
+		ID:         bankD.ID,
 		CardNumber: "8800 9900 7700 6666",
 		CardExpire: "88/00",
 		CVV:        "456",
@@ -236,10 +236,10 @@ func TestServer_DeleteBankData(t *testing.T) {
 		CardExpire: "88/00",
 		CVV:        "456",
 	}
-	err = s.AddBankData(ctx, bankD)
+	bankD.ID, err = s.AddBankData(ctx, bankD)
 	require.NoError(t, err)
 
-	bankDDelete := storage.BankData{ID: 1}
+	bankDDelete := storage.BankData{ID: bankD.ID}
 	err = s.DeleteBankData(ctx, bankDDelete)
 	require.NoError(t, err)
 }
@@ -250,7 +250,7 @@ func TestServer_AddBinaryData(t *testing.T) {
 	require.NoError(t, err)
 
 	binD := storage.BinaryData{BinaryData: []byte("Bayonetta")}
-	err = s.AddBinaryData(ctx, binD)
+	binD.ID, err = s.AddBinaryData(ctx, binD)
 	require.NoError(t, err)
 }
 
@@ -260,10 +260,10 @@ func TestServer_UpdateBinaryData(t *testing.T) {
 	require.NoError(t, err)
 
 	binD := storage.BinaryData{BinaryData: []byte("Bayonetta")}
-	err = s.AddBinaryData(ctx, binD)
+	binD.ID, err = s.AddBinaryData(ctx, binD)
 	require.NoError(t, err)
 
-	binDUpdate := storage.BinaryData{ID: 1, BinaryData: []byte("Cipher")}
+	binDUpdate := storage.BinaryData{ID: binD.ID, BinaryData: []byte("Cipher")}
 	err = s.UpdateBinaryData(ctx, binDUpdate)
 	require.NoError(t, err)
 }
@@ -274,10 +274,10 @@ func TestServer_DeleteBinaryData(t *testing.T) {
 	require.NoError(t, err)
 
 	binD := storage.BinaryData{BinaryData: []byte("Bayonetta")}
-	err = s.AddBinaryData(ctx, binD)
+	binD.ID, err = s.AddBinaryData(ctx, binD)
 	require.NoError(t, err)
 
-	binDDelete := storage.BinaryData{ID: 1}
+	binDDelete := storage.BinaryData{ID: binD.ID}
 	err = s.DeleteBinaryData(ctx, binDDelete)
 	require.NoError(t, err)
 }

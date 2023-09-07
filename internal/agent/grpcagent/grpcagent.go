@@ -6,6 +6,8 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
+const devCF = "C:\\Users\\person\\GolandProjects\\password_saver\\ca_cert.pem"
+
 type GRPCAgent struct {
 	conn       *grpc.ClientConn
 	grpcClient pb.PasswordSaverClient
@@ -15,7 +17,7 @@ func NewGRPCAgent(serverAddr string) (*GRPCAgent, error) {
 	var err error
 	agent := GRPCAgent{}
 
-	creds, err := credentials.NewClientTLSFromFile("ca_cert.pem", "127.0.0.1")
+	creds, err := credentials.NewClientTLSFromFile(devCF, "127.0.0.1")
 	if err != nil {
 		return nil, err
 	}

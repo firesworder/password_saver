@@ -118,7 +118,7 @@ func TestGRPCServer_AddBankDataRecord(t *testing.T) {
 				Cvv:        "987",
 				MetaInfo:   "",
 			}},
-			wantResp: &pb.AddBankDataResponse{},
+			wantResp: &pb.AddBankDataResponse{Id: 1},
 			wantErr:  nil,
 		},
 	}
@@ -151,7 +151,7 @@ func TestGRPCServer_AddBinaryDataRecord(t *testing.T) {
 				BinaryData: []byte("Ayaka"),
 				MetaInfo:   "Ayayaka",
 			}},
-			wantResp: &pb.AddBinaryDataResponse{},
+			wantResp: &pb.AddBinaryDataResponse{Id: 1},
 			wantErr:  nil,
 		},
 	}
@@ -184,7 +184,7 @@ func TestGRPCServer_AddTextDataRecord(t *testing.T) {
 				TextData: "Ayato",
 				MetaInfo: "Ayayato",
 			}},
-			wantResp: &pb.AddTextDataResponse{},
+			wantResp: &pb.AddTextDataResponse{Id: 1},
 			wantErr:  nil,
 		},
 	}
