@@ -23,6 +23,14 @@ type state struct {
 	binaryDL map[int]storage.BinaryData
 }
 
+func newState() *state {
+	return &state{
+		textDL:   map[int]storage.TextData{},
+		bankDL:   map[int]storage.BankData{},
+		binaryDL: map[int]storage.BinaryData{},
+	}
+}
+
 func (s *state) get(id int) (interface{}, error) {
 	var v interface{}
 	var ok bool
@@ -68,14 +76,14 @@ func (s *state) delete(id int) error {
 
 type Agent struct {
 	env       env.Environment
-	state     state
+	state     *state
 	grpcAgent *grpcagent.GRPCAgent
 	stdin     io.Reader // todo: для тестов
 	isAuth    bool
 }
 
 func NewAgent() (*Agent, error) {
-	a := &Agent{env: env.Env}
+	a := &Agent{env: env.Env, state: newState()}
 	grpcAgent, err := grpcagent.NewGRPCAgent(a.env.ServerAddress)
 	if err != nil {
 		return nil, err
