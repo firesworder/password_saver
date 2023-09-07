@@ -2,9 +2,6 @@ package server
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
-	"errors"
 	"github.com/firesworder/password_saver/internal/server/env"
 	"github.com/firesworder/password_saver/internal/storage"
 	"github.com/firesworder/password_saver/internal/storage/mocks/bankdata"
@@ -14,8 +11,6 @@ import (
 	"github.com/firesworder/password_saver/internal/storage/sqlstorage"
 )
 
-var ErrWrongPassword = errors.New("wrong password")
-
 type Server struct {
 	env       *env.Environment
 	uRep      storage.UserRepository
@@ -23,6 +18,8 @@ type Server struct {
 	tRep      storage.TextDataRepository
 	bankRep   storage.BankDataRepository
 	binRep    storage.BinaryDataRepository
+
+	genToken []byte
 }
 
 func NewServer() (*Server, error) {
@@ -46,6 +43,11 @@ func NewServer() (*Server, error) {
 		bankRep = ssql.BankRep
 		binRep = ssql.BinaryRep
 	}
+
+	genToken, err := generateRandom(32)
+	if err != nil {
+		return nil, err
+	}
 	s := &Server{
 		env:       &env.Env,
 		uRep:      uRep,
@@ -53,60 +55,9 @@ func NewServer() (*Server, error) {
 		bankRep:   bankRep,
 		binRep:    binRep,
 		authUsers: map[string]storage.User{},
+		genToken:  genToken,
 	}
 	return s, nil
-}
-
-// generateRandom - создает массив байт заданной длины
-func generateRandom(size int) ([]byte, error) {
-	randBytes := make([]byte, size)
-	_, err := rand.Read(randBytes)
-	if err != nil {
-		return nil, err
-	}
-	return randBytes, nil
-}
-
-func generateToken() ([]byte, error) {
-	return generateRandom(32)
-}
-
-func (s *Server) RegisterUser(ctx context.Context, user storage.User) error {
-	// хеширование пароля
-
-	// todo: возвращать newUser
-	_, err := s.uRep.CreateUser(ctx, user)
-	if err != nil {
-		return err
-	}
-
-	uTokenBytes, err := generateToken()
-	if err != nil {
-		return err
-	}
-	uToken := hex.EncodeToString(uTokenBytes)
-
-	s.authUsers[uToken] = user
-	return nil
-}
-
-func (s *Server) LoginUser(ctx context.Context, user storage.User) error {
-	bdUser, err := s.uRep.GetUser(ctx, user)
-	if err != nil {
-		return err
-	}
-	if bdUser.HashedPassword != user.HashedPassword {
-		return ErrWrongPassword
-	}
-
-	uTokenBytes, err := generateToken()
-	if err != nil {
-		return err
-	}
-	uToken := hex.EncodeToString(uTokenBytes)
-
-	s.authUsers[uToken] = user
-	return nil
 }
 
 func (s *Server) AddTextData(ctx context.Context, textData storage.TextData) (int, error) {
