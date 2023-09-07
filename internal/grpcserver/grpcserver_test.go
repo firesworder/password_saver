@@ -45,16 +45,14 @@ func TestGRPCServer_RegisterUser(t *testing.T) {
 	ctx := context.Background()
 
 	tests := []struct {
-		name     string
-		req      *pb.RegisterUserRequest
-		wantResp *pb.RegisterUserResponse
-		wantErr  error
+		name    string
+		req     *pb.RegisterUserRequest
+		wantErr error
 	}{
 		{
-			name:     "Test 1. Basic test",
-			req:      &pb.RegisterUserRequest{Login: "Ayaka", Password: "hashed_pass2"},
-			wantResp: &pb.RegisterUserResponse{Token: "token_template_reg"},
-			wantErr:  nil,
+			name:    "Test 1. Basic test",
+			req:     &pb.RegisterUserRequest{Login: "Ayaka", Password: "hashed_pass2"},
+			wantErr: nil,
 		},
 	}
 	for _, tt := range tests {
@@ -64,8 +62,10 @@ func TestGRPCServer_RegisterUser(t *testing.T) {
 			grpcS.serv = s
 
 			gotResp, gotErr := grpcS.RegisterUser(ctx, tt.req)
-			assert.Equal(t, tt.wantResp, gotResp)
 			assert.ErrorIs(t, tt.wantErr, gotErr)
+			if gotErr == nil {
+				assert.NotEqual(t, gotResp.Token, "")
+			}
 		})
 	}
 }
@@ -75,16 +75,14 @@ func TestGRPCServer_LoginUser(t *testing.T) {
 	ctx := context.Background()
 
 	tests := []struct {
-		name     string
-		req      *pb.LoginUserRequest
-		wantResp *pb.LoginUserResponse
-		wantErr  error
+		name    string
+		req     *pb.LoginUserRequest
+		wantErr error
 	}{
 		{
-			name:     "Test 1. Basic test",
-			req:      &pb.LoginUserRequest{Login: "Ayaka", Password: "hashed_pass2"},
-			wantResp: nil,
-			wantErr:  users.ErrUserNotExist,
+			name:    "Test 1. Basic test",
+			req:     &pb.LoginUserRequest{Login: "Ayaka", Password: "hashed_pass2"},
+			wantErr: users.ErrUserNotExist,
 		},
 	}
 	for _, tt := range tests {
@@ -94,8 +92,10 @@ func TestGRPCServer_LoginUser(t *testing.T) {
 			grpcS.serv = s
 
 			gotResp, gotErr := grpcS.LoginUser(ctx, tt.req)
-			assert.Equal(t, tt.wantResp, gotResp)
 			assert.ErrorIs(t, tt.wantErr, gotErr)
+			if gotErr == nil {
+				assert.Equal(t, gotResp.Token, "")
+			}
 		})
 	}
 }

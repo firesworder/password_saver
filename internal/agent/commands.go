@@ -18,7 +18,7 @@ func (a *Agent) RegisterUserCommand() {
 		return
 	}
 
-	_, err = a.grpcAgent.RegisterUser(login, password)
+	err = a.grpcAgent.RegisterUser(login, password)
 	if err != nil {
 		log.Println(err)
 		return
@@ -35,7 +35,7 @@ func (a *Agent) LoginUserCommand() {
 		return
 	}
 
-	_, err = a.grpcAgent.LoginUser(login, password)
+	err = a.grpcAgent.LoginUser(login, password)
 	if err != nil {
 		log.Println(err)
 		return

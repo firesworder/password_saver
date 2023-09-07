@@ -44,10 +44,10 @@ func TestGRPCAgent_RegisterUser(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			token, err := a.RegisterUser(tt.args.login, tt.args.password)
+			err := a.RegisterUser(tt.args.login, tt.args.password)
 			assert.Equal(t, tt.wantErr, err != nil)
-			if err != nil {
-				assert.NotEqual(t, token, "")
+			if err == nil {
+				assert.NotEqual(t, a.userToken, "")
 			}
 		})
 	}
@@ -74,10 +74,10 @@ func TestGRPCAgent_LoginUser(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			token, err := a.LoginUser(tt.args.login, tt.args.password)
+			err := a.LoginUser(tt.args.login, tt.args.password)
 			assert.Equal(t, tt.wantErr, err != nil)
 			if err == nil {
-				assert.NotEqual(t, token, "")
+				assert.NotEqual(t, a.userToken, "")
 			}
 		})
 	}

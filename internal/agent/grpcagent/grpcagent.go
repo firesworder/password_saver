@@ -11,6 +11,7 @@ const devCF = "C:\\Users\\person\\GolandProjects\\password_saver\\ca_cert.pem"
 type GRPCAgent struct {
 	conn       *grpc.ClientConn
 	grpcClient pb.PasswordSaverClient
+	userToken  string
 }
 
 func NewGRPCAgent(serverAddr string) (*GRPCAgent, error) {
