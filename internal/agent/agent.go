@@ -3,7 +3,7 @@ package agent
 import (
 	"fmt"
 	"github.com/firesworder/password_saver/internal/agent/env"
-	"github.com/firesworder/password_saver/internal/agent/grpcagent"
+	"github.com/firesworder/password_saver/internal/grpcagent"
 	"github.com/firesworder/password_saver/internal/storage"
 	"io"
 )
