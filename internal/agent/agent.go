@@ -25,7 +25,7 @@ type Agent struct {
 
 func NewAgent(agentEnv *env.Environment) (*Agent, error) {
 	a := &Agent{state: newState()}
-	grpcAgent, err := grpcagent.NewGRPCAgent(agentEnv.ServerAddress, agentEnv.PublicKeyFile)
+	grpcAgent, err := grpcagent.NewGRPCAgent(agentEnv.ServerAddress, agentEnv.CACert)
 	if err != nil {
 		return nil, err
 	}
