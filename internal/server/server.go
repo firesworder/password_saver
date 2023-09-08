@@ -1,3 +1,4 @@
+// Package server реализует сервер, как прослойку между grpcserver и sqlstorage.
 package server
 
 import (

@@ -18,6 +18,7 @@ type Storage struct {
 	BinaryRep storage.BinaryDataRepository
 }
 
+// NewStorage конструктор sqlstorage, также инициал. шифрование.
 func NewStorage(DSN string) (*Storage, error) {
 	// Этот метод вызывается при инициализации сервера, поэтому использую общий контекст
 	ctx := context.Background()
