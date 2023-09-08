@@ -381,9 +381,11 @@ func (a *Agent) ShowAllRecordsCommand() {
 
 func (a *Agent) HelpCommand() {
 	fmt.Print(`Commands:
-register_user, login_user
+Auth methods:
+- register_user, login_user
+
+User data methods(required auth!):
 create_record, open_record, update_record, delete_record
 show_all_records
-help
 `)
 }
