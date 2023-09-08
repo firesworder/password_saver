@@ -178,18 +178,18 @@ func (a *Agent) OpenRecordCommand() {
 		fmt.Printf("Text data record:")
 		fmt.Printf("ID: %d\n", v.ID)
 		fmt.Printf("Content: %s\n", v.TextData)
-		fmt.Printf("ID: %s\n", v.MetaInfo)
+		fmt.Printf("MetaInfo: %s\n", v.MetaInfo)
 	case storage.BankData:
-		fmt.Printf("Text data record:")
+		fmt.Printf("Bank data record:")
 		fmt.Printf("ID: %d\n", v.ID)
 		fmt.Printf("CardNumber: %s\n", v.CardNumber)
 		fmt.Printf("CardExpiry: %s | CVV: %sn", v.CardExpire, v.CVV)
-		fmt.Printf("ID: %s\n", v.MetaInfo)
+		fmt.Printf("MetaInfo: %s\n", v.MetaInfo)
 	case storage.BinaryData:
-		fmt.Printf("Text data record:")
+		fmt.Printf("Binary data record:")
 		fmt.Printf("ID: %d\n", v.ID)
 		fmt.Printf("Content: %s\n", v.BinaryData)
-		fmt.Printf("ID: %s\n", v.MetaInfo)
+		fmt.Printf("MetaInfo: %s\n", v.MetaInfo)
 	}
 }
 
