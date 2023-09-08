@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func (a *Agent) RegisterUserCommand() {
+func (a *Agent) registerUserCommand() {
 	var err error
 	var login, password string
 	fmt.Println("Enter login and password separated by space")
@@ -26,7 +26,7 @@ func (a *Agent) RegisterUserCommand() {
 	a.isAuth = true
 }
 
-func (a *Agent) LoginUserCommand() {
+func (a *Agent) loginUserCommand() {
 	var err error
 	var login, password string
 	fmt.Println("Enter login and password separated by space")
@@ -46,7 +46,7 @@ func (a *Agent) LoginUserCommand() {
 
 // create commands
 
-func (a *Agent) CreateRecordCommand() {
+func (a *Agent) createRecordCommand() {
 	if !a.isAuth {
 		log.Println("auth required")
 		return
@@ -63,18 +63,18 @@ func (a *Agent) CreateRecordCommand() {
 
 	switch dataType {
 	case "text":
-		a.CreateTextDataCommand()
+		a.createTextDataCommand()
 	case "bank":
-		a.CreateBankDataCommand()
+		a.createBankDataCommand()
 	case "binary":
-		a.CreateBinaryDataCommand()
+		a.createBinaryDataCommand()
 	default:
 		fmt.Println("unknown data type")
 		return
 	}
 }
 
-func (a *Agent) CreateTextDataCommand() {
+func (a *Agent) createTextDataCommand() {
 	var err error
 	var textData storage.TextData
 	fmt.Println("Enter text data")
@@ -97,7 +97,7 @@ func (a *Agent) CreateTextDataCommand() {
 	a.state.set(textData)
 }
 
-func (a *Agent) CreateBankDataCommand() {
+func (a *Agent) createBankDataCommand() {
 	var err error
 	var bankData storage.BankData
 	fmt.Println("Enter bank data separated by spaces: CardNumber(without spaces), CardExpiry, CVV")
@@ -120,7 +120,7 @@ func (a *Agent) CreateBankDataCommand() {
 	a.state.set(bankData)
 }
 
-func (a *Agent) CreateBinaryDataCommand() {
+func (a *Agent) createBinaryDataCommand() {
 	var err error
 	var binaryFP string
 	var binaryData storage.BinaryData
@@ -157,7 +157,7 @@ func (a *Agent) CreateBinaryDataCommand() {
 
 // open commands
 
-func (a *Agent) OpenRecordCommand() {
+func (a *Agent) openRecordCommand() {
 	if !a.isAuth {
 		log.Println("auth required")
 		return
@@ -199,7 +199,7 @@ func (a *Agent) OpenRecordCommand() {
 
 // update commands
 
-func (a *Agent) UpdateRecordCommand() {
+func (a *Agent) updateRecordCommand() {
 	if !a.isAuth {
 		log.Println("auth required")
 		return
@@ -221,15 +221,15 @@ func (a *Agent) UpdateRecordCommand() {
 
 	switch v := record.(type) {
 	case storage.TextData:
-		a.UpdateTextDataCommand(v.ID)
+		a.updateTextDataCommand(v.ID)
 	case storage.BankData:
-		a.UpdateBankDataCommand(v.ID)
+		a.updateBankDataCommand(v.ID)
 	case storage.BinaryData:
-		a.UpdateBinaryDataCommand(v.ID)
+		a.updateBinaryDataCommand(v.ID)
 	}
 }
 
-func (a *Agent) UpdateTextDataCommand(ID int) {
+func (a *Agent) updateTextDataCommand(ID int) {
 	var err error
 	textData := storage.TextData{ID: ID}
 	fmt.Println("Enter text data")
@@ -252,7 +252,7 @@ func (a *Agent) UpdateTextDataCommand(ID int) {
 	a.state.set(textData)
 }
 
-func (a *Agent) UpdateBankDataCommand(ID int) {
+func (a *Agent) updateBankDataCommand(ID int) {
 	var err error
 	bankData := storage.BankData{ID: ID}
 	fmt.Println("Enter bank data separated by spaces: CardNumber(without spaces), CardExpiry, CVV")
@@ -275,7 +275,7 @@ func (a *Agent) UpdateBankDataCommand(ID int) {
 	a.state.set(bankData)
 }
 
-func (a *Agent) UpdateBinaryDataCommand(ID int) {
+func (a *Agent) updateBinaryDataCommand(ID int) {
 	var err error
 	var binaryFP string // todo: для вывода оставить? или в метаинфу
 	binaryData := storage.BinaryData{ID: ID}
@@ -312,7 +312,7 @@ func (a *Agent) UpdateBinaryDataCommand(ID int) {
 
 // other commands
 
-func (a *Agent) DeleteRecordCommand() {
+func (a *Agent) deleteRecordCommand() {
 	if !a.isAuth {
 		log.Println("auth required")
 		return
@@ -346,7 +346,7 @@ func (a *Agent) DeleteRecordCommand() {
 	}
 }
 
-func (a *Agent) ShowAllRecordsCommand() {
+func (a *Agent) showAllRecordsCommand() {
 	if !a.isAuth {
 		log.Println("auth required")
 		return
@@ -379,7 +379,7 @@ func (a *Agent) ShowAllRecordsCommand() {
 	}
 }
 
-func (a *Agent) HelpCommand() {
+func (a *Agent) helpCommand() {
 	fmt.Print(`Commands:
 Auth methods:
 - register_user, login_user

@@ -1,3 +1,4 @@
+// Package agent реализует взаимодействие между пользователем(консоль) и grpc агентом.
 package agent
 
 import (
@@ -16,6 +17,7 @@ func scanMetaInfo() (string, error) {
 	return metaInfo, nil
 }
 
+// Agent экземпляр агента для вызова в cmd/agent
 type Agent struct {
 	state     *state
 	grpcAgent *grpcagent.GRPCAgent
@@ -23,6 +25,7 @@ type Agent struct {
 	isAuth    bool
 }
 
+// NewAgent конструктор агента, формирует пустой стейт польз.данных + создает экземпляр grpc агента.
 func NewAgent(agentEnv *env.Environment) (*Agent, error) {
 	a := &Agent{state: newState()}
 	grpcAgent, err := grpcagent.NewGRPCAgent(agentEnv.ServerAddress, agentEnv.CACert)
@@ -33,6 +36,7 @@ func NewAgent(agentEnv *env.Environment) (*Agent, error) {
 	return a, nil
 }
 
+// Serve запуска агента на обработку команд пользователя.
 func (a *Agent) Serve() error {
 	for {
 		var command string
@@ -42,21 +46,21 @@ func (a *Agent) Serve() error {
 
 		switch command {
 		case "register_user":
-			a.RegisterUserCommand()
+			a.registerUserCommand()
 		case "login_user":
-			a.LoginUserCommand()
+			a.loginUserCommand()
 		case "create_record":
-			a.CreateRecordCommand()
+			a.createRecordCommand()
 		case "open_record":
-			a.OpenRecordCommand()
+			a.openRecordCommand()
 		case "update_record":
-			a.UpdateRecordCommand()
+			a.updateRecordCommand()
 		case "delete_record":
-			a.DeleteRecordCommand()
+			a.deleteRecordCommand()
 		case "show_all_records":
-			a.ShowAllRecordsCommand()
+			a.showAllRecordsCommand()
 		case "help":
-			a.HelpCommand()
+			a.helpCommand()
 		default:
 			fmt.Println("unknown command")
 		}
