@@ -31,17 +31,21 @@ func newState() *state {
 	}
 }
 
-func (s *state) get(id int) (interface{}, error) {
+func (s *state) get(id int, dataType string) (interface{}, error) {
 	var v interface{}
 	var ok bool
-	if v, ok = s.textDL[id]; ok {
-		return v, nil
-	}
-	if v, ok = s.bankDL[id]; ok {
-		return v, nil
-	}
-	if v, ok = s.binaryDL[id]; ok {
-		return v, nil
+	if dataType == "text" {
+		if v, ok = s.textDL[id]; ok {
+			return v, nil
+		}
+	} else if dataType == "bank" {
+		if v, ok = s.bankDL[id]; ok {
+			return v, nil
+		}
+	} else if dataType == "binary" {
+		if v, ok = s.binaryDL[id]; ok {
+			return v, nil
+		}
 	}
 	return nil, fmt.Errorf("record was not found")
 }

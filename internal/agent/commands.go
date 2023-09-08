@@ -160,13 +160,14 @@ func (a *Agent) OpenRecordCommand() {
 	}
 	var err error
 	var recordID int
-	fmt.Println("Choose record ID")
-	_, err = fmt.Scan(&recordID)
+	var dataType string
+	fmt.Println("Enter recordID and dataType")
+	_, err = fmt.Scan(&recordID, &dataType)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	record, err := a.state.get(recordID)
+	record, err := a.state.get(recordID, dataType)
 	if err != nil {
 		log.Println(err)
 		return
@@ -200,13 +201,14 @@ func (a *Agent) UpdateRecordCommand() {
 	}
 	var err error
 	var recordID int
-	fmt.Println("Choose record ID")
-	_, err = fmt.Scan(&recordID)
+	var dataType string
+	fmt.Println("Enter recordID and dataType")
+	_, err = fmt.Scan(&recordID, &dataType)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	record, err := a.state.get(recordID)
+	record, err := a.state.get(recordID, dataType)
 	if err != nil {
 		log.Println(err)
 		return
@@ -311,13 +313,14 @@ func (a *Agent) DeleteRecordCommand() {
 	}
 	var err error
 	var recordID int
-	fmt.Println("Choose record ID")
-	_, err = fmt.Scan(&recordID)
+	var dataType string
+	fmt.Println("Enter recordID and dataType")
+	_, err = fmt.Scan(&recordID, &dataType)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	record, err := a.state.get(recordID)
+	record, err := a.state.get(recordID, dataType)
 	if err != nil {
 		log.Println(err)
 		return
@@ -348,20 +351,23 @@ func (a *Agent) ShowAllRecordsCommand() {
 	}
 
 	fmt.Println("Text data records:")
-	fmt.Printf("ID MetaInfo")
+	fmt.Println("ID MetaInfo")
 	for _, d := range currentState.TextDataList {
+		a.state.set(d)
 		fmt.Printf("%d %s\n", d.ID, d.MetaInfo)
 	}
 
 	fmt.Println("Bank data records:")
-	fmt.Printf("ID MetaInfo")
+	fmt.Println("ID MetaInfo")
 	for _, d := range currentState.BankDataList {
+		a.state.set(d)
 		fmt.Printf("%d %s\n", d.ID, d.MetaInfo)
 	}
 
 	fmt.Println("Binary data records:")
-	fmt.Printf("ID MetaInfo")
+	fmt.Println("ID MetaInfo")
 	for _, d := range currentState.BinaryDataList {
+		a.state.set(d)
 		fmt.Printf("%d %s\n", d.ID, d.MetaInfo)
 	}
 }
