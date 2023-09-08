@@ -9,6 +9,7 @@ import (
 
 const ctxTokenParam = "userToken"
 
+// RegisterUser регистрирует пользователя.
 func (a *GRPCAgent) RegisterUser(login, password string) error {
 	req := pb.RegisterUserRequest{Login: login, Password: password}
 
@@ -20,6 +21,7 @@ func (a *GRPCAgent) RegisterUser(login, password string) error {
 	return nil
 }
 
+// LoginUser авторизует пользователя.
 func (a *GRPCAgent) LoginUser(login, password string) error {
 	req := pb.LoginUserRequest{Login: login, Password: password}
 
@@ -31,6 +33,7 @@ func (a *GRPCAgent) LoginUser(login, password string) error {
 	return nil
 }
 
+// CreateTextDataRecord создает запись текстовых данных.
 func (a *GRPCAgent) CreateTextDataRecord(input storage.TextData) (int, error) {
 	req := pb.AddTextDataRequest{TextData: storage.TextDataToGRPC(input)}
 
@@ -44,6 +47,7 @@ func (a *GRPCAgent) CreateTextDataRecord(input storage.TextData) (int, error) {
 	return int(resp.Id), nil
 }
 
+// CreateBankDataRecord создает запись банковских данных.
 func (a *GRPCAgent) CreateBankDataRecord(input storage.BankData) (int, error) {
 	req := pb.AddBankDataRequest{BankData: storage.BankDataToGRPC(input)}
 
@@ -57,6 +61,7 @@ func (a *GRPCAgent) CreateBankDataRecord(input storage.BankData) (int, error) {
 	return int(resp.Id), nil
 }
 
+// CreateBinaryDataRecord создает запись бинарных данных.
 func (a *GRPCAgent) CreateBinaryDataRecord(input storage.BinaryData) (int, error) {
 	req := pb.AddBinaryDataRequest{BinaryData: storage.BinaryDataToGRPC(input)}
 
@@ -70,6 +75,7 @@ func (a *GRPCAgent) CreateBinaryDataRecord(input storage.BinaryData) (int, error
 	return int(resp.Id), nil
 }
 
+// UpdateTextDataRecord обновляет запись тестовых данных.
 func (a *GRPCAgent) UpdateTextDataRecord(input storage.TextData) error {
 	req := pb.UpdateTextDataRequest{TextData: storage.TextDataToGRPC(input)}
 
@@ -79,6 +85,7 @@ func (a *GRPCAgent) UpdateTextDataRecord(input storage.TextData) error {
 	return err
 }
 
+// UpdateBankDataRecord обновляет запись банковских данных.
 func (a *GRPCAgent) UpdateBankDataRecord(input storage.BankData) error {
 	req := pb.UpdateBankDataRequest{BankData: storage.BankDataToGRPC(input)}
 
@@ -88,6 +95,7 @@ func (a *GRPCAgent) UpdateBankDataRecord(input storage.BankData) error {
 	return err
 }
 
+// UpdateBinaryDataRecord обновляет запись бинарных данных.
 func (a *GRPCAgent) UpdateBinaryDataRecord(input storage.BinaryData) error {
 	req := pb.UpdateBinaryDataRequest{BinaryData: storage.BinaryDataToGRPC(input)}
 
@@ -97,6 +105,7 @@ func (a *GRPCAgent) UpdateBinaryDataRecord(input storage.BinaryData) error {
 	return err
 }
 
+// DeleteTextDataRecord удаляет запись текстовых данных.
 func (a *GRPCAgent) DeleteTextDataRecord(input storage.TextData) error {
 	req := pb.DeleteTextDataRequest{Id: int64(input.ID)}
 
@@ -106,6 +115,7 @@ func (a *GRPCAgent) DeleteTextDataRecord(input storage.TextData) error {
 	return err
 }
 
+// DeleteBankDataRecord удаляет запись банковских данных.
 func (a *GRPCAgent) DeleteBankDataRecord(input storage.BankData) error {
 	req := pb.DeleteBankDataRequest{Id: int64(input.ID)}
 
@@ -115,6 +125,7 @@ func (a *GRPCAgent) DeleteBankDataRecord(input storage.BankData) error {
 	return err
 }
 
+// DeleteBinaryDataRecord удаляет запись бинарных данных.
 func (a *GRPCAgent) DeleteBinaryDataRecord(input storage.BinaryData) error {
 	req := pb.DeleteBinaryDataRequest{Id: int64(input.ID)}
 
@@ -124,6 +135,7 @@ func (a *GRPCAgent) DeleteBinaryDataRecord(input storage.BinaryData) error {
 	return err
 }
 
+// ShowAllRecords получает список записей с сервера.
 func (a *GRPCAgent) ShowAllRecords() (*storage.RecordsList, error) {
 	req := pb.GetAllRecordsRequest{}
 

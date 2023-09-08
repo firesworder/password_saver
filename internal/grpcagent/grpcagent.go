@@ -1,3 +1,4 @@
+// Package grpcagent реализует grpc агент.
 package grpcagent
 
 import (
@@ -6,12 +7,14 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
+// GRPCAgent экземпляр агента.
 type GRPCAgent struct {
 	conn       *grpc.ClientConn
 	grpcClient pb.PasswordSaverClient
 	userToken  string
 }
 
+// NewGRPCAgent конструктор grpc агента. Создает соединение к серверу.
 func NewGRPCAgent(serverAddr string, pkFile string) (*GRPCAgent, error) {
 	var err error
 	agent := GRPCAgent{}
@@ -28,6 +31,7 @@ func NewGRPCAgent(serverAddr string, pkFile string) (*GRPCAgent, error) {
 	return &agent, nil
 }
 
+// Close завершает соединение с сервером.
 func (a *GRPCAgent) Close() error {
 	return a.conn.Close()
 }
