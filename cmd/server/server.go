@@ -3,35 +3,21 @@ package main
 import (
 	"github.com/firesworder/password_saver/internal/grpcserver"
 	"github.com/firesworder/password_saver/internal/server"
-	pb "github.com/firesworder/password_saver/proto"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
+	"github.com/firesworder/password_saver/internal/server/env"
 	"log"
-	"net"
 )
 
 func main() {
-	s, err := server.NewServer()
+	env.ParseEnvArgs()
+
+	s, err := server.NewServer(&env.Env)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	listen, err := net.Listen("tcp", "localhost:8080")
+	grpcService, err := grpcserver.NewGRPCServer(s, &env.Env)
 	if err != nil {
 		log.Fatal(err)
 	}
-	grpcService, err := grpcserver.NewGRPCServer(s)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	creds, err := credentials.NewServerTLSFromFile("cert.pem", "privKey.pem")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	serverGRPC := grpc.NewServer(grpc.Creds(creds))
-	pb.RegisterPasswordSaverServer(serverGRPC, grpcService)
-
-	log.Fatal(serverGRPC.Serve(listen))
+	log.Fatal(grpcService.Serve())
 }

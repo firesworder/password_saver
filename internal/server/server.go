@@ -23,7 +23,7 @@ type Server struct {
 	genToken []byte
 }
 
-func NewServer() (*Server, error) {
+func NewServer(env *env.Environment) (*Server, error) {
 	ssql, err := sqlstorage.NewStorage(storage.DevDSN)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func NewServer() (*Server, error) {
 	}
 
 	s := &Server{
-		env:       &env.Env,
+		env:       env,
 		authUsers: map[string]storage.User{},
 
 		uRep:    ssql.UserRep,

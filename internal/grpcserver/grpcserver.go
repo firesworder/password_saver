@@ -4,19 +4,42 @@ import (
 	"context"
 	"fmt"
 	"github.com/firesworder/password_saver/internal/server"
+	"github.com/firesworder/password_saver/internal/server/env"
 	"github.com/firesworder/password_saver/internal/storage"
 	pb "github.com/firesworder/password_saver/proto"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"log"
+	"net"
 )
 
 type GRPCServer struct {
 	pb.UnimplementedPasswordSaverServer
 
+	env  *env.Environment
 	serv *server.Server
 }
 
-func NewGRPCServer(s *server.Server) (*GRPCServer, error) {
-	gs := &GRPCServer{serv: s}
-	return gs, nil
+func NewGRPCServer(s *server.Server, env *env.Environment) (*GRPCServer, error) {
+	grpcService := &GRPCServer{serv: s, env: env}
+	return grpcService, nil
+}
+
+func (gs *GRPCServer) Serve() error {
+	listen, err := net.Listen("tcp", gs.env.ServerAddress)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	creds, err := credentials.NewServerTLSFromFile("cert.pem", "privKey.pem")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	serverGRPC := grpc.NewServer(grpc.Creds(creds))
+	pb.RegisterPasswordSaverServer(serverGRPC, gs)
+
+	return serverGRPC.Serve(listen)
 }
 
 func (gs *GRPCServer) RegisterUser(ctx context.Context, request *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
