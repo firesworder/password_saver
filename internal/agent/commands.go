@@ -23,6 +23,7 @@ func (a *Agent) RegisterUserCommand() {
 		log.Println(err)
 		return
 	}
+	a.isAuth = true
 }
 
 func (a *Agent) LoginUserCommand() {
@@ -40,6 +41,7 @@ func (a *Agent) LoginUserCommand() {
 		log.Println(err)
 		return
 	}
+	a.isAuth = true
 }
 
 // create commands
@@ -47,6 +49,7 @@ func (a *Agent) LoginUserCommand() {
 func (a *Agent) CreateRecordCommand() {
 	if !a.isAuth {
 		log.Println("auth required")
+		return
 	}
 
 	var err error
@@ -157,6 +160,7 @@ func (a *Agent) CreateBinaryDataCommand() {
 func (a *Agent) OpenRecordCommand() {
 	if !a.isAuth {
 		log.Println("auth required")
+		return
 	}
 	var err error
 	var recordID int
@@ -198,6 +202,7 @@ func (a *Agent) OpenRecordCommand() {
 func (a *Agent) UpdateRecordCommand() {
 	if !a.isAuth {
 		log.Println("auth required")
+		return
 	}
 	var err error
 	var recordID int
@@ -310,6 +315,7 @@ func (a *Agent) UpdateBinaryDataCommand(ID int) {
 func (a *Agent) DeleteRecordCommand() {
 	if !a.isAuth {
 		log.Println("auth required")
+		return
 	}
 	var err error
 	var recordID int
@@ -343,6 +349,7 @@ func (a *Agent) DeleteRecordCommand() {
 func (a *Agent) ShowAllRecordsCommand() {
 	if !a.isAuth {
 		log.Println("auth required")
+		return
 	}
 	currentState, err := a.grpcAgent.ShowAllRecords()
 	if err != nil {
