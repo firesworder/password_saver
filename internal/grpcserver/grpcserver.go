@@ -1,3 +1,4 @@
+// Package grpcserver реализует grpc сервер.
 package grpcserver
 
 import (
@@ -13,17 +14,20 @@ import (
 	"net"
 )
 
+// GRPCServer экземпляр grpc сервера.
 type GRPCServer struct {
 	pb.UnimplementedPasswordSaverServer
 
 	serv *server.Server
 }
 
+// NewGRPCServer конструктор grpc сервера(обертка над server.Server).
 func NewGRPCServer(s *server.Server) (*GRPCServer, error) {
 	grpcService := &GRPCServer{serv: s}
 	return grpcService, nil
 }
 
+// Serve запускает grpcserver + создает TLS соединение.
 func (gs *GRPCServer) Serve(env *env.Environment) error {
 	listen, err := net.Listen("tcp", env.ServerAddress)
 	if err != nil {
