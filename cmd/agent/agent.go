@@ -2,11 +2,14 @@ package main
 
 import (
 	"github.com/firesworder/password_saver/internal/agent"
+	"github.com/firesworder/password_saver/internal/agent/env"
 	"log"
 )
 
 func main() {
-	a, err := agent.NewAgent()
+	env.ParseEnvArgs()
+
+	a, err := agent.NewAgent(&env.Env)
 	if err != nil {
 		log.Fatal(err)
 	}

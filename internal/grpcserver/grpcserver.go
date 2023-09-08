@@ -16,22 +16,21 @@ import (
 type GRPCServer struct {
 	pb.UnimplementedPasswordSaverServer
 
-	env  *env.Environment
 	serv *server.Server
 }
 
-func NewGRPCServer(s *server.Server, env *env.Environment) (*GRPCServer, error) {
-	grpcService := &GRPCServer{serv: s, env: env}
+func NewGRPCServer(s *server.Server) (*GRPCServer, error) {
+	grpcService := &GRPCServer{serv: s}
 	return grpcService, nil
 }
 
-func (gs *GRPCServer) Serve() error {
-	listen, err := net.Listen("tcp", gs.env.ServerAddress)
+func (gs *GRPCServer) Serve(env *env.Environment) error {
+	listen, err := net.Listen("tcp", env.ServerAddress)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	creds, err := credentials.NewServerTLSFromFile("cert.pem", "privKey.pem")
+	creds, err := credentials.NewServerTLSFromFile(env.CertFile, env.PrivateKeyFile)
 	if err != nil {
 		log.Fatal(err)
 	}

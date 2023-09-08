@@ -79,16 +79,15 @@ func (s *state) delete(id int) error {
 }
 
 type Agent struct {
-	env       env.Environment
 	state     *state
 	grpcAgent *grpcagent.GRPCAgent
 	stdin     io.Reader // todo: для тестов
 	isAuth    bool
 }
 
-func NewAgent() (*Agent, error) {
-	a := &Agent{env: env.Env, state: newState()}
-	grpcAgent, err := grpcagent.NewGRPCAgent(a.env.ServerAddress)
+func NewAgent(agentEnv *env.Environment) (*Agent, error) {
+	a := &Agent{state: newState()}
+	grpcAgent, err := grpcagent.NewGRPCAgent(agentEnv.ServerAddress, agentEnv.PublicKeyFile)
 	if err != nil {
 		return nil, err
 	}

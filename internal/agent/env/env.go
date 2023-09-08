@@ -14,6 +14,7 @@ func init() {
 // Environment для получения(из ENV и cmd) и хранения переменных окружения агента.
 type Environment struct {
 	ServerAddress string `env:"ADDRESS"`
+	PublicKeyFile string `env:"PUBLIC_KEY_FILE"`
 }
 
 // Env объект с переменными окружения(из ENV и cmd args).
@@ -21,6 +22,7 @@ var Env Environment
 
 func initCmdArgs() {
 	flag.StringVar(&Env.ServerAddress, "a", "localhost:8080", "server address")
+	flag.StringVar(&Env.ServerAddress, "pk", "", "public key file")
 }
 
 // ParseEnvArgs Парсит значения полей Env. Сначала из cmd аргументов, затем из перем-х окружения.

@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/firesworder/password_saver/internal/server/env"
 	"github.com/firesworder/password_saver/internal/storage"
 	"github.com/firesworder/password_saver/internal/storage/sqlstorage"
 	"google.golang.org/grpc/metadata"
@@ -12,7 +11,6 @@ import (
 const ctxTokenParam = "userToken"
 
 type Server struct {
-	env       *env.Environment
 	authUsers map[string]storage.User
 
 	uRep    storage.UserRepository
@@ -23,7 +21,7 @@ type Server struct {
 	genToken []byte
 }
 
-func NewServer(env *env.Environment) (*Server, error) {
+func NewServer() (*Server, error) {
 	ssql, err := sqlstorage.NewStorage(storage.DevDSN)
 	if err != nil {
 		return nil, err
@@ -35,7 +33,6 @@ func NewServer(env *env.Environment) (*Server, error) {
 	}
 
 	s := &Server{
-		env:       env,
 		authUsers: map[string]storage.User{},
 
 		uRep:    ssql.UserRep,

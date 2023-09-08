@@ -10,14 +10,14 @@ import (
 func main() {
 	env.ParseEnvArgs()
 
-	s, err := server.NewServer(&env.Env)
+	s, err := server.NewServer()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	grpcService, err := grpcserver.NewGRPCServer(s, &env.Env)
+	grpcService, err := grpcserver.NewGRPCServer(s)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Fatal(grpcService.Serve())
+	log.Fatal(grpcService.Serve(&env.Env))
 }
