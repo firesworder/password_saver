@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/firesworder/password_saver/internal/storage"
+	"github.com/firesworder/password_saver/internal/storage/sqlstorage/crypt"
 	"github.com/firesworder/password_saver/internal/storage/sqlstorage/repositories"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -30,12 +31,27 @@ func NewStorage(DSN string) (*Storage, error) {
 		return nil, err
 	}
 
+	encoder, err := crypt.NewEncoder("cert.pem")
+	if err != nil {
+		return nil, err
+	}
+	decoder, err := crypt.NewDecoder("privKey.pem")
+	if err != nil {
+		return nil, err
+	}
+
 	db = Storage{
 		Connection: db.Connection,
 		UserRep:    &repositories.User{Conn: db.Connection},
-		TextRep:    &repositories.TextData{Conn: db.Connection},
-		BankRep:    &repositories.BankData{Conn: db.Connection},
-		BinaryRep:  &repositories.BinaryData{Conn: db.Connection},
+		TextRep: &repositories.TextData{
+			Conn: db.Connection, Encoder: encoder, Decoder: decoder,
+		},
+		BankRep: &repositories.BankData{
+			Conn: db.Connection, Encoder: encoder, Decoder: decoder,
+		},
+		BinaryRep: &repositories.BinaryData{
+			Conn: db.Connection, Encoder: encoder, Decoder: decoder,
+		},
 	}
 	return &db, nil
 }

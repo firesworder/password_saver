@@ -4,19 +4,27 @@ import (
 	"context"
 	"database/sql"
 	"github.com/firesworder/password_saver/internal/storage"
+	"github.com/firesworder/password_saver/internal/storage/sqlstorage/crypt"
+	"strings"
 )
 
 type BankData struct {
 	Conn *sql.DB
+
+	Encoder *crypt.Encoder
+	Decoder *crypt.Decoder
 }
 
 func (br *BankData) AddBankData(ctx context.Context, bd storage.BankData, u *storage.User) (int, error) {
 	var id int
-
-	err := br.Conn.QueryRowContext(ctx,
-		`INSERT INTO bankdata(card_number, card_expiry, cvv, meta_info, user_id) VALUES ($1, $2, $3, $4, $5) 
-                                                                        RETURNING id`,
-		bd.CardNumber, bd.CardExpire, bd.CVV, bd.MetaInfo, u.ID,
+	var err error
+	content, err := br.Encoder.Encode([]byte(strings.Join([]string{bd.CardNumber, bd.CardExpire, bd.CVV}, ",")))
+	if err != nil {
+		return 0, err
+	}
+	err = br.Conn.QueryRowContext(ctx,
+		`INSERT INTO bankdata(bank_data, meta_info, user_id) VALUES ($1, $2, $3) RETURNING id`,
+		content, bd.MetaInfo, u.ID,
 	).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -26,10 +34,13 @@ func (br *BankData) AddBankData(ctx context.Context, bd storage.BankData, u *sto
 }
 
 func (br *BankData) UpdateBankData(ctx context.Context, bd storage.BankData, u *storage.User) error {
+	content, err := br.Encoder.Encode([]byte(strings.Join([]string{bd.CardNumber, bd.CardExpire, bd.CVV}, ",")))
+	if err != nil {
+		return err
+	}
 	result, err := br.Conn.ExecContext(ctx,
-		`UPDATE bankdata SET card_number = $1, card_expiry = $2, cvv = $3, meta_info = $4 
-                WHERE id = $5 AND user_id = $6`,
-		bd.CardNumber, bd.CardExpire, bd.CVV, bd.MetaInfo, bd.ID, u.ID)
+		`UPDATE bankdata SET bank_data = $1, meta_info = $2 WHERE id = $3 AND user_id = $4`,
+		content, bd.MetaInfo, bd.ID, u.ID)
 	if err != nil {
 		return err
 	}
@@ -62,17 +73,22 @@ func (br *BankData) DeleteBankData(ctx context.Context, bd storage.BankData, u *
 func (br *BankData) GetAllRecords(ctx context.Context, u *storage.User) ([]storage.BankData, error) {
 	result := make([]storage.BankData, 0)
 	rows, err := br.Conn.QueryContext(ctx,
-		"SELECT id, card_number, card_expiry, cvv, meta_info, user_id FROM bankdata WHERE user_id=$1", u.ID)
+		"SELECT id, bank_data, meta_info, user_id FROM bankdata WHERE user_id=$1", u.ID)
 	if err != nil {
 		return nil, nil
 	}
 
 	for rows.Next() {
 		element := storage.BankData{}
-		if err = rows.Scan(&element.ID, &element.CardNumber, &element.CardExpire, &element.CVV, &element.MetaInfo,
-			&element.UserID); err != nil {
+		var content, contentDec []byte
+		if err = rows.Scan(&element.ID, &content, &element.MetaInfo, &element.UserID); err != nil {
 			return nil, err
 		}
+		if contentDec, err = br.Decoder.Decode(content); err != nil {
+			return nil, err
+		}
+		strDec := strings.Split(string(contentDec), ",")
+		element.CardNumber, element.CardExpire, element.CVV = strDec[0], strDec[1], strDec[2]
 		result = append(result, element)
 	}
 

@@ -4,18 +4,26 @@ import (
 	"context"
 	"database/sql"
 	"github.com/firesworder/password_saver/internal/storage"
+	"github.com/firesworder/password_saver/internal/storage/sqlstorage/crypt"
 )
 
 type TextData struct {
 	Conn *sql.DB
+
+	Encoder *crypt.Encoder
+	Decoder *crypt.Decoder
 }
 
 func (tr *TextData) AddTextData(ctx context.Context, td storage.TextData, u *storage.User) (int, error) {
 	var id int
-
-	err := tr.Conn.QueryRowContext(ctx,
+	var err error
+	content, err := tr.Encoder.Encode([]byte(td.TextData))
+	if err != nil {
+		return 0, err
+	}
+	err = tr.Conn.QueryRowContext(ctx,
 		"INSERT INTO textdata(text_data, meta_info, user_id) VALUES ($1, $2, $3) RETURNING id",
-		td.TextData, td.MetaInfo, u.ID,
+		content, td.MetaInfo, u.ID,
 	).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -25,9 +33,13 @@ func (tr *TextData) AddTextData(ctx context.Context, td storage.TextData, u *sto
 }
 
 func (tr *TextData) UpdateTextData(ctx context.Context, td storage.TextData, u *storage.User) error {
+	content, err := tr.Encoder.Encode([]byte(td.TextData))
+	if err != nil {
+		return err
+	}
 	result, err := tr.Conn.ExecContext(ctx,
 		`UPDATE textdata SET text_data = $1, meta_info = $2 WHERE id = $3 AND user_id = $4`,
-		td.TextData, td.MetaInfo, td.ID, u.ID,
+		content, td.MetaInfo, td.ID, u.ID,
 	)
 	if err != nil {
 		return err
@@ -68,9 +80,14 @@ func (tr *TextData) GetAllRecords(ctx context.Context, u *storage.User) ([]stora
 
 	for rows.Next() {
 		element := storage.TextData{}
-		if err = rows.Scan(&element.ID, &element.TextData, &element.MetaInfo, &element.UserID); err != nil {
+		var content, contentDec []byte
+		if err = rows.Scan(&element.ID, &content, &element.MetaInfo, &element.UserID); err != nil {
 			return nil, err
 		}
+		if contentDec, err = tr.Decoder.Decode(content); err != nil {
+			return nil, err
+		}
+		element.TextData = string(contentDec)
 		result = append(result, element)
 	}
 

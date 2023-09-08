@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS Users
 CREATE TABLE IF NOT EXISTS TextData
 (
     id SERIAL PRIMARY KEY,
-    text_data TEXT,
+    text_data BYTEA,
     meta_info TEXT,
 	user_id INTEGER REFERENCES Users(id)
 );
@@ -19,9 +19,7 @@ CREATE TABLE IF NOT EXISTS TextData
 CREATE TABLE IF NOT EXISTS BankData
 (
     id SERIAL PRIMARY KEY,
-    card_number VARCHAR(16),
-    card_expiry VARCHAR(5),
-    CVV VARCHAR(3),
+    bank_data BYTEA,
     meta_info TEXT,
 	user_id INTEGER REFERENCES Users(id)
 );

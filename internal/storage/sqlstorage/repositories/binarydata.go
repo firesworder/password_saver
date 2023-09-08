@@ -4,18 +4,25 @@ import (
 	"context"
 	"database/sql"
 	"github.com/firesworder/password_saver/internal/storage"
+	"github.com/firesworder/password_saver/internal/storage/sqlstorage/crypt"
 )
 
 type BinaryData struct {
 	Conn *sql.DB
+
+	Encoder *crypt.Encoder
+	Decoder *crypt.Decoder
 }
 
 func (br *BinaryData) AddBinaryData(ctx context.Context, bd storage.BinaryData, u *storage.User) (int, error) {
 	var id int
-
-	err := br.Conn.QueryRowContext(ctx,
+	content, err := br.Encoder.Encode(bd.BinaryData)
+	if err != nil {
+		return 0, err
+	}
+	err = br.Conn.QueryRowContext(ctx,
 		"INSERT INTO binarydata(binary_data, meta_info, user_id) VALUES ($1, $2, $3) RETURNING id",
-		bd.BinaryData, bd.MetaInfo, u.ID,
+		content, bd.MetaInfo, u.ID,
 	).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -25,9 +32,13 @@ func (br *BinaryData) AddBinaryData(ctx context.Context, bd storage.BinaryData, 
 }
 
 func (br *BinaryData) UpdateBinaryData(ctx context.Context, bd storage.BinaryData, u *storage.User) error {
+	content, err := br.Encoder.Encode(bd.BinaryData)
+	if err != nil {
+		return err
+	}
 	result, err := br.Conn.ExecContext(ctx,
 		`UPDATE binarydata SET binary_data = $1, meta_info = $2 WHERE id = $3 AND user_id = $4`,
-		bd.BinaryData, bd.MetaInfo, bd.ID, u.ID)
+		content, bd.MetaInfo, bd.ID, u.ID)
 	if err != nil {
 		return err
 	}
@@ -67,7 +78,11 @@ func (br *BinaryData) GetAllRecords(ctx context.Context, u *storage.User) ([]sto
 
 	for rows.Next() {
 		element := storage.BinaryData{}
-		if err = rows.Scan(&element.ID, &element.BinaryData, &element.MetaInfo, &element.UserID); err != nil {
+		var content []byte
+		if err = rows.Scan(&element.ID, &content, &element.MetaInfo, &element.UserID); err != nil {
+			return nil, err
+		}
+		if element.BinaryData, err = br.Decoder.Decode(content); err != nil {
 			return nil, err
 		}
 		result = append(result, element)
