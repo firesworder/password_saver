@@ -22,7 +22,7 @@ var Env Environment
 
 func initCmdArgs() {
 	flag.StringVar(&Env.ServerAddress, "a", "localhost:8080", "server address")
-	flag.StringVar(&Env.ServerAddress, "ca_c", "", "ca_cert file")
+	flag.StringVar(&Env.CACert, "ca_c", "", "ca_cert file")
 }
 
 // ParseEnvArgs Парсит значения полей Env. Сначала из cmd аргументов, затем из перем-х окружения.
