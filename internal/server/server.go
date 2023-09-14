@@ -4,6 +4,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/firesworder/password_saver/internal/server/env"
 	"github.com/firesworder/password_saver/internal/storage"
 	"github.com/firesworder/password_saver/internal/storage/sqlstorage"
 	"google.golang.org/grpc/metadata"
@@ -22,8 +23,8 @@ type Server struct {
 	genToken []byte
 }
 
-func NewServer() (*Server, error) {
-	ssql, err := sqlstorage.NewStorage(storage.DevDSN)
+func NewServer(env *env.Environment) (*Server, error) {
+	ssql, err := sqlstorage.NewStorage(env)
 	if err != nil {
 		return nil, err
 	}

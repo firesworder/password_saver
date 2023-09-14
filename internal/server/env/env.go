@@ -14,6 +14,7 @@ func init() {
 // Environment для получения(из ENV и cmd) и хранения переменных окружения агента.
 type Environment struct {
 	ServerAddress  string `env:"ADDRESS"`
+	DSN            string `env:"DATABASE_DSN"`
 	CertFile       string `env:"CERT_FILE"`
 	PrivateKeyFile string `env:"PRIVATE_KEY_FILE"`
 }
@@ -23,6 +24,7 @@ var Env Environment
 
 func initCmdArgs() {
 	flag.StringVar(&Env.ServerAddress, "a", "localhost:8080", "server address")
+	flag.StringVar(&Env.DSN, "d", "", "database dsn")
 	flag.StringVar(&Env.CertFile, "c", "", "cert file")
 	flag.StringVar(&Env.PrivateKeyFile, "pk", "", "private key file")
 }

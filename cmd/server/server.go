@@ -19,7 +19,7 @@ func main() {
 
 	env.ParseEnvArgs()
 
-	s, err := server.NewServer()
+	s, err := server.NewServer(&env.Env)
 	if err != nil {
 		log.Fatal(err)
 	}
