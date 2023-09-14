@@ -1,38 +1,24 @@
-// Package agent реализует взаимодействие между пользователем(консоль) и grpc агентом.
 package agent
 
 import (
+	"bufio"
 	"fmt"
-	"github.com/firesworder/password_saver/internal/agent/env"
 	"github.com/firesworder/password_saver/internal/grpcagent"
-	"io"
+	"os"
 )
-
-func scanMetaInfo() (string, error) {
-	var metaInfo string
-	fmt.Println("Enter meta info")
-	if _, err := fmt.Scan(&metaInfo); err != nil {
-		return "", err
-	}
-	return metaInfo, nil
-}
 
 // Agent экземпляр агента для вызова в cmd/agent
 type Agent struct {
 	state     *state
-	grpcAgent *grpcagent.GRPCAgent
-	stdin     io.Reader // для тестов
+	grpcAgent grpcagent.IGRPCAgent
+	reader    *bufio.Reader
 	isAuth    bool
 }
 
 // NewAgent конструктор агента, формирует пустой стейт польз.данных + создает экземпляр grpc агента.
-func NewAgent(agentEnv *env.Environment) (*Agent, error) {
-	a := &Agent{state: newState()}
-	grpcAgent, err := grpcagent.NewGRPCAgent(agentEnv.ServerAddress, agentEnv.CACert)
-	if err != nil {
-		return nil, err
-	}
-	a.grpcAgent = grpcAgent
+func NewAgent(grpcAgent grpcagent.IGRPCAgent) (*Agent, error) {
+	a := &Agent{state: newState(), grpcAgent: grpcAgent}
+	a.reader = bufio.NewReader(os.Stdin)
 	return a, nil
 }
 

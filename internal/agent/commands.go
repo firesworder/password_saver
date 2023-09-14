@@ -6,17 +6,28 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 )
 
+func (a *Agent) scanMetaInfo() (string, error) {
+	fmt.Println("Enter meta info")
+	return a.reader.ReadString('\n')
+}
+
 func (a *Agent) registerUserCommand() {
-	var err error
-	var login, password string
 	fmt.Println("Enter login and password separated by space")
-	_, err = fmt.Scan(&login, &password)
+	input, err := a.reader.ReadString('\n')
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	fields := strings.Fields(input)
+	if len(fields) != 2 {
+		log.Println("input error")
+		return
+	}
+	login, password := fields[0], fields[1]
 
 	err = a.grpcAgent.RegisterUser(login, password)
 	if err != nil {
@@ -27,14 +38,18 @@ func (a *Agent) registerUserCommand() {
 }
 
 func (a *Agent) loginUserCommand() {
-	var err error
-	var login, password string
 	fmt.Println("Enter login and password separated by space")
-	_, err = fmt.Scan(&login, &password)
+	input, err := a.reader.ReadString('\n')
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	fields := strings.Fields(input)
+	if len(fields) != 2 {
+		log.Println("input error")
+		return
+	}
+	login, password := fields[0], fields[1]
 
 	err = a.grpcAgent.LoginUser(login, password)
 	if err != nil {
@@ -45,17 +60,13 @@ func (a *Agent) loginUserCommand() {
 }
 
 // create commands
-
 func (a *Agent) createRecordCommand() {
 	if !a.isAuth {
 		log.Println("auth required")
 		return
 	}
-
-	var err error
-	var dataType string
 	fmt.Println("Choose data type(enter name type): text, bank or binary")
-	_, err = fmt.Scan(&dataType)
+	dataType, err := a.reader.ReadString('\n')
 	if err != nil {
 		log.Println(err)
 		return
@@ -75,16 +86,16 @@ func (a *Agent) createRecordCommand() {
 }
 
 func (a *Agent) createTextDataCommand() {
-	var err error
 	var textData storage.TextData
 	fmt.Println("Enter text data")
-	_, err = fmt.Scan(&textData.TextData)
+	input, err := a.reader.ReadString('\n')
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	textData.TextData = input
 
-	if textData.MetaInfo, err = scanMetaInfo(); err != nil {
+	if textData.MetaInfo, err = a.scanMetaInfo(); err != nil {
 		log.Println(err)
 		return
 	}
@@ -98,16 +109,21 @@ func (a *Agent) createTextDataCommand() {
 }
 
 func (a *Agent) createBankDataCommand() {
-	var err error
 	var bankData storage.BankData
 	fmt.Println("Enter bank data separated by spaces: CardNumber(without spaces), CardExpiry, CVV")
-	_, err = fmt.Scan(&bankData.CardNumber, &bankData.CardExpire, &bankData.CVV)
+	input, err := a.reader.ReadString('\n')
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	fields := strings.Fields(input)
+	if len(fields) != 3 {
+		log.Println("input error")
+		return
+	}
+	bankData.CardNumber, bankData.CardExpire, bankData.CVV = fields[0], fields[1], fields[2]
 
-	if bankData.MetaInfo, err = scanMetaInfo(); err != nil {
+	if bankData.MetaInfo, err = a.scanMetaInfo(); err != nil {
 		log.Println(err)
 		return
 	}
@@ -121,11 +137,9 @@ func (a *Agent) createBankDataCommand() {
 }
 
 func (a *Agent) createBinaryDataCommand() {
-	var err error
-	var binaryFP string
 	var binaryData storage.BinaryData
 	fmt.Println("Enter binary data filepath")
-	_, err = fmt.Scan(&binaryFP)
+	binaryFP, err := a.reader.ReadString('\n')
 	if err != nil {
 		log.Println(err)
 		return
@@ -142,7 +156,7 @@ func (a *Agent) createBinaryDataCommand() {
 		return
 	}
 
-	if binaryData.MetaInfo, err = scanMetaInfo(); err != nil {
+	if binaryData.MetaInfo, err = a.scanMetaInfo(); err != nil {
 		log.Println(err)
 		return
 	}
@@ -162,15 +176,25 @@ func (a *Agent) openRecordCommand() {
 		log.Println("auth required")
 		return
 	}
-	var err error
-	var recordID int
-	var dataType string
+
 	fmt.Println("Enter recordID and dataType")
-	_, err = fmt.Scan(&recordID, &dataType)
+	input, err := a.reader.ReadString('\n')
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	fields := strings.Fields(input)
+	if len(fields) != 2 {
+		log.Println("input error")
+		return
+	}
+	recordID, err := strconv.Atoi(fields[0])
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	dataType := fields[1]
+
 	record, err := a.state.get(recordID, dataType)
 	if err != nil {
 		log.Println(err)
@@ -190,6 +214,7 @@ func (a *Agent) openRecordCommand() {
 		fmt.Printf("CardExpiry: %s | CVV: %sn", v.CardExpire, v.CVV)
 		fmt.Printf("MetaInfo: %s\n", v.MetaInfo)
 	case storage.BinaryData:
+		// todo: binary dada change
 		fmt.Printf("Binary data record:")
 		fmt.Printf("ID: %d\n", v.ID)
 		fmt.Printf("Content: %s\n", v.BinaryData)
@@ -204,10 +229,25 @@ func (a *Agent) updateRecordCommand() {
 		log.Println("auth required")
 		return
 	}
-	var err error
-	var recordID int
-	var dataType string
+
 	fmt.Println("Enter recordID and dataType")
+	input, err := a.reader.ReadString('\n')
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fields := strings.Fields(input)
+	if len(fields) != 2 {
+		log.Println("input error")
+		return
+	}
+	recordID, err := strconv.Atoi(fields[0])
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	dataType := fields[1]
+
 	_, err = fmt.Scan(&recordID, &dataType)
 	if err != nil {
 		log.Println(err)
@@ -233,13 +273,14 @@ func (a *Agent) updateTextDataCommand(ID int) {
 	var err error
 	textData := storage.TextData{ID: ID}
 	fmt.Println("Enter text data")
-	_, err = fmt.Scan(&textData.TextData)
+	input, err := a.reader.ReadString('\n')
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	textData.TextData = input
 
-	if textData.MetaInfo, err = scanMetaInfo(); err != nil {
+	if textData.MetaInfo, err = a.scanMetaInfo(); err != nil {
 		log.Println(err)
 		return
 	}
@@ -256,13 +297,19 @@ func (a *Agent) updateBankDataCommand(ID int) {
 	var err error
 	bankData := storage.BankData{ID: ID}
 	fmt.Println("Enter bank data separated by spaces: CardNumber(without spaces), CardExpiry, CVV")
-	_, err = fmt.Scan(&bankData.CardNumber, &bankData.CardExpire, &bankData.CVV)
+	input, err := a.reader.ReadString('\n')
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	fields := strings.Fields(input)
+	if len(fields) != 3 {
+		log.Println("input error")
+		return
+	}
+	bankData.CardNumber, bankData.CardExpire, bankData.CVV = fields[0], fields[1], fields[2]
 
-	if bankData.MetaInfo, err = scanMetaInfo(); err != nil {
+	if bankData.MetaInfo, err = a.scanMetaInfo(); err != nil {
 		log.Println(err)
 		return
 	}
@@ -277,10 +324,9 @@ func (a *Agent) updateBankDataCommand(ID int) {
 
 func (a *Agent) updateBinaryDataCommand(ID int) {
 	var err error
-	var binaryFP string // todo: для вывода оставить? или в метаинфу
 	binaryData := storage.BinaryData{ID: ID}
 	fmt.Println("Enter binary data filepath")
-	_, err = fmt.Scan(&binaryFP)
+	binaryFP, err := a.reader.ReadString('\n')
 	if err != nil {
 		log.Println(err)
 		return
@@ -297,7 +343,7 @@ func (a *Agent) updateBinaryDataCommand(ID int) {
 		return
 	}
 
-	if binaryData.MetaInfo, err = scanMetaInfo(); err != nil {
+	if binaryData.MetaInfo, err = a.scanMetaInfo(); err != nil {
 		log.Println(err)
 		return
 	}
@@ -317,15 +363,25 @@ func (a *Agent) deleteRecordCommand() {
 		log.Println("auth required")
 		return
 	}
-	var err error
-	var recordID int
-	var dataType string
+
 	fmt.Println("Enter recordID and dataType")
-	_, err = fmt.Scan(&recordID, &dataType)
+	input, err := a.reader.ReadString('\n')
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	fields := strings.Fields(input)
+	if len(fields) != 2 {
+		log.Println("input error")
+		return
+	}
+	recordID, err := strconv.Atoi(fields[0])
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	dataType := fields[1]
+
 	record, err := a.state.get(recordID, dataType)
 	if err != nil {
 		log.Println(err)

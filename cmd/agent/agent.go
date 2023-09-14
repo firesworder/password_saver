@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/firesworder/password_saver/internal/agent"
 	"github.com/firesworder/password_saver/internal/agent/env"
+	"github.com/firesworder/password_saver/internal/grpcagent"
 	"log"
 )
 
@@ -22,10 +23,14 @@ var (
 
 func main() {
 	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
-
 	env.ParseEnvArgs()
 
-	a, err := agent.NewAgent(&env.Env)
+	grpcAgent, err := grpcagent.NewGRPCAgent(env.Env.ServerAddress, env.Env.CACert)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	a, err := agent.NewAgent(grpcAgent)
 	if err != nil {
 		log.Fatal(err)
 	}
