@@ -12,7 +12,11 @@ import (
 
 func (a *Agent) scanMetaInfo() (string, error) {
 	fmt.Println("Enter meta info")
-	return a.reader.ReadString('\n')
+	input, err := a.reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(input), nil
 }
 
 func (a *Agent) registerUserCommand() {
@@ -72,7 +76,7 @@ func (a *Agent) createRecordCommand() {
 		return
 	}
 
-	switch dataType {
+	switch strings.TrimSpace(dataType) {
 	case "text":
 		a.createTextDataCommand()
 	case "bank":
@@ -93,7 +97,7 @@ func (a *Agent) createTextDataCommand() {
 		log.Println(err)
 		return
 	}
-	textData.TextData = input
+	textData.TextData = strings.TrimSpace(input)
 
 	if textData.MetaInfo, err = a.scanMetaInfo(); err != nil {
 		log.Println(err)
@@ -145,7 +149,7 @@ func (a *Agent) createBinaryDataCommand() {
 		return
 	}
 
-	f, err := os.Open(binaryFP)
+	f, err := os.Open(strings.TrimSpace(binaryFP))
 	if err != nil {
 		log.Println(err)
 		return
@@ -278,7 +282,7 @@ func (a *Agent) updateTextDataCommand(ID int) {
 		log.Println(err)
 		return
 	}
-	textData.TextData = input
+	textData.TextData = strings.TrimSpace(input)
 
 	if textData.MetaInfo, err = a.scanMetaInfo(); err != nil {
 		log.Println(err)
@@ -332,7 +336,7 @@ func (a *Agent) updateBinaryDataCommand(ID int) {
 		return
 	}
 
-	f, err := os.Open(binaryFP)
+	f, err := os.Open(strings.TrimSpace(binaryFP))
 	if err != nil {
 		log.Println(err)
 		return
@@ -441,7 +445,7 @@ Auth methods:
 - register_user, login_user
 
 User data methods(required auth!):
-create_record, open_record, update_record, delete_record
-show_all_records
+- create_record, open_record, update_record, delete_record
+- show_all_records
 `)
 }

@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/firesworder/password_saver/internal/grpcagent"
+	"log"
 	"os"
+	"strings"
 )
 
 // Agent экземпляр агента для вызова в cmd/agent
@@ -23,14 +25,15 @@ func NewAgent(grpcAgent grpcagent.IGRPCAgent) (*Agent, error) {
 }
 
 // Serve запуска агента на обработку команд пользователя.
-func (a *Agent) Serve() error {
+func (a *Agent) Serve() {
 	for {
-		var command string
-		if _, err := fmt.Scan(&command); err != nil {
-			return err
+		command, err := a.reader.ReadString('\n')
+		if err != nil {
+			log.Println(err)
+			continue
 		}
 
-		switch command {
+		switch strings.TrimSpace(command) {
 		case "register_user":
 			a.registerUserCommand()
 		case "login_user":

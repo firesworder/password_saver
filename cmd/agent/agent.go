@@ -34,5 +34,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Fatal(a.Serve())
+	a.Serve()
 }
