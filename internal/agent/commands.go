@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"github.com/firesworder/password_saver/internal/storage"
 	"io"
-	"log"
 	"os"
 	"strconv"
 	"strings"
 )
 
 func (a *Agent) scanMetaInfo() (string, error) {
-	fmt.Println("Enter meta info")
+	a.writeString("Enter meta info")
 	input, err := a.reader.ReadString('\n')
 	if err != nil {
 		return "", err
@@ -20,44 +19,44 @@ func (a *Agent) scanMetaInfo() (string, error) {
 }
 
 func (a *Agent) registerUserCommand() {
-	fmt.Println("Enter login and password separated by space")
+	a.writeString("Enter login and password separated by space")
 	input, err := a.reader.ReadString('\n')
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString("input error")
 		return
 	}
 	fields := strings.Fields(input)
 	if len(fields) != 2 {
-		log.Println("input error")
+		a.writeErrorString("input error")
 		return
 	}
 	login, password := fields[0], fields[1]
 
 	err = a.grpcAgent.RegisterUser(login, password)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	a.isAuth = true
 }
 
 func (a *Agent) loginUserCommand() {
-	fmt.Println("Enter login and password separated by space")
+	a.writeString("Enter login and password separated by space")
 	input, err := a.reader.ReadString('\n')
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	fields := strings.Fields(input)
 	if len(fields) != 2 {
-		log.Println("input error")
+		a.writeErrorString("input error")
 		return
 	}
 	login, password := fields[0], fields[1]
 
 	err = a.grpcAgent.LoginUser(login, password)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	a.isAuth = true
@@ -66,13 +65,13 @@ func (a *Agent) loginUserCommand() {
 // create commands
 func (a *Agent) createRecordCommand() {
 	if !a.isAuth {
-		log.Println("auth required")
+		a.writeErrorString("auth required")
 		return
 	}
-	fmt.Println("Choose data type(enter name type): text, bank or binary")
+	a.writeString("Choose data type(enter name type): text, bank or binary")
 	dataType, err := a.reader.ReadString('\n')
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
@@ -84,29 +83,29 @@ func (a *Agent) createRecordCommand() {
 	case "binary":
 		a.createBinaryDataCommand()
 	default:
-		fmt.Println("unknown data type")
+		a.writeErrorString("unknown data type")
 		return
 	}
 }
 
 func (a *Agent) createTextDataCommand() {
 	var textData storage.TextData
-	fmt.Println("Enter text data")
+	a.writeString("Enter text data")
 	input, err := a.reader.ReadString('\n')
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	textData.TextData = strings.TrimSpace(input)
 
 	if textData.MetaInfo, err = a.scanMetaInfo(); err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
 	textData.ID, err = a.grpcAgent.CreateTextDataRecord(textData)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	a.state.set(textData)
@@ -114,27 +113,27 @@ func (a *Agent) createTextDataCommand() {
 
 func (a *Agent) createBankDataCommand() {
 	var bankData storage.BankData
-	fmt.Println("Enter bank data separated by spaces: CardNumber(without spaces), CardExpiry, CVV")
+	a.writeString("Enter bank data separated by spaces: CardNumber(without spaces), CardExpiry, CVV")
 	input, err := a.reader.ReadString('\n')
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	fields := strings.Fields(input)
 	if len(fields) != 3 {
-		log.Println("input error")
+		a.writeErrorString("input error")
 		return
 	}
 	bankData.CardNumber, bankData.CardExpire, bankData.CVV = fields[0], fields[1], fields[2]
 
 	if bankData.MetaInfo, err = a.scanMetaInfo(); err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
 	bankData.ID, err = a.grpcAgent.CreateBankDataRecord(bankData)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	a.state.set(bankData)
@@ -142,32 +141,32 @@ func (a *Agent) createBankDataCommand() {
 
 func (a *Agent) createBinaryDataCommand() {
 	var binaryData storage.BinaryData
-	fmt.Println("Enter binary data filepath")
+	a.writeString("Enter binary data filepath")
 	binaryFP, err := a.reader.ReadString('\n')
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
 	f, err := os.Open(strings.TrimSpace(binaryFP))
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	binaryData.BinaryData, err = io.ReadAll(f)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
 	if binaryData.MetaInfo, err = a.scanMetaInfo(); err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
 	binaryData.ID, err = a.grpcAgent.CreateBinaryDataRecord(binaryData)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	a.state.set(binaryData)
@@ -177,52 +176,68 @@ func (a *Agent) createBinaryDataCommand() {
 
 func (a *Agent) openRecordCommand() {
 	if !a.isAuth {
-		log.Println("auth required")
+		a.writeErrorString("auth required")
 		return
 	}
 
-	fmt.Println("Enter recordID and dataType")
+	a.writeString("Enter recordID and dataType")
 	input, err := a.reader.ReadString('\n')
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	fields := strings.Fields(input)
 	if len(fields) != 2 {
-		log.Println("input error")
+		a.writeErrorString("input error")
 		return
 	}
 	recordID, err := strconv.Atoi(fields[0])
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	dataType := fields[1]
 
 	record, err := a.state.get(recordID, dataType)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
 	switch v := record.(type) {
 	case storage.TextData:
-		fmt.Printf("Text data record:")
-		fmt.Printf("ID: %d\n", v.ID)
-		fmt.Printf("Content: %s\n", v.TextData)
-		fmt.Printf("MetaInfo: %s\n", v.MetaInfo)
+		output := fmt.Sprintf(`Text data record:
+ID: %d
+Content: %s
+MetaInfo: %s
+`, v.ID, v.TextData, v.MetaInfo)
+		a.writeString(output)
 	case storage.BankData:
-		fmt.Printf("Bank data record:")
-		fmt.Printf("ID: %d\n", v.ID)
-		fmt.Printf("CardNumber: %s\n", v.CardNumber)
-		fmt.Printf("CardExpiry: %s | CVV: %sn", v.CardExpire, v.CVV)
-		fmt.Printf("MetaInfo: %s\n", v.MetaInfo)
+		output := fmt.Sprintf(`Bank data record:
+ID: %d
+CardNumber: %s
+CardExpiry: %s | CVV: %s
+MetaInfo: %s
+`, v.ID, v.CardNumber, v.CardExpire, v.CVV, v.MetaInfo)
+		a.writeString(output)
 	case storage.BinaryData:
-		// todo: binary dada change
-		fmt.Printf("Binary data record:")
-		fmt.Printf("ID: %d\n", v.ID)
-		fmt.Printf("Content: %s\n", v.BinaryData)
-		fmt.Printf("MetaInfo: %s\n", v.MetaInfo)
+		a.writeString("Enter filepath to save binary content")
+		fp, err := a.reader.ReadString('\n')
+		if err != nil {
+			a.writeErrorString(err.Error())
+			return
+		}
+
+		f, err := os.OpenFile(strings.TrimSpace(fp), os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+		if err != nil {
+			a.writeErrorString(err.Error())
+			return
+		}
+		if _, err = f.Write(v.BinaryData); err != nil {
+			a.writeErrorString(err.Error())
+			return
+		}
+		a.writeString("writing complete")
 	}
 }
 
@@ -230,36 +245,36 @@ func (a *Agent) openRecordCommand() {
 
 func (a *Agent) updateRecordCommand() {
 	if !a.isAuth {
-		log.Println("auth required")
+		a.writeErrorString("auth required")
 		return
 	}
 
-	fmt.Println("Enter recordID and dataType")
+	a.writeString("Enter recordID and dataType")
 	input, err := a.reader.ReadString('\n')
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	fields := strings.Fields(input)
 	if len(fields) != 2 {
-		log.Println("input error")
+		a.writeErrorString("input error")
 		return
 	}
 	recordID, err := strconv.Atoi(fields[0])
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	dataType := fields[1]
 
 	_, err = fmt.Scan(&recordID, &dataType)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	record, err := a.state.get(recordID, dataType)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
@@ -276,22 +291,22 @@ func (a *Agent) updateRecordCommand() {
 func (a *Agent) updateTextDataCommand(ID int) {
 	var err error
 	textData := storage.TextData{ID: ID}
-	fmt.Println("Enter text data")
+	a.writeString("Enter text data")
 	input, err := a.reader.ReadString('\n')
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	textData.TextData = strings.TrimSpace(input)
 
 	if textData.MetaInfo, err = a.scanMetaInfo(); err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
 	err = a.grpcAgent.UpdateTextDataRecord(textData)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	a.state.set(textData)
@@ -300,27 +315,27 @@ func (a *Agent) updateTextDataCommand(ID int) {
 func (a *Agent) updateBankDataCommand(ID int) {
 	var err error
 	bankData := storage.BankData{ID: ID}
-	fmt.Println("Enter bank data separated by spaces: CardNumber(without spaces), CardExpiry, CVV")
+	a.writeString("Enter bank data separated by spaces: CardNumber(without spaces), CardExpiry, CVV")
 	input, err := a.reader.ReadString('\n')
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	fields := strings.Fields(input)
 	if len(fields) != 3 {
-		log.Println("input error")
+		a.writeErrorString("input error")
 		return
 	}
 	bankData.CardNumber, bankData.CardExpire, bankData.CVV = fields[0], fields[1], fields[2]
 
 	if bankData.MetaInfo, err = a.scanMetaInfo(); err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
 	err = a.grpcAgent.UpdateBankDataRecord(bankData)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	a.state.set(bankData)
@@ -329,32 +344,32 @@ func (a *Agent) updateBankDataCommand(ID int) {
 func (a *Agent) updateBinaryDataCommand(ID int) {
 	var err error
 	binaryData := storage.BinaryData{ID: ID}
-	fmt.Println("Enter binary data filepath")
+	a.writeString("Enter binary data filepath")
 	binaryFP, err := a.reader.ReadString('\n')
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
 	f, err := os.Open(strings.TrimSpace(binaryFP))
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	binaryData.BinaryData, err = io.ReadAll(f)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
 	if binaryData.MetaInfo, err = a.scanMetaInfo(); err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
 	err = a.grpcAgent.UpdateBinaryDataRecord(binaryData)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	a.state.set(binaryData)
@@ -364,31 +379,31 @@ func (a *Agent) updateBinaryDataCommand(ID int) {
 
 func (a *Agent) deleteRecordCommand() {
 	if !a.isAuth {
-		log.Println("auth required")
+		a.writeErrorString("auth required")
 		return
 	}
 
-	fmt.Println("Enter recordID and dataType")
+	a.writeString("Enter recordID and dataType")
 	input, err := a.reader.ReadString('\n')
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	fields := strings.Fields(input)
 	if len(fields) != 2 {
-		log.Println("input error")
+		a.writeErrorString("input error")
 		return
 	}
 	recordID, err := strconv.Atoi(fields[0])
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 	dataType := fields[1]
 
 	record, err := a.state.get(recordID, dataType)
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
@@ -401,46 +416,46 @@ func (a *Agent) deleteRecordCommand() {
 		err = a.grpcAgent.DeleteBinaryDataRecord(storage.BinaryData{ID: v.ID})
 	}
 	if err = a.state.delete(recordID); err != nil {
-		log.Println("element was not found")
+		a.writeErrorString("element was not found")
 		return
 	}
 }
 
 func (a *Agent) showAllRecordsCommand() {
 	if !a.isAuth {
-		log.Println("auth required")
+		a.writeErrorString("auth required")
 		return
 	}
 	currentState, err := a.grpcAgent.ShowAllRecords()
 	if err != nil {
-		log.Println(err)
+		a.writeErrorString(err.Error())
 		return
 	}
 
-	fmt.Println("Text data records:")
-	fmt.Println("ID MetaInfo")
+	a.writeString("Text data records:")
+	a.writeString("ID MetaInfo")
 	for _, d := range currentState.TextDataList {
 		a.state.set(d)
-		fmt.Printf("%d %s\n", d.ID, d.MetaInfo)
+		a.writeString(fmt.Sprintf("%d %s", d.ID, d.MetaInfo))
 	}
 
-	fmt.Println("Bank data records:")
-	fmt.Println("ID MetaInfo")
+	a.writeString("Bank data records:")
+	a.writeString("ID MetaInfo")
 	for _, d := range currentState.BankDataList {
 		a.state.set(d)
-		fmt.Printf("%d %s\n", d.ID, d.MetaInfo)
+		a.writeString(fmt.Sprintf("%d %s", d.ID, d.MetaInfo))
 	}
 
-	fmt.Println("Binary data records:")
-	fmt.Println("ID MetaInfo")
+	a.writeString("Binary data records:")
+	a.writeString("ID MetaInfo")
 	for _, d := range currentState.BinaryDataList {
 		a.state.set(d)
-		fmt.Printf("%d %s\n", d.ID, d.MetaInfo)
+		a.writeString(fmt.Sprintf("%d %s", d.ID, d.MetaInfo))
 	}
 }
 
 func (a *Agent) helpCommand() {
-	fmt.Print(`Commands:
+	a.writeString(`Commands:
 Auth methods:
 - register_user, login_user
 

@@ -2,7 +2,6 @@ package agent
 
 import (
 	"bufio"
-	"fmt"
 	"github.com/firesworder/password_saver/internal/grpcagent"
 	"log"
 	"os"
@@ -14,6 +13,7 @@ type Agent struct {
 	state     *state
 	grpcAgent grpcagent.IGRPCAgent
 	reader    *bufio.Reader
+	writer    *bufio.Writer
 	isAuth    bool
 }
 
@@ -21,7 +21,18 @@ type Agent struct {
 func NewAgent(grpcAgent grpcagent.IGRPCAgent) (*Agent, error) {
 	a := &Agent{state: newState(), grpcAgent: grpcAgent}
 	a.reader = bufio.NewReader(os.Stdin)
+	a.writer = bufio.NewWriter(os.Stdout)
 	return a, nil
+}
+
+func (a *Agent) writeString(str string) {
+	a.writer.WriteString(str + "\n")
+	a.writer.Flush()
+}
+
+func (a *Agent) writeErrorString(errStr string) {
+	a.writer.WriteString("err: " + errStr + "\n")
+	a.writer.Flush()
 }
 
 // Serve запуска агента на обработку команд пользователя.
@@ -51,7 +62,7 @@ func (a *Agent) Serve() {
 		case "help":
 			a.helpCommand()
 		default:
-			fmt.Println("unknown command")
+			a.writeErrorString("unknown command")
 		}
 	}
 }
