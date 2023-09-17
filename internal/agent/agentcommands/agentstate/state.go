@@ -1,25 +1,25 @@
-package agent
+package agentstate
 
 import (
 	"fmt"
 	"github.com/firesworder/password_saver/internal/storage"
 )
 
-type state struct {
+type State struct {
 	textDL   map[int]storage.TextData
 	bankDL   map[int]storage.BankData
 	binaryDL map[int]storage.BinaryData
 }
 
-func newState() *state {
-	return &state{
+func NewState() *State {
+	return &State{
 		textDL:   map[int]storage.TextData{},
 		bankDL:   map[int]storage.BankData{},
 		binaryDL: map[int]storage.BinaryData{},
 	}
 }
 
-func (s *state) get(id int, dataType string) (interface{}, error) {
+func (s *State) Get(id int, dataType string) (interface{}, error) {
 	var v interface{}
 	var ok bool
 	if dataType == "text" {
@@ -38,7 +38,7 @@ func (s *state) get(id int, dataType string) (interface{}, error) {
 	return nil, fmt.Errorf("record was not found")
 }
 
-func (s *state) set(record interface{}) {
+func (s *State) Set(record interface{}) {
 	switch v := record.(type) {
 	case storage.TextData:
 		s.textDL[v.ID] = v
@@ -49,7 +49,7 @@ func (s *state) set(record interface{}) {
 	}
 }
 
-func (s *state) delete(id int) error {
+func (s *State) Delete(id int) error {
 	var ok bool
 	if _, ok = s.textDL[id]; ok {
 		delete(s.textDL, id)

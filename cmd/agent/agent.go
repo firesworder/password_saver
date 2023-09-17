@@ -8,10 +8,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/firesworder/password_saver/internal/agent"
+	"github.com/firesworder/password_saver/internal/agent/agentcommands/grpcagent"
 	"github.com/firesworder/password_saver/internal/agent/env"
-	"github.com/firesworder/password_saver/internal/grpcagent"
 	"log"
 )
 
@@ -30,9 +31,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	a, err := agent.NewAgent(grpcAgent)
-	if err != nil {
-		log.Fatal(err)
-	}
-	a.Serve()
+	a := agent.NewAgent(grpcAgent)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	a.Serve(ctx)
 }

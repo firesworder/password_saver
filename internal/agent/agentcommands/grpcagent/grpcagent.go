@@ -15,16 +15,16 @@ type GRPCAgent struct {
 }
 
 // NewGRPCAgent конструктор grpc агента. Создает соединение к серверу.
-func NewGRPCAgent(serverAddr string, pkFile string) (*GRPCAgent, error) {
+func NewGRPCAgent(serverAddress string, caCertFp string) (*GRPCAgent, error) {
 	var err error
 	agent := GRPCAgent{}
 
-	creds, err := credentials.NewClientTLSFromFile(pkFile, "127.0.0.1")
+	creds, err := credentials.NewClientTLSFromFile(caCertFp, "127.0.0.1")
 	if err != nil {
 		return nil, err
 	}
 
-	if agent.conn, err = grpc.Dial(serverAddr, grpc.WithTransportCredentials(creds)); err != nil {
+	if agent.conn, err = grpc.Dial(serverAddress, grpc.WithTransportCredentials(creds)); err != nil {
 		return nil, err
 	}
 	agent.grpcClient = pb.NewPasswordSaverClient(agent.conn)
