@@ -199,6 +199,13 @@ func TestAgent_controller(t *testing.T) {
 			wantOutput: fmt.Sprintf("%s\nerr: %s\n", enterIDaDT, "input error"),
 		},
 		{
+			name:       "Test 201. Open record. Empty input.",
+			command:    "open_record",
+			input:      "\n",
+			wantFC:     "",
+			wantOutput: fmt.Sprintf("%s\nerr: %s\n", enterIDaDT, "input error"),
+		},
+		{
 			name:       "Test 21. Open record. Input id not number.",
 			command:    "open_record",
 			input:      "id text\n",
@@ -221,6 +228,13 @@ func TestAgent_controller(t *testing.T) {
 			wantOutput: fmt.Sprintf("%s\nerr: %s\n", enterIDaDT, "input error"),
 		},
 		{
+			name:       "Test 23. Update record. Empty input",
+			command:    "update_record",
+			input:      "\n",
+			wantFC:     "",
+			wantOutput: fmt.Sprintf("%s\nerr: %s\n", enterIDaDT, "input error"),
+		},
+		{
 			name:       "Test 24. Update record. Input id not number.",
 			command:    "update_record",
 			input:      "id text\n",
@@ -239,6 +253,13 @@ func TestAgent_controller(t *testing.T) {
 			name:       "Test 26. Delete record. Input only ID, without DT.",
 			command:    "delete_record",
 			input:      "10\n",
+			wantFC:     "",
+			wantOutput: fmt.Sprintf("%s\nerr: %s\n", enterIDaDT, "input error"),
+		},
+		{
+			name:       "Test 26. Delete record. Empty input.",
+			command:    "delete_record",
+			input:      "\n",
 			wantFC:     "",
 			wantOutput: fmt.Sprintf("%s\nerr: %s\n", enterIDaDT, "input error"),
 		},
