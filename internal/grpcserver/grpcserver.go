@@ -18,16 +18,18 @@ import (
 type GRPCServer struct {
 	pb.UnimplementedPasswordSaverServer
 
-	serv *server.Server
+	serv     server.IServer
+	grpcSObj *grpc.Server
 }
 
 // NewGRPCServer конструктор grpc сервера(обертка над server.Server).
-func NewGRPCServer(s *server.Server) (*GRPCServer, error) {
+func NewGRPCServer(s server.IServer) (*GRPCServer, error) {
 	grpcService := &GRPCServer{serv: s}
 	return grpcService, nil
 }
 
 // Serve запускает grpcserver + создает TLS соединение.
+// todo: сделать тестируемой(возвращать просто сервер, в конструкторе)
 func (gs *GRPCServer) Serve(env *env.Environment) error {
 	listen, err := net.Listen("tcp", env.ServerAddress)
 	if err != nil {
