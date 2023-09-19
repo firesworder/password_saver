@@ -34,7 +34,7 @@ func (s *Server) generateToken() ([]byte, error) {
 
 	h := hmac.New(sha256.New, s.genToken)
 	h.Write(newToken)
-	return h.Sum(nil), err
+	return h.Sum(nil), nil
 }
 
 func (s *Server) RegisterUser(ctx context.Context, user storage.User) (string, error) {
