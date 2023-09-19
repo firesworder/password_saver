@@ -1,10 +1,10 @@
-package repositories
+package sqlstorage
 
 import (
 	"context"
 	"database/sql"
+	"github.com/firesworder/password_saver/internal/crypt"
 	"github.com/firesworder/password_saver/internal/storage"
-	"github.com/firesworder/password_saver/internal/storage/sqlstorage/crypt"
 	"strings"
 )
 

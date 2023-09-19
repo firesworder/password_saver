@@ -3,10 +3,9 @@ package sqlstorage
 import (
 	"context"
 	"database/sql"
+	"github.com/firesworder/password_saver/internal/crypt"
 	"github.com/firesworder/password_saver/internal/server/env"
 	"github.com/firesworder/password_saver/internal/storage"
-	"github.com/firesworder/password_saver/internal/storage/sqlstorage/crypt"
-	"github.com/firesworder/password_saver/internal/storage/sqlstorage/repositories"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
@@ -44,14 +43,14 @@ func NewStorage(env *env.Environment) (*Storage, error) {
 
 	db = Storage{
 		Connection: db.Connection,
-		UserRep:    &repositories.User{Conn: db.Connection},
-		TextRep: &repositories.TextData{
+		UserRep:    &User{Conn: db.Connection},
+		TextRep: &TextData{
 			Conn: db.Connection, Encoder: encoder, Decoder: decoder,
 		},
-		BankRep: &repositories.BankData{
+		BankRep: &BankData{
 			Conn: db.Connection, Encoder: encoder, Decoder: decoder,
 		},
-		BinaryRep: &repositories.BinaryData{
+		BinaryRep: &BinaryData{
 			Conn: db.Connection, Encoder: encoder, Decoder: decoder,
 		},
 	}

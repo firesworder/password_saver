@@ -1,4 +1,4 @@
-package repositories
+package sqlstorage
 
 import (
 	"context"
