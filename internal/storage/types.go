@@ -1,10 +1,12 @@
 package storage
 
+// User тип объекта пользователя.
 type User struct {
 	ID                    int
 	Login, HashedPassword string
 }
 
+// TextData тип объекта текстовых данных.
 type TextData struct {
 	ID       int
 	TextData string
@@ -12,6 +14,7 @@ type TextData struct {
 	UserID   int
 }
 
+// BankData тип объекта банковских данных.
 type BankData struct {
 	ID         int
 	CardNumber string
@@ -21,6 +24,7 @@ type BankData struct {
 	UserID     int
 }
 
+// BinaryData тип объекта бинарных данных.
 type BinaryData struct {
 	ID         int
 	BinaryData []byte
@@ -28,6 +32,8 @@ type BinaryData struct {
 	UserID     int
 }
 
+// RecordsList тип для метода возвр. все записи из БД(не является сущностью в БД).
+// В себе хранит слайсы текстовых, банковских, и бинарных данных(пользователя).
 type RecordsList struct {
 	TextDataList   []TextData
 	BankDataList   []BankData

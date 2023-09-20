@@ -2,6 +2,8 @@ package storage
 
 import pb "github.com/firesworder/password_saver/proto"
 
+// todo: добавить простые тесты
+
 func TextDataToGRPC(input TextData) *pb.TextData {
 	return &pb.TextData{Id: int64(input.ID), TextData: input.TextData, MetaInfo: input.MetaInfo}
 }

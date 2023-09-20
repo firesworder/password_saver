@@ -8,10 +8,12 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+// User репозиторий пользователей.
 type User struct {
 	Conn *sql.DB
 }
 
+// CreateUser создает пользователя.
 func (ur *User) CreateUser(ctx context.Context, u storage.User) (*storage.User, error) {
 	var id int
 
@@ -28,6 +30,7 @@ func (ur *User) CreateUser(ctx context.Context, u storage.User) (*storage.User, 
 	return &storage.User{ID: id, Login: u.Login, HashedPassword: u.HashedPassword}, nil
 }
 
+// GetUser возвращает пользователя по логину.
 func (ur *User) GetUser(ctx context.Context, u storage.User) (*storage.User, error) {
 	gotUser := storage.User{}
 	err := ur.Conn.QueryRowContext(ctx,

@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// BankData репозиторий банковских данных в БД.
 type BankData struct {
 	Conn *sql.DB
 
@@ -15,6 +16,7 @@ type BankData struct {
 	Decoder *crypt.Decoder
 }
 
+// AddBankData добавляет банковскую запись пользователя.
 func (br *BankData) AddBankData(ctx context.Context, bd storage.BankData, u *storage.User) (int, error) {
 	var id int
 	var err error
@@ -33,6 +35,7 @@ func (br *BankData) AddBankData(ctx context.Context, bd storage.BankData, u *sto
 	return id, nil
 }
 
+// UpdateBankData обновляет банковскую запись пользователя.
 func (br *BankData) UpdateBankData(ctx context.Context, bd storage.BankData, u *storage.User) error {
 	content, err := br.Encoder.Encode([]byte(strings.Join([]string{bd.CardNumber, bd.CardExpire, bd.CVV}, ",")))
 	if err != nil {
@@ -54,6 +57,7 @@ func (br *BankData) UpdateBankData(ctx context.Context, bd storage.BankData, u *
 	return nil
 }
 
+// DeleteBankData удаляет банковскую запись пользователя.
 func (br *BankData) DeleteBankData(ctx context.Context, bd storage.BankData, u *storage.User) error {
 	result, err := br.Conn.ExecContext(ctx,
 		"DELETE FROM bankdata WHERE id = $1 AND user_id=$2", bd.ID, u.ID)
@@ -70,6 +74,7 @@ func (br *BankData) DeleteBankData(ctx context.Context, bd storage.BankData, u *
 	return nil
 }
 
+// GetAllRecords возвращает все банковские данные пользователя.
 func (br *BankData) GetAllRecords(ctx context.Context, u *storage.User) ([]storage.BankData, error) {
 	result := make([]storage.BankData, 0)
 	rows, err := br.Conn.QueryContext(ctx,

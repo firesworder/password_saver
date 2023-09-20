@@ -7,6 +7,7 @@ import (
 	"github.com/firesworder/password_saver/internal/storage"
 )
 
+// TextData репозиторий к текстовым данных.
 type TextData struct {
 	Conn *sql.DB
 
@@ -14,6 +15,7 @@ type TextData struct {
 	Decoder *crypt.Decoder
 }
 
+// AddTextData добавляет текстовую запись для пользователя.
 func (tr *TextData) AddTextData(ctx context.Context, td storage.TextData, u *storage.User) (int, error) {
 	var id int
 	var err error
@@ -32,6 +34,7 @@ func (tr *TextData) AddTextData(ctx context.Context, td storage.TextData, u *sto
 	return id, nil
 }
 
+// UpdateTextData обновляет текстовую запись пользователя.
 func (tr *TextData) UpdateTextData(ctx context.Context, td storage.TextData, u *storage.User) error {
 	content, err := tr.Encoder.Encode([]byte(td.TextData))
 	if err != nil {
@@ -54,6 +57,7 @@ func (tr *TextData) UpdateTextData(ctx context.Context, td storage.TextData, u *
 	return nil
 }
 
+// DeleteTextData удаляет текстовую запись пользователя.
 func (tr *TextData) DeleteTextData(ctx context.Context, td storage.TextData, u *storage.User) error {
 	result, err := tr.Conn.ExecContext(ctx,
 		"DELETE FROM textdata WHERE id = $1 AND user_id = $2", td.ID, u.ID)
@@ -70,6 +74,7 @@ func (tr *TextData) DeleteTextData(ctx context.Context, td storage.TextData, u *
 	return nil
 }
 
+// GetAllRecords возвращает все текстовые данные пользователя.
 func (tr *TextData) GetAllRecords(ctx context.Context, u *storage.User) ([]storage.TextData, error) {
 	result := make([]storage.TextData, 0)
 	rows, err := tr.Conn.QueryContext(ctx,

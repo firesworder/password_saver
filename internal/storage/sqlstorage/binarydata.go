@@ -7,6 +7,7 @@ import (
 	"github.com/firesworder/password_saver/internal/storage"
 )
 
+// BinaryData репозиторий к бинарным данным в БД.
 type BinaryData struct {
 	Conn *sql.DB
 
@@ -14,6 +15,7 @@ type BinaryData struct {
 	Decoder *crypt.Decoder
 }
 
+// AddBinaryData добавляет бинарную запись пользователя.
 func (br *BinaryData) AddBinaryData(ctx context.Context, bd storage.BinaryData, u *storage.User) (int, error) {
 	var id int
 	content, err := br.Encoder.Encode(bd.BinaryData)
@@ -31,6 +33,7 @@ func (br *BinaryData) AddBinaryData(ctx context.Context, bd storage.BinaryData, 
 	return id, nil
 }
 
+// UpdateBinaryData обновляет бинарную запись пользователя.
 func (br *BinaryData) UpdateBinaryData(ctx context.Context, bd storage.BinaryData, u *storage.User) error {
 	content, err := br.Encoder.Encode(bd.BinaryData)
 	if err != nil {
@@ -52,6 +55,7 @@ func (br *BinaryData) UpdateBinaryData(ctx context.Context, bd storage.BinaryDat
 	return nil
 }
 
+// DeleteBinaryData удаляет бинарную запись пользователя.
 func (br *BinaryData) DeleteBinaryData(ctx context.Context, bd storage.BinaryData, u *storage.User) error {
 	result, err := br.Conn.ExecContext(ctx,
 		"DELETE FROM binarydata WHERE id = $1 AND user_id = $2", bd.ID, u.ID)
@@ -68,6 +72,7 @@ func (br *BinaryData) DeleteBinaryData(ctx context.Context, bd storage.BinaryDat
 	return nil
 }
 
+// GetAllRecords возвращает все бинарные данные пользователя.
 func (br *BinaryData) GetAllRecords(ctx context.Context, u *storage.User) ([]storage.BinaryData, error) {
 	result := make([]storage.BinaryData, 0)
 	rows, err := br.Conn.QueryContext(ctx,

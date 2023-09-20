@@ -9,6 +9,8 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
+// Storage основной тип пакета.
+// В себе хранит подключение к БД, а также ссылки на каждый из репозиториев данных(размещенных в этой БД).
 type Storage struct {
 	Connection *sql.DB
 
@@ -18,7 +20,8 @@ type Storage struct {
 	BinaryRep storage.BinaryDataRepository
 }
 
-// NewStorage конструктор sqlstorage, также инициал. шифрование.
+// NewStorage конструктор sqlstorage, осуществляющий подключение к БД и создание необходимых таблиц.
+// Также, инициализирует шифратор\дешифратор для безопасного хранения данных в БД.
 func NewStorage(env *env.Environment) (*Storage, error) {
 	// Этот метод вызывается при инициализации сервера, поэтому использую общий контекст
 	ctx := context.Background()
