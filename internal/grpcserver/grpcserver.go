@@ -1,4 +1,6 @@
-// Package grpcserver реализует grpc сервер.
+// Package grpcserver реализует grpc сервер по "контракту" PasswordSaverServer описанному в .proto файле.
+// Основной тип пакета GRPCService - реализует функционал пакета, представляет собой grpc обертку над серверной
+// логикой и соотв-но имплементацией pb.UnimplementedPasswordSaverServer.
 package grpcserver
 
 import (
@@ -13,12 +15,13 @@ import (
 	"log"
 )
 
-// GRPCService экземпляр grpc сервера.
+// GRPCService экземпляр grpc сервиса для запуска в grpc.NewServer.
+// В себе хранит интерфейс pb.UnimplementedPasswordSaverServer и переменную serv - ссылку на объект пакета server
+// с серверной функц.
 type GRPCService struct {
 	pb.UnimplementedPasswordSaverServer
 
-	serv     server.IServer
-	grpcSObj *grpc.Server
+	serv server.IServer
 }
 
 // NewGRPCService конструктор grpc сервера(обертка над server.Server).
@@ -27,7 +30,8 @@ func NewGRPCService(s server.IServer) (*GRPCService, error) {
 	return grpcService, nil
 }
 
-// PrepareServer запускает grpcserver + создает TLS соединение.
+// PrepareServer создает экземпляр grpc сервера, на основе реализ. в этом пакете grpc сервиса и сертификатов TLS
+// для обеспеч. защищенного соединения.
 func (gs *GRPCService) PrepareServer(env *env.Environment) (*grpc.Server, error) {
 	creds, err := credentials.NewServerTLSFromFile(env.CertFile, env.PrivateKeyFile)
 	if err != nil {
@@ -39,6 +43,8 @@ func (gs *GRPCService) PrepareServer(env *env.Environment) (*grpc.Server, error)
 	return serverGRPC, nil
 }
 
+// RegisterUser регистрирует пользователя.
+// Если переданы пустой логин или пароль - возвращает ошибку.
 func (gs *GRPCService) RegisterUser(ctx context.Context, request *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
 	if request.Login == "" || request.Password == "" {
 		return nil, fmt.Errorf("login and password fields can not be empty")
@@ -54,6 +60,8 @@ func (gs *GRPCService) RegisterUser(ctx context.Context, request *pb.RegisterUse
 	return &resp, nil
 }
 
+// LoginUser авторизует пользователя.
+// Если переданы пустой логин или пароль - возвращает ошибку.
 func (gs *GRPCService) LoginUser(ctx context.Context, request *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
 	if request.Login == "" || request.Password == "" {
 		return nil, fmt.Errorf("login and password fields can not be empty")
@@ -69,6 +77,8 @@ func (gs *GRPCService) LoginUser(ctx context.Context, request *pb.LoginUserReque
 	return &resp, nil
 }
 
+// AddTextDataRecord создает текстовую запись данных.
+// Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) AddTextDataRecord(ctx context.Context, request *pb.AddTextDataRequest) (*pb.AddTextDataResponse, error) {
 	id, err := gs.serv.AddTextData(ctx, storage.TextData{
 		TextData: request.TextData.TextData,
@@ -82,6 +92,8 @@ func (gs *GRPCService) AddTextDataRecord(ctx context.Context, request *pb.AddTex
 	return resp, nil
 }
 
+// UpdateTextDataRecord обновляет текстовую запись данных.
+// Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) UpdateTextDataRecord(ctx context.Context, request *pb.UpdateTextDataRequest) (*pb.UpdateTextDataResponse, error) {
 	err := gs.serv.UpdateTextData(ctx, storage.TextData{
 		ID:       int(request.TextData.Id),
@@ -96,6 +108,8 @@ func (gs *GRPCService) UpdateTextDataRecord(ctx context.Context, request *pb.Upd
 	return resp, nil
 }
 
+// DeleteTextDataRecord удаляет текстовую запись данных.
+// Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) DeleteTextDataRecord(ctx context.Context, request *pb.DeleteTextDataRequest) (*pb.DeleteTextDataResponse, error) {
 	err := gs.serv.DeleteTextData(ctx, storage.TextData{
 		ID: int(request.Id),
@@ -108,6 +122,8 @@ func (gs *GRPCService) DeleteTextDataRecord(ctx context.Context, request *pb.Del
 	return resp, nil
 }
 
+// AddBankDataRecord добавляет банковскую запись данных.
+// Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) AddBankDataRecord(ctx context.Context, request *pb.AddBankDataRequest) (*pb.AddBankDataResponse, error) {
 	id, err := gs.serv.AddBankData(ctx, storage.BankData{
 		CardNumber: request.BankData.CardNumber,
@@ -123,6 +139,8 @@ func (gs *GRPCService) AddBankDataRecord(ctx context.Context, request *pb.AddBan
 	return resp, nil
 }
 
+// UpdateBankDataRecord обновляет банковскую запись данных.
+// Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) UpdateBankDataRecord(ctx context.Context, request *pb.UpdateBankDataRequest) (*pb.UpdateBankDataResponse, error) {
 	err := gs.serv.UpdateBankData(ctx, storage.BankData{
 		ID:         int(request.BankData.Id),
@@ -139,6 +157,8 @@ func (gs *GRPCService) UpdateBankDataRecord(ctx context.Context, request *pb.Upd
 	return resp, nil
 }
 
+// DeleteBankDataRecord удаляет банковскую запись данных.
+// Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) DeleteBankDataRecord(ctx context.Context, request *pb.DeleteBankDataRequest) (*pb.DeleteBankDataResponse, error) {
 	err := gs.serv.DeleteBankData(ctx, storage.BankData{
 		ID: int(request.Id),
@@ -151,6 +171,8 @@ func (gs *GRPCService) DeleteBankDataRecord(ctx context.Context, request *pb.Del
 	return resp, nil
 }
 
+// AddBinaryDataRecord добавляет бинарную запись данных.
+// Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) AddBinaryDataRecord(ctx context.Context, request *pb.AddBinaryDataRequest) (*pb.AddBinaryDataResponse, error) {
 	id, err := gs.serv.AddBinaryData(ctx, storage.BinaryData{
 		BinaryData: request.BinaryData.BinaryData,
@@ -164,6 +186,8 @@ func (gs *GRPCService) AddBinaryDataRecord(ctx context.Context, request *pb.AddB
 	return resp, nil
 }
 
+// UpdateBinaryDataRecord обновляет бинарную запись данных.
+// Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) UpdateBinaryDataRecord(ctx context.Context, request *pb.UpdateBinaryDataRequest) (*pb.UpdateBinaryDataResponse, error) {
 	err := gs.serv.UpdateBinaryData(ctx, storage.BinaryData{
 		ID:         int(request.BinaryData.Id),
@@ -178,6 +202,8 @@ func (gs *GRPCService) UpdateBinaryDataRecord(ctx context.Context, request *pb.U
 	return resp, nil
 }
 
+// DeleteBinaryDataRecord удаляет бинарную запись данных.
+// Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) DeleteBinaryDataRecord(ctx context.Context, request *pb.DeleteBinaryDataRequest) (*pb.DeleteBinaryDataResponse, error) {
 	err := gs.serv.DeleteBinaryData(ctx, storage.BinaryData{
 		ID: int(request.Id),
@@ -190,6 +216,8 @@ func (gs *GRPCService) DeleteBinaryDataRecord(ctx context.Context, request *pb.D
 	return resp, nil
 }
 
+// GetAllRecords возвращает все записи пользователя.
+// Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) GetAllRecords(ctx context.Context, request *pb.GetAllRecordsRequest) (*pb.GetAllRecordsResponse, error) {
 	records, err := gs.serv.GetAllRecords(ctx)
 	if err != nil {
