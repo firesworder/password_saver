@@ -23,8 +23,6 @@ type Server struct {
 	genToken []byte
 }
 
-// NewServer
-// todo: сделать тестируемой
 func NewServer(env *env.Environment) (*Server, error) {
 	ssql, err := sqlstorage.NewStorage(env)
 	if err != nil {
