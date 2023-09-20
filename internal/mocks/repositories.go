@@ -18,7 +18,7 @@ func (ur *UserRepository) CreateUser(ctx context.Context, u storage.User) (*stor
 }
 
 func (ur *UserRepository) GetUser(ctx context.Context, u storage.User) (*storage.User, error) {
-	if u.Login == "demo" && u.HashedPassword == "demo" {
+	if u.Login == "demo" {
 		return nil, fmt.Errorf("test error")
 	}
 	// для пароля "uspass"
