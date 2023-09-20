@@ -18,7 +18,7 @@ func NewTestServer(t *testing.T) *Server {
 	require.NoError(t, err)
 
 	s := &Server{
-		authUsers: map[string]storage.User{"user_token_1": {ID: 100, Login: "user", HashedPassword: "password1"}},
+		authUsers: map[string]storage.User{testToken: {ID: 100, Login: "user", HashedPassword: "password1"}},
 		uRep:      &mocks.UserRepository{},
 		tRep:      &mocks.TextDataRepository{},
 		bankRep:   &mocks.BankDataRepository{},
@@ -39,7 +39,7 @@ func TestServer_getUserFromContext(t *testing.T) {
 	}{
 		{
 			name:     "Test 1. Correct MD",
-			md:       metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:       metadata.New(map[string]string{ctxTokenParam: testToken}),
 			wantUser: &testUser,
 			wantErr:  false,
 		},
@@ -87,7 +87,7 @@ func TestServer_AddTextData(t *testing.T) {
 	}{
 		{
 			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			td:      storage.TextData{TextData: "td", MetaInfo: "mi1"},
 			wantErr: false,
 		},
@@ -99,7 +99,7 @@ func TestServer_AddTextData(t *testing.T) {
 		},
 		{
 			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			td:      storage.TextData{},
 			wantErr: true,
 		},
@@ -125,7 +125,7 @@ func TestServer_UpdateTextData(t *testing.T) {
 	}{
 		{
 			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			td:      storage.TextData{ID: 200, TextData: "td", MetaInfo: "mi1"},
 			wantErr: false,
 		},
@@ -137,7 +137,7 @@ func TestServer_UpdateTextData(t *testing.T) {
 		},
 		{
 			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			td:      storage.TextData{ID: 100, TextData: "td", MetaInfo: "mi1"},
 			wantErr: true,
 		},
@@ -162,7 +162,7 @@ func TestServer_DeleteTextData(t *testing.T) {
 	}{
 		{
 			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			td:      storage.TextData{ID: 200},
 			wantErr: false,
 		},
@@ -174,7 +174,7 @@ func TestServer_DeleteTextData(t *testing.T) {
 		},
 		{
 			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			td:      storage.TextData{ID: 100},
 			wantErr: true,
 		},
@@ -199,7 +199,7 @@ func TestServer_AddBankData(t *testing.T) {
 	}{
 		{
 			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			bd:      storage.BankData{CardNumber: "0011334466779900", CardExpire: "00/23", CVV: "252"},
 			wantErr: false,
 		},
@@ -211,7 +211,7 @@ func TestServer_AddBankData(t *testing.T) {
 		},
 		{
 			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			bd:      storage.BankData{CVV: "252"},
 			wantErr: true,
 		},
@@ -237,7 +237,7 @@ func TestServer_UpdateBankData(t *testing.T) {
 	}{
 		{
 			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			bd:      storage.BankData{ID: 200, CardNumber: "0011334466779900", CardExpire: "00/23", CVV: "252"},
 			wantErr: false,
 		},
@@ -249,7 +249,7 @@ func TestServer_UpdateBankData(t *testing.T) {
 		},
 		{
 			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			bd:      storage.BankData{ID: 100, CVV: "252"},
 			wantErr: true,
 		},
@@ -274,7 +274,7 @@ func TestServer_DeleteBankData(t *testing.T) {
 	}{
 		{
 			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			bd:      storage.BankData{ID: 200},
 			wantErr: false,
 		},
@@ -286,7 +286,7 @@ func TestServer_DeleteBankData(t *testing.T) {
 		},
 		{
 			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			bd:      storage.BankData{ID: 100},
 			wantErr: true,
 		},
@@ -311,7 +311,7 @@ func TestServer_AddBinaryData(t *testing.T) {
 	}{
 		{
 			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			bd:      storage.BinaryData{BinaryData: []byte("binary data")},
 			wantErr: false,
 		},
@@ -323,7 +323,7 @@ func TestServer_AddBinaryData(t *testing.T) {
 		},
 		{
 			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			bd:      storage.BinaryData{},
 			wantErr: true,
 		},
@@ -349,7 +349,7 @@ func TestServer_UpdateBinaryData(t *testing.T) {
 	}{
 		{
 			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			bd:      storage.BinaryData{ID: 200, BinaryData: []byte("binary data")},
 			wantErr: false,
 		},
@@ -361,7 +361,7 @@ func TestServer_UpdateBinaryData(t *testing.T) {
 		},
 		{
 			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			bd:      storage.BinaryData{ID: 100, BinaryData: []byte("binary data")},
 			wantErr: true,
 		},
@@ -386,7 +386,7 @@ func TestServer_DeleteBinaryData(t *testing.T) {
 	}{
 		{
 			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			bd:      storage.BinaryData{ID: 200},
 			wantErr: false,
 		},
@@ -398,7 +398,7 @@ func TestServer_DeleteBinaryData(t *testing.T) {
 		},
 		{
 			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			bd:      storage.BinaryData{ID: 100},
 			wantErr: true,
 		},
@@ -422,7 +422,7 @@ func TestServer_GetAllRecords(t *testing.T) {
 	}{
 		{
 			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: "user_token_1"}),
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
 			wantErr: false,
 		},
 		{
