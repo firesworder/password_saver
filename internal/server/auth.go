@@ -37,6 +37,9 @@ func (s *Server) generateToken() ([]byte, error) {
 	return h.Sum(nil), nil
 }
 
+// RegisterUser регистрирует пользователя в системе.
+// Пароль формируется через bcrypt.
+// Если регистрация произошла успешно - генерируется токен пользователя с записью его в хранил. токенов на сервере.
 func (s *Server) RegisterUser(ctx context.Context, user storage.User) (string, error) {
 	// хеширование пароля
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.HashedPassword), bcryptCost)
@@ -60,6 +63,9 @@ func (s *Server) RegisterUser(ctx context.Context, user storage.User) (string, e
 	return uToken, nil
 }
 
+// LoginUser авторизует пользователя в системе.
+// Пароль сохраненной в БД и присланный с клиента сравниваются через bcrypt.
+// Если авторизация произошла успешно - генерируется токен пользователя с записью его в хранил. токенов на сервере.
 func (s *Server) LoginUser(ctx context.Context, user storage.User) (string, error) {
 	bdUser, err := s.uRep.GetUser(ctx, user)
 	if err != nil {

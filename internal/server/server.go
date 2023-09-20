@@ -1,4 +1,3 @@
-// Package server реализует сервер, как прослойку между grpcserver и sqlstorage.
 package server
 
 import (
@@ -12,6 +11,9 @@ import (
 
 const ctxTokenParam = "userToken"
 
+// Server основной тип пакета, реализующий функционал пакета.
+// Объект типа хранит в себе хранилище(map) токенов и ассоц. с этими токенами авториз. пользователями,
+// ссылки на объекты репозиториев данных(от SQL подключения) и сгенерированная соль для генерации новых токенов.
 type Server struct {
 	authUsers map[string]storage.User
 
@@ -23,6 +25,8 @@ type Server struct {
 	genToken []byte
 }
 
+// NewServer создает подключение к БД(SQL в д.с.) по переданному в env DNS адресу.
+// Также генерирует соль для токенов и возвращает в итоге инициал. объект Server.
 func NewServer(env *env.Environment) (*Server, error) {
 	ssql, err := sqlstorage.NewStorage(env)
 	if err != nil {
@@ -47,6 +51,8 @@ func NewServer(env *env.Environment) (*Server, error) {
 	return s, nil
 }
 
+// getUserFromContext получает из контекста(метаданных контекста) токен пользователя.
+// Если параметр токена в контексте отствует или токен не найден среди авториз. пользователей - возвр. ошибка.
 func (s *Server) getUserFromContext(ctx context.Context) (*storage.User, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -67,6 +73,7 @@ func (s *Server) getUserFromContext(ctx context.Context) (*storage.User, error) 
 	return &user, nil
 }
 
+// AddTextData добавляет текстовую запись.
 func (s *Server) AddTextData(ctx context.Context, textData storage.TextData) (int, error) {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
@@ -80,6 +87,7 @@ func (s *Server) AddTextData(ctx context.Context, textData storage.TextData) (in
 	return id, nil
 }
 
+// UpdateTextData обновляет текстовую запись.
 func (s *Server) UpdateTextData(ctx context.Context, textData storage.TextData) error {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
@@ -93,6 +101,7 @@ func (s *Server) UpdateTextData(ctx context.Context, textData storage.TextData) 
 	return nil
 }
 
+// DeleteTextData удаляет текстовую запись.
 func (s *Server) DeleteTextData(ctx context.Context, textData storage.TextData) error {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
@@ -106,6 +115,7 @@ func (s *Server) DeleteTextData(ctx context.Context, textData storage.TextData) 
 	return nil
 }
 
+// AddBankData добавляет банковскую запись.
 func (s *Server) AddBankData(ctx context.Context, bankData storage.BankData) (int, error) {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
@@ -119,6 +129,7 @@ func (s *Server) AddBankData(ctx context.Context, bankData storage.BankData) (in
 	return id, nil
 }
 
+// UpdateBankData обновляет банковскую запись.
 func (s *Server) UpdateBankData(ctx context.Context, bankData storage.BankData) error {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
@@ -132,6 +143,7 @@ func (s *Server) UpdateBankData(ctx context.Context, bankData storage.BankData) 
 	return nil
 }
 
+// DeleteBankData удаляет банковскую запись.
 func (s *Server) DeleteBankData(ctx context.Context, bankData storage.BankData) error {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
@@ -145,6 +157,7 @@ func (s *Server) DeleteBankData(ctx context.Context, bankData storage.BankData) 
 	return nil
 }
 
+// AddBinaryData добавляет бинарную запись.
 func (s *Server) AddBinaryData(ctx context.Context, binaryData storage.BinaryData) (int, error) {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
@@ -158,6 +171,7 @@ func (s *Server) AddBinaryData(ctx context.Context, binaryData storage.BinaryDat
 	return id, nil
 }
 
+// UpdateBinaryData обновляет бинарную запись.
 func (s *Server) UpdateBinaryData(ctx context.Context, binaryData storage.BinaryData) error {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
@@ -171,6 +185,7 @@ func (s *Server) UpdateBinaryData(ctx context.Context, binaryData storage.Binary
 	return nil
 }
 
+// DeleteBinaryData удаляет бинарную запись.
 func (s *Server) DeleteBinaryData(ctx context.Context, binaryData storage.BinaryData) error {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
@@ -184,6 +199,7 @@ func (s *Server) DeleteBinaryData(ctx context.Context, binaryData storage.Binary
 	return nil
 }
 
+// GetAllRecords возвращает все записи пользователей.
 func (s *Server) GetAllRecords(ctx context.Context) (*storage.RecordsList, error) {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
