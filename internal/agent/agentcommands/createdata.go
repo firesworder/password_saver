@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-// todo: userID
-
 func (ac *AgentCommands) CreateTextData() {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString(authReqErr)
