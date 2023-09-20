@@ -13,23 +13,22 @@ import (
 	"log"
 )
 
-// GRPCServer экземпляр grpc сервера.
-type GRPCServer struct {
+// GRPCService экземпляр grpc сервера.
+type GRPCService struct {
 	pb.UnimplementedPasswordSaverServer
 
 	serv     server.IServer
 	grpcSObj *grpc.Server
 }
 
-// NewGRPCServer конструктор grpc сервера(обертка над server.Server).
-// todo: переименовать в grpcService?
-func NewGRPCServer(s server.IServer) (*GRPCServer, error) {
-	grpcService := &GRPCServer{serv: s}
+// NewGRPCService конструктор grpc сервера(обертка над server.Server).
+func NewGRPCService(s server.IServer) (*GRPCService, error) {
+	grpcService := &GRPCService{serv: s}
 	return grpcService, nil
 }
 
 // PrepareServer запускает grpcserver + создает TLS соединение.
-func (gs *GRPCServer) PrepareServer(env *env.Environment) (*grpc.Server, error) {
+func (gs *GRPCService) PrepareServer(env *env.Environment) (*grpc.Server, error) {
 	creds, err := credentials.NewServerTLSFromFile(env.CertFile, env.PrivateKeyFile)
 	if err != nil {
 		log.Fatal(err)
@@ -40,7 +39,7 @@ func (gs *GRPCServer) PrepareServer(env *env.Environment) (*grpc.Server, error) 
 	return serverGRPC, nil
 }
 
-func (gs *GRPCServer) RegisterUser(ctx context.Context, request *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
+func (gs *GRPCService) RegisterUser(ctx context.Context, request *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
 	if request.Login == "" || request.Password == "" {
 		return nil, fmt.Errorf("login and password fields can not be empty")
 	}
@@ -55,7 +54,7 @@ func (gs *GRPCServer) RegisterUser(ctx context.Context, request *pb.RegisterUser
 	return &resp, nil
 }
 
-func (gs *GRPCServer) LoginUser(ctx context.Context, request *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
+func (gs *GRPCService) LoginUser(ctx context.Context, request *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
 	if request.Login == "" || request.Password == "" {
 		return nil, fmt.Errorf("login and password fields can not be empty")
 	}
@@ -70,7 +69,7 @@ func (gs *GRPCServer) LoginUser(ctx context.Context, request *pb.LoginUserReques
 	return &resp, nil
 }
 
-func (gs *GRPCServer) AddTextDataRecord(ctx context.Context, request *pb.AddTextDataRequest) (*pb.AddTextDataResponse, error) {
+func (gs *GRPCService) AddTextDataRecord(ctx context.Context, request *pb.AddTextDataRequest) (*pb.AddTextDataResponse, error) {
 	id, err := gs.serv.AddTextData(ctx, storage.TextData{
 		TextData: request.TextData.TextData,
 		MetaInfo: request.TextData.MetaInfo,
@@ -83,7 +82,7 @@ func (gs *GRPCServer) AddTextDataRecord(ctx context.Context, request *pb.AddText
 	return resp, nil
 }
 
-func (gs *GRPCServer) UpdateTextDataRecord(ctx context.Context, request *pb.UpdateTextDataRequest) (*pb.UpdateTextDataResponse, error) {
+func (gs *GRPCService) UpdateTextDataRecord(ctx context.Context, request *pb.UpdateTextDataRequest) (*pb.UpdateTextDataResponse, error) {
 	err := gs.serv.UpdateTextData(ctx, storage.TextData{
 		ID:       int(request.TextData.Id),
 		TextData: request.TextData.TextData,
@@ -97,7 +96,7 @@ func (gs *GRPCServer) UpdateTextDataRecord(ctx context.Context, request *pb.Upda
 	return resp, nil
 }
 
-func (gs *GRPCServer) DeleteTextDataRecord(ctx context.Context, request *pb.DeleteTextDataRequest) (*pb.DeleteTextDataResponse, error) {
+func (gs *GRPCService) DeleteTextDataRecord(ctx context.Context, request *pb.DeleteTextDataRequest) (*pb.DeleteTextDataResponse, error) {
 	err := gs.serv.DeleteTextData(ctx, storage.TextData{
 		ID: int(request.Id),
 	})
@@ -109,7 +108,7 @@ func (gs *GRPCServer) DeleteTextDataRecord(ctx context.Context, request *pb.Dele
 	return resp, nil
 }
 
-func (gs *GRPCServer) AddBankDataRecord(ctx context.Context, request *pb.AddBankDataRequest) (*pb.AddBankDataResponse, error) {
+func (gs *GRPCService) AddBankDataRecord(ctx context.Context, request *pb.AddBankDataRequest) (*pb.AddBankDataResponse, error) {
 	id, err := gs.serv.AddBankData(ctx, storage.BankData{
 		CardNumber: request.BankData.CardNumber,
 		CardExpire: request.BankData.CardExpiry,
@@ -124,7 +123,7 @@ func (gs *GRPCServer) AddBankDataRecord(ctx context.Context, request *pb.AddBank
 	return resp, nil
 }
 
-func (gs *GRPCServer) UpdateBankDataRecord(ctx context.Context, request *pb.UpdateBankDataRequest) (*pb.UpdateBankDataResponse, error) {
+func (gs *GRPCService) UpdateBankDataRecord(ctx context.Context, request *pb.UpdateBankDataRequest) (*pb.UpdateBankDataResponse, error) {
 	err := gs.serv.UpdateBankData(ctx, storage.BankData{
 		ID:         int(request.BankData.Id),
 		CardNumber: request.BankData.CardNumber,
@@ -140,7 +139,7 @@ func (gs *GRPCServer) UpdateBankDataRecord(ctx context.Context, request *pb.Upda
 	return resp, nil
 }
 
-func (gs *GRPCServer) DeleteBankDataRecord(ctx context.Context, request *pb.DeleteBankDataRequest) (*pb.DeleteBankDataResponse, error) {
+func (gs *GRPCService) DeleteBankDataRecord(ctx context.Context, request *pb.DeleteBankDataRequest) (*pb.DeleteBankDataResponse, error) {
 	err := gs.serv.DeleteBankData(ctx, storage.BankData{
 		ID: int(request.Id),
 	})
@@ -152,7 +151,7 @@ func (gs *GRPCServer) DeleteBankDataRecord(ctx context.Context, request *pb.Dele
 	return resp, nil
 }
 
-func (gs *GRPCServer) AddBinaryDataRecord(ctx context.Context, request *pb.AddBinaryDataRequest) (*pb.AddBinaryDataResponse, error) {
+func (gs *GRPCService) AddBinaryDataRecord(ctx context.Context, request *pb.AddBinaryDataRequest) (*pb.AddBinaryDataResponse, error) {
 	id, err := gs.serv.AddBinaryData(ctx, storage.BinaryData{
 		BinaryData: request.BinaryData.BinaryData,
 		MetaInfo:   request.BinaryData.MetaInfo,
@@ -165,7 +164,7 @@ func (gs *GRPCServer) AddBinaryDataRecord(ctx context.Context, request *pb.AddBi
 	return resp, nil
 }
 
-func (gs *GRPCServer) UpdateBinaryDataRecord(ctx context.Context, request *pb.UpdateBinaryDataRequest) (*pb.UpdateBinaryDataResponse, error) {
+func (gs *GRPCService) UpdateBinaryDataRecord(ctx context.Context, request *pb.UpdateBinaryDataRequest) (*pb.UpdateBinaryDataResponse, error) {
 	err := gs.serv.UpdateBinaryData(ctx, storage.BinaryData{
 		ID:         int(request.BinaryData.Id),
 		BinaryData: request.BinaryData.BinaryData,
@@ -179,7 +178,7 @@ func (gs *GRPCServer) UpdateBinaryDataRecord(ctx context.Context, request *pb.Up
 	return resp, nil
 }
 
-func (gs *GRPCServer) DeleteBinaryDataRecord(ctx context.Context, request *pb.DeleteBinaryDataRequest) (*pb.DeleteBinaryDataResponse, error) {
+func (gs *GRPCService) DeleteBinaryDataRecord(ctx context.Context, request *pb.DeleteBinaryDataRequest) (*pb.DeleteBinaryDataResponse, error) {
 	err := gs.serv.DeleteBinaryData(ctx, storage.BinaryData{
 		ID: int(request.Id),
 	})
@@ -191,7 +190,7 @@ func (gs *GRPCServer) DeleteBinaryDataRecord(ctx context.Context, request *pb.De
 	return resp, nil
 }
 
-func (gs *GRPCServer) GetAllRecords(ctx context.Context, request *pb.GetAllRecordsRequest) (*pb.GetAllRecordsResponse, error) {
+func (gs *GRPCService) GetAllRecords(ctx context.Context, request *pb.GetAllRecordsRequest) (*pb.GetAllRecordsResponse, error) {
 	records, err := gs.serv.GetAllRecords(ctx)
 	if err != nil {
 		return nil, err

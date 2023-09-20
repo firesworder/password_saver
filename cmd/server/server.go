@@ -29,7 +29,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	grpcService, err := grpcserver.NewGRPCServer(s)
+	grpcService, err := grpcserver.NewGRPCService(s)
 	if err != nil {
 		log.Fatal(err)
 	}

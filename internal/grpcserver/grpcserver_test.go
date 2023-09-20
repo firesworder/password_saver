@@ -9,16 +9,16 @@ import (
 	"testing"
 )
 
-func NewTestGRPCServer(t *testing.T) *GRPCServer {
+func NewTestGRPCServer(t *testing.T) *GRPCService {
 	s := &mocks.Server{}
-	grpcs, err := NewGRPCServer(s)
+	grpcs, err := NewGRPCService(s)
 	require.NoError(t, err)
 	return grpcs
 }
 
 func TestNewGRPCServer(t *testing.T) {
 	s := &mocks.Server{}
-	grpcs, err := NewGRPCServer(s)
+	grpcs, err := NewGRPCService(s)
 	require.NoError(t, err)
 	require.NotEmpty(t, grpcs)
 }
