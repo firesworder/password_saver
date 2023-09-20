@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+// UpdateTextData обновляет текстовую запись с ID.
+// При успешном обновлении сохраняет изменения в стейт.
 func (ac *AgentCommands) UpdateTextData(ID int) {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString(authReqErr)
@@ -34,6 +36,8 @@ func (ac *AgentCommands) UpdateTextData(ID int) {
 	ac.state.Set(textData)
 }
 
+// UpdateBankData обновляет банковскую запись с ID.
+// При успешном обновлении сохраняет изменения в стейт.
 func (ac *AgentCommands) UpdateBankData(ID int) {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString(authReqErr)
@@ -68,6 +72,9 @@ func (ac *AgentCommands) UpdateBankData(ID int) {
 	ac.state.Set(bankData)
 }
 
+// UpdateBinaryData обновляет бинарную запись с ID.
+// При успешном обновлении сохраняет изменения в стейт.
+// Также как при создании записи - необходимо передать путь к файлу с бинар.данными.
 func (ac *AgentCommands) UpdateBinaryData(ID int) {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString(authReqErr)

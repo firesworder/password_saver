@@ -1,3 +1,14 @@
+// Package agent реализует контроллер агента, который команды от пользователя отправляет в модуль agentcommands.
+// Данный пакет только направляет процесс исполнения в связанный с командой пользователя метод agentcommands или
+// возвращает ошибку, если команда не известна. Результат работы команды - выводится agentcommands.
+//
+// Тип Agent состоит из:
+// - reader/writer реализованные через bufio.Reader/bufio.Writer(которые также передаются в agentcommands)
+// Такая реализация необходима для тестирования функций контроллера и agentcommands, через эмуляцию ввода пользователя
+// и считывания вывода результата обработки команды.
+// - commands
+// Пакет agentcommands является реализацией логики выполняемых команд, получаемых из контроллера.
+// Основная идея такой реализации - разделить контроллер от деталей реализации.
 package agent
 
 import (
@@ -16,14 +27,17 @@ import (
 const enterDT = "Choose data type(enter name type): text, bank or binary"
 const enterIDaDT = "Enter recordID and dataType"
 
-// Agent экземпляр агента для вызова в cmd/agent
+// Agent тип контроллера агента, распределяющего команды полученные из reader для реализации в
+// agentcommands.IAgentCommands и вывода в writer контроллера.
 type Agent struct {
 	reader   *agentreader.AgentReader
 	writer   *agentwriter.AgentWriter
 	commands agentcommands.IAgentCommands
 }
 
-// NewAgent конструктор агента, формирует пустой стейт польз.данных + создает экземпляр grpc агента.
+// NewAgent конструктор агента, инициал. reader/writer в os.Stdin/os.Stdout соотв-но.
+// А также инициал. commands(исполнителя) через конструктор agentcommands.NewAgentCommands.
+// grpcAgent проксируется в конструктор commands.
 func NewAgent(grpcAgent grpcagent.IGRPCAgent) *Agent {
 	a := &Agent{
 		reader: agentreader.NewAgentReader(bufio.NewReader(os.Stdin)),
@@ -33,7 +47,8 @@ func NewAgent(grpcAgent grpcagent.IGRPCAgent) *Agent {
 	return a
 }
 
-// Serve запуска агента на обработку команд пользователя.
+// Serve функция запуска агента на постоянную обработку команд пользователя.
+// Можно прекратить выполнение завершением контекста передаваемого в аргум.функции.
 func (a *Agent) Serve(ctx context.Context) {
 	for {
 		select {

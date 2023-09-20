@@ -10,6 +10,7 @@ import (
 const ctxTokenParam = "userToken"
 
 // RegisterUser регистрирует пользователя.
+// При успешной регистрации - сохраняет токен авторизации активной сессии.
 func (a *GRPCAgent) RegisterUser(login, password string) error {
 	req := pb.RegisterUserRequest{Login: login, Password: password}
 
@@ -22,6 +23,7 @@ func (a *GRPCAgent) RegisterUser(login, password string) error {
 }
 
 // LoginUser авторизует пользователя.
+// При успешной авторизации - сохраняет токен авторизации активной сессии.
 func (a *GRPCAgent) LoginUser(login, password string) error {
 	req := pb.LoginUserRequest{Login: login, Password: password}
 
@@ -34,6 +36,7 @@ func (a *GRPCAgent) LoginUser(login, password string) error {
 }
 
 // CreateTextDataRecord создает запись текстовых данных.
+// При успешном создании записи на сервере - возвращает присвоенный id.
 func (a *GRPCAgent) CreateTextDataRecord(input storage.TextData) (int, error) {
 	req := pb.AddTextDataRequest{TextData: storage.TextDataToGRPC(input)}
 
@@ -48,6 +51,7 @@ func (a *GRPCAgent) CreateTextDataRecord(input storage.TextData) (int, error) {
 }
 
 // CreateBankDataRecord создает запись банковских данных.
+// При успешном создании записи на сервере - возвращает присвоенный id.
 func (a *GRPCAgent) CreateBankDataRecord(input storage.BankData) (int, error) {
 	req := pb.AddBankDataRequest{BankData: storage.BankDataToGRPC(input)}
 
@@ -62,6 +66,7 @@ func (a *GRPCAgent) CreateBankDataRecord(input storage.BankData) (int, error) {
 }
 
 // CreateBinaryDataRecord создает запись бинарных данных.
+// При успешном создании записи на сервере - возвращает присвоенный id.
 func (a *GRPCAgent) CreateBinaryDataRecord(input storage.BinaryData) (int, error) {
 	req := pb.AddBinaryDataRequest{BinaryData: storage.BinaryDataToGRPC(input)}
 
@@ -136,6 +141,7 @@ func (a *GRPCAgent) DeleteBinaryDataRecord(input storage.BinaryData) error {
 }
 
 // ShowAllRecords получает список записей с сервера.
+// Сохраняет их в стейт и выводит в консоль в виде `Id метаинформация` записи, с разделением по типам.
 func (a *GRPCAgent) ShowAllRecords() (*storage.RecordsList, error) {
 	req := pb.GetAllRecordsRequest{}
 

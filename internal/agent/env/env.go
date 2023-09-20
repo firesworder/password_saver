@@ -1,3 +1,5 @@
+// Package env реализует получение переменных окружения из ком.строки(при запуске) или перем.окружения системы.
+// Данный пакет получает значения переменных необх. для работы агента системы.
 package env
 
 import (
@@ -11,7 +13,7 @@ func init() {
 	initCmdArgs()
 }
 
-// Environment для получения(из ENV и cmd) и хранения переменных окружения агента.
+// Environment тип для хранения значения переменных необходимых для работы агента.
 type Environment struct {
 	ServerAddress string `env:"ADDRESS"`
 	CACert        string `env:"CA_CERT_FILE"`

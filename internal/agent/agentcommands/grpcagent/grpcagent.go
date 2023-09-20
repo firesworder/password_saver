@@ -1,4 +1,3 @@
-// Package grpcagent реализует grpc агент.
 package grpcagent
 
 import (
@@ -7,14 +6,17 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-// GRPCAgent экземпляр агента.
+// GRPCAgent основной тип пакета, реализующий функционал grpc агента.
+// В себе хранит помимо подключения к grpc серверу, токен авторизации на этом сервере, используемый
+// для методов работы с данными.
 type GRPCAgent struct {
 	conn       *grpc.ClientConn
 	grpcClient pb.PasswordSaverClient
 	userToken  string
 }
 
-// NewGRPCAgent конструктор grpc агента. Создает соединение к серверу.
+// NewGRPCAgent создает защищенное(TLS) подключение к серверу.
+// В аргументах требуется передать адрес к серверу и удостов.сертификат.
 func NewGRPCAgent(serverAddress string, caCertFp string) (*GRPCAgent, error) {
 	var err error
 	agent := GRPCAgent{}

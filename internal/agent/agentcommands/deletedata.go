@@ -2,6 +2,8 @@ package agentcommands
 
 import "github.com/firesworder/password_saver/internal/storage"
 
+// DeleteTextData удаляет текстовую запись с ID.
+// При успешном обновлении удаляет запись из стейта.
 func (ac *AgentCommands) DeleteTextData(recordID int) {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString(authReqErr)
@@ -17,6 +19,9 @@ func (ac *AgentCommands) DeleteTextData(recordID int) {
 		return
 	}
 }
+
+// DeleteBankData удаляет банковскую запись с ID.
+// При успешном обновлении удаляет запись из стейта.
 func (ac *AgentCommands) DeleteBankData(recordID int) {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString(authReqErr)
@@ -32,6 +37,9 @@ func (ac *AgentCommands) DeleteBankData(recordID int) {
 		return
 	}
 }
+
+// DeleteBinaryData удаляет бинарную запись с ID.
+// При успешном обновлении удаляет запись из стейта.
 func (ac *AgentCommands) DeleteBinaryData(recordID int) {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString(authReqErr)

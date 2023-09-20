@@ -2,6 +2,9 @@ package agentcommands
 
 import "github.com/firesworder/password_saver/internal/agent/agentcommands/agentstate"
 
+// RegisterUser регистрирует пользователя на сервере.
+// При успешном создании пользователя изменяет флаг isAuthorized в true и создает пустой стейт.
+// На grpcagent сохраняется(для дальн.использования) токен пользователя.
 func (ac *AgentCommands) RegisterUser() {
 	ac.writer.WriteString(enterAuthData)
 	fields, err := ac.reader.GetUserFields()
@@ -19,6 +22,9 @@ func (ac *AgentCommands) RegisterUser() {
 	ac.state = agentstate.NewState()
 }
 
+// LoginUser авторизует сущ. пользователя на сервере.
+// При успешной авторизации пользователя изменяет флаг isAuthorized в true и создает пустой стейт.
+// На grpcagent сохраняется(для дальн.использования) токен пользователя.
 func (ac *AgentCommands) LoginUser() {
 	ac.writer.WriteString(enterAuthData)
 	fields, err := ac.reader.GetUserFields()

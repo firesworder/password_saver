@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// OpenTextData выводит текстовую запись в консоль.
 func (ac *AgentCommands) OpenTextData(recordID int) {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString(authReqErr)
@@ -24,6 +25,8 @@ func (ac *AgentCommands) OpenTextData(recordID int) {
 		fmt.Sprintf("Text data record:\nID: %d\nContent: %s\nMetaInfo: %s\n", td.ID, td.TextData, td.MetaInfo),
 	)
 }
+
+// OpenBankData выводит банковскую запись в консоль.
 func (ac *AgentCommands) OpenBankData(recordID int) {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString(authReqErr)
@@ -43,6 +46,8 @@ func (ac *AgentCommands) OpenBankData(recordID int) {
 		),
 	)
 }
+
+// OpenBinaryData выводит бинарную запись в консоль.
 func (ac *AgentCommands) OpenBinaryData(recordID int) {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString(authReqErr)
@@ -77,6 +82,7 @@ func (ac *AgentCommands) OpenBinaryData(recordID int) {
 	ac.writer.WriteString("writing complete")
 }
 
+// ShowAllRecords выводит все записи(ID и метаинфо каждой из записей) в консоль.
 func (ac *AgentCommands) ShowAllRecords() {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString("auth required")

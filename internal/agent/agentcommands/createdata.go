@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+// CreateTextData создает текстовую запись на сервере.
+// При успешной записи - добавляет созданную запись(с получ. от сервера ID) в стейт.
 func (ac *AgentCommands) CreateTextData() {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString(authReqErr)
@@ -34,6 +36,8 @@ func (ac *AgentCommands) CreateTextData() {
 	ac.state.Set(textData)
 }
 
+// CreateBankData создает банковскую запись на сервере.
+// При успешной записи - добавляет созданную запись(с получ. от сервера ID) в стейт.
 func (ac *AgentCommands) CreateBankData() {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString(authReqErr)
@@ -66,6 +70,9 @@ func (ac *AgentCommands) CreateBankData() {
 	ac.state.Set(bankData)
 }
 
+// CreateBinaryData создает бинарную запись на сервере.
+// На вход будет запрошен файл с бинарным содержимым(которое и будет сохранено на сервере).
+// При успешной записи - добавляет созданную запись(с получ. от сервера ID) в стейт.
 func (ac *AgentCommands) CreateBinaryData() {
 	if !ac.isAuthorized {
 		ac.writer.WriteErrorString(authReqErr)
