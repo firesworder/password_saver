@@ -11,7 +11,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"log"
-	"net"
 )
 
 // GRPCServer экземпляр grpc сервера.
@@ -23,19 +22,14 @@ type GRPCServer struct {
 }
 
 // NewGRPCServer конструктор grpc сервера(обертка над server.Server).
+// todo: переименовать в grpcService?
 func NewGRPCServer(s server.IServer) (*GRPCServer, error) {
 	grpcService := &GRPCServer{serv: s}
 	return grpcService, nil
 }
 
-// Serve запускает grpcserver + создает TLS соединение.
-// todo: сделать тестируемой(возвращать просто сервер, в конструкторе)
-func (gs *GRPCServer) Serve(env *env.Environment) error {
-	listen, err := net.Listen("tcp", env.ServerAddress)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+// PrepareServer запускает grpcserver + создает TLS соединение.
+func (gs *GRPCServer) PrepareServer(env *env.Environment) (*grpc.Server, error) {
 	creds, err := credentials.NewServerTLSFromFile(env.CertFile, env.PrivateKeyFile)
 	if err != nil {
 		log.Fatal(err)
@@ -43,8 +37,7 @@ func (gs *GRPCServer) Serve(env *env.Environment) error {
 
 	serverGRPC := grpc.NewServer(grpc.Creds(creds))
 	pb.RegisterPasswordSaverServer(serverGRPC, gs)
-
-	return serverGRPC.Serve(listen)
+	return serverGRPC, nil
 }
 
 func (gs *GRPCServer) RegisterUser(ctx context.Context, request *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {

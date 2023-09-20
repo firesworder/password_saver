@@ -6,6 +6,7 @@ import (
 	"github.com/firesworder/password_saver/internal/server"
 	"github.com/firesworder/password_saver/internal/server/env"
 	"log"
+	"net"
 )
 
 var (
@@ -24,9 +25,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	listen, err := net.Listen("tcp", env.Env.ServerAddress)
+	if err != nil {
+		log.Fatal(err)
+	}
 	grpcService, err := grpcserver.NewGRPCServer(s)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Fatal(grpcService.Serve(&env.Env))
+	serverGRPC, err := grpcService.PrepareServer(&env.Env)
+	log.Fatal(serverGRPC.Serve(listen))
 }
