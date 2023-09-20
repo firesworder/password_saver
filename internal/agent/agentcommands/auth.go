@@ -1,5 +1,7 @@
 package agentcommands
 
+import "github.com/firesworder/password_saver/internal/agent/agentcommands/agentstate"
+
 func (ac *AgentCommands) RegisterUser() {
 	ac.writer.WriteString(enterAuthData)
 	fields, err := ac.reader.GetUserFields()
@@ -14,6 +16,7 @@ func (ac *AgentCommands) RegisterUser() {
 		return
 	}
 	ac.isAuthorized = true
+	ac.state = agentstate.NewState()
 }
 
 func (ac *AgentCommands) LoginUser() {
@@ -30,4 +33,5 @@ func (ac *AgentCommands) LoginUser() {
 		return
 	}
 	ac.isAuthorized = true
+	ac.state = agentstate.NewState()
 }
