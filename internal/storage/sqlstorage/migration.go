@@ -11,9 +11,9 @@ CREATE TABLE IF NOT EXISTS Users
 CREATE TABLE IF NOT EXISTS Records
 (
     id SERIAL PRIMARY KEY,
+    record_type VARCHAR(30),
     content BYTEA,
-    met_info TEXT,
-    type VARCHAR(30),
+    meta_info TEXT,
     user_id INTEGER REFERENCES Users(id)
 );
 `
