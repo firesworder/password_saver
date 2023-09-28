@@ -18,6 +18,7 @@ type Storage struct {
 	TextRep   storage.TextDataRepository
 	BankRep   storage.BankDataRepository
 	BinaryRep storage.BinaryDataRepository
+	RecordRep storage.RecordRepository
 }
 
 // NewStorage конструктор sqlstorage, осуществляющий подключение к БД и создание необходимых таблиц.
@@ -56,6 +57,7 @@ func NewStorage(env *env.Environment) (*Storage, error) {
 		BinaryRep: &BinaryData{
 			Conn: db.Connection, Encoder: encoder, Decoder: decoder,
 		},
+		RecordRep: &RecordRepository{conn: db.Connection},
 	}
 	return &db, nil
 }
