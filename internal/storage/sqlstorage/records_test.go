@@ -12,10 +12,10 @@ import (
 func TestRecordRepository(t *testing.T) {
 	ctx := context.Background()
 	s := devStorage(t)
-	conn := s.Connection
+	conn := s.conn
 	rr := RecordRepository{conn: conn}
 
-	defer s.Connection.Close()
+	defer s.conn.Close()
 
 	// очистка таблицы до и после изменений
 	clearTables(t, conn)

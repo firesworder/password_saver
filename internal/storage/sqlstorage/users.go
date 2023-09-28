@@ -10,14 +10,14 @@ import (
 
 // User репозиторий пользователей.
 type User struct {
-	Conn *sql.DB
+	conn *sql.DB
 }
 
 // CreateUser создает пользователя.
 func (ur *User) CreateUser(ctx context.Context, u storage.User) (*storage.User, error) {
 	var id int
 
-	err := ur.Conn.QueryRowContext(ctx,
+	err := ur.conn.QueryRowContext(ctx,
 		"INSERT INTO users(login, password) VALUES ($1, $2) RETURNING id", u.Login, u.HashedPassword,
 	).Scan(&id)
 	if err != nil {
@@ -33,7 +33,7 @@ func (ur *User) CreateUser(ctx context.Context, u storage.User) (*storage.User, 
 // GetUser возвращает пользователя по логину.
 func (ur *User) GetUser(ctx context.Context, u storage.User) (*storage.User, error) {
 	gotUser := storage.User{}
-	err := ur.Conn.QueryRowContext(ctx,
+	err := ur.conn.QueryRowContext(ctx,
 		"SELECT id, login, password FROM users WHERE login = $1 LIMIT 1", u.Login,
 	).Scan(&gotUser.ID, &gotUser.Login, &gotUser.HashedPassword)
 	if err != nil {

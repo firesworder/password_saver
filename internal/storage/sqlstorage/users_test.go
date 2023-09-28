@@ -13,17 +13,17 @@ func TestUser_CreateUser(t *testing.T) {
 
 	s := devStorage(t)
 	// закрываю соединение с дб
-	defer s.Connection.Close()
-	uRep := User{Conn: s.Connection}
+	defer s.conn.Close()
+	uRep := User{conn: s.conn}
 
 	// очищаю таблицы перед добавлением новых тестовых данных и по итогам прогона тестов
-	clearTables(t, s.Connection)
-	defer clearTables(t, s.Connection)
+	clearTables(t, s.conn)
+	defer clearTables(t, s.conn)
 
 	// подготовка тестовых данных
 	var uID int64
 	var err error
-	err = s.Connection.QueryRowContext(ctx,
+	err = s.conn.QueryRowContext(ctx,
 		"INSERT INTO users(login, password) VALUES ($1, $2) returning id", "demo", "demo").Scan(&uID)
 	require.NoError(t, err)
 
@@ -64,17 +64,17 @@ func TestUser_GetUser(t *testing.T) {
 
 	s := devStorage(t)
 	// закрываю соединение с дб
-	defer s.Connection.Close()
-	uRep := User{Conn: s.Connection}
+	defer s.conn.Close()
+	uRep := User{conn: s.conn}
 
 	// очищаю таблицы перед добавлением новых тестовых данных и по итогам прогона тестов
-	clearTables(t, s.Connection)
-	defer clearTables(t, s.Connection)
+	clearTables(t, s.conn)
+	defer clearTables(t, s.conn)
 
 	// подготовка тестовых данных
 	var uID int64
 	var err error
-	err = s.Connection.QueryRowContext(ctx,
+	err = s.conn.QueryRowContext(ctx,
 		"INSERT INTO users(login, password) VALUES ($1, $2) returning id", "demo", "demo").Scan(&uID)
 	require.NoError(t, err)
 
