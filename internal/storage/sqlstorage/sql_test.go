@@ -25,13 +25,8 @@ func devStorage(t *testing.T) *Storage {
 
 func clearTables(t *testing.T, db *sql.DB) {
 	var err error
-	_, err = db.ExecContext(context.Background(), "DELETE FROM textdata")
-	require.NoError(t, err)
 
-	_, err = db.ExecContext(context.Background(), "DELETE FROM bankdata")
-	require.NoError(t, err)
-
-	_, err = db.ExecContext(context.Background(), "DELETE FROM binarydata")
+	_, err = db.ExecContext(context.Background(), "DELETE FROM records")
 	require.NoError(t, err)
 
 	_, err = db.ExecContext(context.Background(), "DELETE FROM users")

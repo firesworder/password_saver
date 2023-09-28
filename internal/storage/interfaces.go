@@ -27,3 +27,10 @@ type BinaryDataRepository interface {
 	DeleteBinaryData(ctx context.Context, bd BinaryData, u *User) error
 	GetAllRecords(ctx context.Context, u *User) ([]BinaryData, error)
 }
+
+type RecordRepository interface {
+	AddRecord(ctx context.Context, r Record, uid int) (int, error)
+	UpdateRecord(ctx context.Context, r Record, uid int) error
+	DeleteRecord(ctx context.Context, r Record, uid int) error
+	GetAll(ctx context.Context, uid int) ([]Record, error)
+}

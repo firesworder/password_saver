@@ -39,3 +39,11 @@ type RecordsList struct {
 	BankDataList   []BankData
 	BinaryDataList []BinaryData
 }
+
+// Record формат хранения записей на сервере.
+type Record struct {
+	ID         int
+	RecordType string
+	Content    []byte
+	MetaInfo   string
+}
