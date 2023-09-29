@@ -5,7 +5,6 @@ package env
 import (
 	"flag"
 	"github.com/caarlos0/env/v7"
-	"log"
 )
 
 // Инициализирует параметры командной строки.
@@ -28,13 +27,14 @@ func initCmdArgs() {
 }
 
 // ParseEnvArgs Парсит значения полей Env. Сначала из cmd аргументов, затем из перем-х окружения.
-func ParseEnvArgs() {
+func ParseEnvArgs() error {
 	// Парсинг аргументов cmd
 	flag.Parse()
 
 	// Парсинг перем окружения
 	err := env.Parse(&Env)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }

@@ -24,7 +24,9 @@ var (
 
 func main() {
 	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
-	env.ParseEnvArgs()
+	if err := env.ParseEnvArgs(); err != nil {
+		log.Fatal(err)
+	}
 
 	grpcAgent, err := grpcagent.NewGRPCAgent(env.Env.ServerAddress, env.Env.CACert)
 	if err != nil {

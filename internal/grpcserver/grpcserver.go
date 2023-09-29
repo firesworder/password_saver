@@ -12,7 +12,6 @@ import (
 	pb "github.com/firesworder/password_saver/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"log"
 )
 
 // GRPCService экземпляр grpc сервиса для запуска в grpc.NewServer.
@@ -35,7 +34,7 @@ func NewGRPCService(s server.IServer) (*GRPCService, error) {
 func (gs *GRPCService) PrepareServer(env *env.Environment) (*grpc.Server, error) {
 	creds, err := credentials.NewServerTLSFromFile(env.CertFile, env.PrivateKeyFile)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	serverGRPC := grpc.NewServer(grpc.Creds(creds))

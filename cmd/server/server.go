@@ -17,14 +17,14 @@ var (
 
 func main() {
 	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
-
-	env.ParseEnvArgs()
+	if err := env.ParseEnvArgs(); err != nil {
+		log.Fatal(err)
+	}
 
 	s, err := server.NewServer(&env.Env)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	listen, err := net.Listen("tcp", env.Env.ServerAddress)
 	if err != nil {
 		log.Fatal(err)
@@ -34,5 +34,7 @@ func main() {
 		log.Fatal(err)
 	}
 	serverGRPC, err := grpcService.PrepareServer(&env.Env)
-	log.Fatal(serverGRPC.Serve(listen))
+	if err = serverGRPC.Serve(listen); err != nil {
+		log.Fatal(err)
+	}
 }
