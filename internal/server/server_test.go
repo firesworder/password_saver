@@ -12,8 +12,6 @@ import (
 	"testing"
 )
 
-// todo: усложнить мок, чтобы я мог увидеть, что было бы добавлено в БД
-
 var testUser = storage.User{ID: 100, Login: "user", HashedPassword: "password1"}
 var testToken = "user_token_1"
 
@@ -352,6 +350,8 @@ func TestServer_GetAllRecords(t *testing.T) {
 	require.NoError(t, err)
 	_, err = s.AddRecord(ctx, storage.TextData{TextData: "text data 2", MetaInfo: "MI2"})
 	require.NoError(t, err)
+	_, err = s.AddRecord(ctx, storage.BankData{CardNumber: "0011", CardExpire: "09/23", CVV: "123", MetaInfo: "MI1"})
+	require.NoError(t, err)
 	_, err = s.AddRecord(ctx, storage.BinaryData{BinaryData: []byte("binary data"), MetaInfo: "MI1"})
 	require.NoError(t, err)
 
@@ -384,6 +384,7 @@ func TestServer_GetAllRecords(t *testing.T) {
 
 			if records != nil {
 				assert.Len(t, records.TextDataList, 2)
+				assert.Len(t, records.BankDataList, 1)
 				assert.Len(t, records.BinaryDataList, 1)
 			}
 		})
