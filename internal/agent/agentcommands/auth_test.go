@@ -42,10 +42,16 @@ func TestAgentCommands_RegisterUser(t *testing.T) {
 			wantErrMsg: "err: login already exist\n",
 		},
 		{
-			name:       "Test 3. Incorrect input.",
+			name:       "Test 3. Incorrect input(only 1 field filled).",
 			input:      "demoLog\n",
 			wantArgs:   wantArgs{},
 			wantErrMsg: "err: input error, required 2 fields\n",
+		},
+		{
+			name:       "Test 4. Incorrect input(empty string).",
+			input:      "\n",
+			wantArgs:   wantArgs{},
+			wantErrMsg: "err: input error\n",
 		},
 	}
 	for _, tt := range tests {
@@ -116,6 +122,12 @@ func TestAgentCommands_LoginUser(t *testing.T) {
 			input:      "demoLog\n",
 			wantArgs:   wantArgs{},
 			wantErrMsg: "err: input error, required 2 fields\n",
+		},
+		{
+			name:       "Test 4. Incorrect input(empty string).",
+			input:      "\n",
+			wantArgs:   wantArgs{},
+			wantErrMsg: "err: input error\n",
 		},
 	}
 	for _, tt := range tests {

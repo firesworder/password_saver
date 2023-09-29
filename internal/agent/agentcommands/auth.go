@@ -8,6 +8,10 @@ import "github.com/firesworder/password_saver/internal/agent/agentcommands/agent
 func (ac *AgentCommands) RegisterUser() {
 	ac.writer.WriteString(enterAuthData)
 	fields, err := ac.reader.GetUserFields()
+	if err != nil {
+		ac.writer.WriteErrorString(err.Error())
+		return
+	}
 	if len(fields) != 2 {
 		ac.writer.WriteErrorString("input error, required 2 fields")
 		return
@@ -28,6 +32,10 @@ func (ac *AgentCommands) RegisterUser() {
 func (ac *AgentCommands) LoginUser() {
 	ac.writer.WriteString(enterAuthData)
 	fields, err := ac.reader.GetUserFields()
+	if err != nil {
+		ac.writer.WriteErrorString(err.Error())
+		return
+	}
 	if len(fields) != 2 {
 		ac.writer.WriteErrorString("input error, required 2 fields")
 		return
