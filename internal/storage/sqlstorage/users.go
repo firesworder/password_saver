@@ -21,7 +21,8 @@ func (ur *User) CreateUser(ctx context.Context, u storage.User) (*storage.User, 
 		"INSERT INTO users(login, password) VALUES ($1, $2) RETURNING id", u.Login, u.HashedPassword,
 	).Scan(&id)
 	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
+		var pgErr *pgconn.PgError
+		if ok := errors.As(err, &pgErr); ok && pgErr.Code == "23505" {
 			return nil, storage.ErrLoginExist
 		}
 		return nil, err
