@@ -14,6 +14,7 @@ import (
 var ErrWrongPassword = errors.New("wrong password")
 
 const bcryptCost = 8
+const genTokenSize, authTokenSize = 32, 32
 
 // generateRandom - создает массив байт заданной длины
 func generateRandom(size int) ([]byte, error) {
@@ -27,7 +28,7 @@ func generateRandom(size int) ([]byte, error) {
 
 // generateToken - создает токен авторизации, с использованием hmac
 func (s *Server) generateToken() ([]byte, error) {
-	newToken, err := generateRandom(32)
+	newToken, err := generateRandom(authTokenSize)
 	if err != nil {
 		return nil, err
 	}

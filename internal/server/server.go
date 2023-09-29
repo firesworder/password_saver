@@ -45,7 +45,7 @@ func NewServer(env *env.Environment) (*Server, error) {
 		return nil, err
 	}
 
-	if s.genToken, err = generateRandom(32); err != nil {
+	if s.genToken, err = generateRandom(genTokenSize); err != nil {
 		return nil, err
 	}
 	return s, nil

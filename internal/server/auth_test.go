@@ -9,7 +9,7 @@ import (
 )
 
 func Test_generateRandom(t *testing.T) {
-	token, err := generateRandom(32)
+	token, err := generateRandom(genTokenSize)
 	assert.NoError(t, err)
 	assert.Equal(t, 32, len(token))
 }
