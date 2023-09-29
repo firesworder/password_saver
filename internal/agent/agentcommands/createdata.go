@@ -1,8 +1,10 @@
 package agentcommands
 
 import (
+	"errors"
 	"github.com/firesworder/password_saver/internal/storage"
 	"io"
+	"io/fs"
 	"os"
 	"strings"
 )
@@ -89,6 +91,10 @@ func (ac *AgentCommands) CreateBinaryData() {
 
 	f, err := os.Open(strings.TrimSpace(binaryFP))
 	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			ac.writer.WriteErrorString("file does not exist")
+			return
+		}
 		ac.writer.WriteErrorString(err.Error())
 		return
 	}

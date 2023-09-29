@@ -179,9 +179,7 @@ func TestAgentCommands_CreateBinaryDataCommand(t *testing.T) {
 	w.Reset()
 	r.WriteString(fmt.Sprintf("%s/%s\n", bindTDir, "demo_file.txt"))
 	ac.CreateBinaryData()
-	assert.Equal(t, fmt.Sprintf("%s\n%s\n",
-		enterBinaryData, "err: open binary_test/demo_file.txt: The system cannot find the file specified."), w.String(),
-	)
+	assert.Equal(t, fmt.Sprintf("%s\n%s\n", enterBinaryData, "err: file does not exist"), w.String())
 
 	// bd запись, ошибка на вводе meta info
 	r.Reset()
