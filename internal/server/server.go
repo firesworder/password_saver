@@ -3,10 +3,12 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/firesworder/password_saver/internal/crypt"
 	"github.com/firesworder/password_saver/internal/server/env"
 	"github.com/firesworder/password_saver/internal/storage"
 	"github.com/firesworder/password_saver/internal/storage/sqlstorage"
 	"google.golang.org/grpc/metadata"
+	"strings"
 )
 
 const ctxTokenParam = "userToken"
@@ -16,37 +18,35 @@ const ctxTokenParam = "userToken"
 // ссылки на объекты репозиториев данных(от SQL подключения) и сгенерированная соль для генерации новых токенов.
 type Server struct {
 	authUsers map[string]storage.User
-
-	uRep    storage.UserRepository
-	tRep    storage.TextDataRepository
-	bankRep storage.BankDataRepository
-	binRep  storage.BinaryDataRepository
-
-	genToken []byte
+	encoder   *crypt.Encoder
+	decoder   *crypt.Decoder
+	ssql      *sqlstorage.Storage
+	genToken  []byte
 }
 
 // NewServer создает подключение к БД(SQL в д.с.) по переданному в env DNS адресу.
 // Также генерирует соль для токенов и возвращает в итоге инициал. объект Server.
 func NewServer(env *env.Environment) (*Server, error) {
-	ssql, err := sqlstorage.NewStorage(env)
-	if err != nil {
+	if env == nil {
+		return nil, fmt.Errorf("env can't be nil")
+	}
+
+	var err error
+	s := &Server{}
+	if s.ssql, err = sqlstorage.NewStorage(env.DSN); err != nil {
 		return nil, err
 	}
 
-	genToken, err := generateRandom(32)
-	if err != nil {
+	if s.encoder, err = crypt.NewEncoder(env.CertFile); err != nil {
 		return nil, err
 	}
 
-	s := &Server{
-		authUsers: map[string]storage.User{},
+	if s.decoder, err = crypt.NewDecoder(env.PrivateKeyFile); err != nil {
+		return nil, err
+	}
 
-		uRep:    ssql.UserRep,
-		tRep:    ssql.TextRep,
-		bankRep: ssql.BankRep,
-		binRep:  ssql.BinaryRep,
-
-		genToken: genToken,
+	if s.genToken, err = generateRandom(32); err != nil {
+		return nil, err
 	}
 	return s, nil
 }
@@ -73,130 +73,62 @@ func (s *Server) getUserFromContext(ctx context.Context) (*storage.User, error) 
 	return &user, nil
 }
 
-// AddTextData добавляет текстовую запись.
-func (s *Server) AddTextData(ctx context.Context, textData storage.TextData) (int, error) {
+func (s *Server) getRecordFromData(rawRecord interface{}) (r *storage.Record, err error) {
+	switch v := rawRecord.(type) {
+	case storage.TextData:
+		r = &storage.Record{ID: v.ID, RecordType: "text", Content: []byte(v.TextData), MetaInfo: v.MetaInfo}
+	case storage.BankData:
+		r = &storage.Record{ID: v.ID, RecordType: "bank",
+			Content: []byte(strings.Join([]string{v.CardNumber, v.CardExpire, v.CVV}, ",")), MetaInfo: v.MetaInfo}
+	case storage.BinaryData:
+		r = &storage.Record{ID: v.ID, RecordType: "binary", Content: v.BinaryData, MetaInfo: v.MetaInfo}
+	default:
+		return nil, fmt.Errorf("unknown datatype")
+	}
+
+	if r.Content, err = s.encoder.Encode(r.Content); err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func (s *Server) AddRecord(ctx context.Context, rawRecord interface{}) (int, error) {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
 		return 0, err
 	}
 
-	id, err := s.tRep.AddTextData(ctx, textData, u)
+	r, err := s.getRecordFromData(rawRecord)
 	if err != nil {
 		return 0, err
 	}
-	return id, nil
+	return s.ssql.RecordRep.AddRecord(ctx, *r, u.ID)
 }
 
-// UpdateTextData обновляет текстовую запись.
-func (s *Server) UpdateTextData(ctx context.Context, textData storage.TextData) error {
+func (s *Server) UpdateRecord(ctx context.Context, rawRecord interface{}) error {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
 		return err
 	}
 
-	err = s.tRep.UpdateTextData(ctx, textData, u)
+	r, err := s.getRecordFromData(rawRecord)
 	if err != nil {
 		return err
 	}
-	return nil
+	return s.ssql.RecordRep.UpdateRecord(ctx, *r, u.ID)
 }
 
-// DeleteTextData удаляет текстовую запись.
-func (s *Server) DeleteTextData(ctx context.Context, textData storage.TextData) error {
+func (s *Server) DeleteRecord(ctx context.Context, rawRecord interface{}) error {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
 		return err
 	}
 
-	err = s.tRep.DeleteTextData(ctx, textData, u)
+	r, err := s.getRecordFromData(rawRecord)
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-// AddBankData добавляет банковскую запись.
-func (s *Server) AddBankData(ctx context.Context, bankData storage.BankData) (int, error) {
-	u, err := s.getUserFromContext(ctx)
-	if err != nil {
-		return 0, err
-	}
-
-	id, err := s.bankRep.AddBankData(ctx, bankData, u)
-	if err != nil {
-		return 0, err
-	}
-	return id, nil
-}
-
-// UpdateBankData обновляет банковскую запись.
-func (s *Server) UpdateBankData(ctx context.Context, bankData storage.BankData) error {
-	u, err := s.getUserFromContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = s.bankRep.UpdateBankData(ctx, bankData, u)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// DeleteBankData удаляет банковскую запись.
-func (s *Server) DeleteBankData(ctx context.Context, bankData storage.BankData) error {
-	u, err := s.getUserFromContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = s.bankRep.DeleteBankData(ctx, bankData, u)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// AddBinaryData добавляет бинарную запись.
-func (s *Server) AddBinaryData(ctx context.Context, binaryData storage.BinaryData) (int, error) {
-	u, err := s.getUserFromContext(ctx)
-	if err != nil {
-		return 0, err
-	}
-
-	id, err := s.binRep.AddBinaryData(ctx, binaryData, u)
-	if err != nil {
-		return 0, err
-	}
-	return id, nil
-}
-
-// UpdateBinaryData обновляет бинарную запись.
-func (s *Server) UpdateBinaryData(ctx context.Context, binaryData storage.BinaryData) error {
-	u, err := s.getUserFromContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = s.binRep.UpdateBinaryData(ctx, binaryData, u)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// DeleteBinaryData удаляет бинарную запись.
-func (s *Server) DeleteBinaryData(ctx context.Context, binaryData storage.BinaryData) error {
-	u, err := s.getUserFromContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = s.binRep.DeleteBinaryData(ctx, binaryData, u)
-	if err != nil {
-		return err
-	}
-	return nil
+	return s.ssql.RecordRep.DeleteRecord(ctx, *r, u.ID)
 }
 
 // GetAllRecords возвращает все записи пользователей.
@@ -206,18 +138,38 @@ func (s *Server) GetAllRecords(ctx context.Context) (*storage.RecordsList, error
 		return nil, err
 	}
 
-	recList := &storage.RecordsList{}
-	recList.TextDataList, err = s.tRep.GetAllRecords(ctx, u)
+	recList := &storage.RecordsList{
+		TextDataList:   make([]storage.TextData, 0),
+		BankDataList:   make([]storage.BankData, 0),
+		BinaryDataList: make([]storage.BinaryData, 0),
+	}
+
+	rSlice, err := s.ssql.RecordRep.GetAll(ctx, u.ID)
 	if err != nil {
 		return nil, err
 	}
-	recList.BankDataList, err = s.bankRep.GetAllRecords(ctx, u)
-	if err != nil {
-		return nil, err
-	}
-	recList.BinaryDataList, err = s.binRep.GetAllRecords(ctx, u)
-	if err != nil {
-		return nil, err
+
+	for _, r := range rSlice {
+		content, err := s.decoder.Decode(r.Content)
+		if err != nil {
+			return nil, err
+		}
+
+		switch r.RecordType {
+		case "text":
+			recList.TextDataList = append(recList.TextDataList,
+				storage.TextData{ID: r.ID, TextData: string(content), MetaInfo: r.MetaInfo},
+			)
+		case "bank":
+			bankData := strings.Split(string(content), ",")
+			recList.BankDataList = append(recList.BankDataList, storage.BankData{
+				ID: r.ID, CardNumber: bankData[0], CardExpire: bankData[1], CVV: bankData[2], MetaInfo: r.MetaInfo,
+			})
+		case "binary":
+			recList.BinaryDataList = append(recList.BinaryDataList,
+				storage.BinaryData{ID: r.ID, BinaryData: content, MetaInfo: r.MetaInfo},
+			)
+		}
 	}
 	return recList, nil
 }

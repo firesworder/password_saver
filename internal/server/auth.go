@@ -48,7 +48,7 @@ func (s *Server) RegisterUser(ctx context.Context, user storage.User) (string, e
 	}
 	user.HashedPassword = string(hashedPassword)
 
-	newUser, err := s.uRep.CreateUser(ctx, user)
+	newUser, err := s.ssql.UserRep.CreateUser(ctx, user)
 	if err != nil {
 		return "", err
 	}
@@ -67,7 +67,7 @@ func (s *Server) RegisterUser(ctx context.Context, user storage.User) (string, e
 // Пароль сохраненной в БД и присланный с клиента сравниваются через bcrypt.
 // Если авторизация произошла успешно - генерируется токен пользователя с записью его в хранил. токенов на сервере.
 func (s *Server) LoginUser(ctx context.Context, user storage.User) (string, error) {
-	bdUser, err := s.uRep.GetUser(ctx, user)
+	bdUser, err := s.ssql.UserRep.GetUser(ctx, user)
 	if err != nil {
 		return "", err
 	}

@@ -3,29 +3,106 @@ package server
 import (
 	"context"
 	"github.com/firesworder/password_saver/internal/mocks"
+	"github.com/firesworder/password_saver/internal/server/env"
 	"github.com/firesworder/password_saver/internal/storage"
+	"github.com/firesworder/password_saver/internal/storage/sqlstorage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
 	"testing"
 )
 
+// todo: усложнить мок, чтобы я мог увидеть, что было бы добавлено в БД
+
 var testUser = storage.User{ID: 100, Login: "user", HashedPassword: "password1"}
 var testToken = "user_token_1"
 
-func NewTestServer(t *testing.T) *Server {
-	genToken, err := generateRandom(32)
-	require.NoError(t, err)
+// на данном пользователе в моке sqlstorage триггерится тестовая ошибка
+var testErrToken = "user_error"
+var errUser = storage.User{ID: -1, Login: "err", HashedPassword: "err"}
 
-	s := &Server{
-		authUsers: map[string]storage.User{testToken: {ID: 100, Login: "user", HashedPassword: "password1"}},
-		uRep:      &mocks.UserRepository{},
-		tRep:      &mocks.TextDataRepository{},
-		bankRep:   &mocks.BankDataRepository{},
-		binRep:    &mocks.BinaryDataRepository{},
-		genToken:  genToken,
+func NewTestServer(t *testing.T) *Server {
+	testEnv := &env.Environment{
+		DSN:            storage.DevDSN,
+		CertFile:       "test_files/cert.pem",
+		PrivateKeyFile: "test_files/privKey.pem",
 	}
+	s, _ := NewServer(testEnv)
+	s.ssql = &sqlstorage.Storage{
+		UserRep:   &mocks.UserRepository{},
+		RecordRep: &mocks.RecordRepository{},
+	}
+	s.authUsers = map[string]storage.User{testToken: testUser, testErrToken: errUser}
 	return s
+}
+
+func TestNewServer(t *testing.T) {
+	tests := []struct {
+		name    string
+		env     *env.Environment
+		wantErr bool
+	}{
+		{
+			name: "Test 1. Correct creation with devDNS",
+			env: &env.Environment{
+				DSN:            storage.DevDSN,
+				CertFile:       "test_files/cert.pem",
+				PrivateKeyFile: "test_files/privKey.pem",
+			},
+			wantErr: false,
+		},
+		{
+			name:    "Test 2. Error, empty env",
+			env:     nil,
+			wantErr: true,
+		},
+		{
+			name: "Test 3. Error, incorrect devDSN",
+			env: &env.Environment{
+				DSN:            "demoEnv",
+				CertFile:       "test_files/cert.pem",
+				PrivateKeyFile: "test_files/privKey.pem",
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test 4. Error, incorrect cert filepath",
+			env: &env.Environment{
+				DSN:            "demoEnv",
+				CertFile:       "test_files/not_exist.pem",
+				PrivateKeyFile: "test_files/privKey.pem",
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test 5. Error, incorrect priv key filepath",
+			env: &env.Environment{
+				DSN:            "demoEnv",
+				CertFile:       "test_files/cert.pem",
+				PrivateKeyFile: "test_files/not_exist.pem",
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test 6. Error, ",
+			env: &env.Environment{
+				DSN:            "demoEnv",
+				CertFile:       "test_files/cert.pem",
+				PrivateKeyFile: "test_files/privKey.pem",
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := NewServer(tt.env)
+			if err != nil && tt.env != nil && tt.env.DSN == storage.DevDSN {
+				t.Skip("devDSN is not available, skipping")
+			}
+			assert.Equal(t, tt.wantErr, err != nil)
+
+		})
+	}
 }
 
 func TestServer_getUserFromContext(t *testing.T) {
@@ -76,372 +153,183 @@ func TestServer_getUserFromContext(t *testing.T) {
 	}
 }
 
-func TestServer_AddTextData(t *testing.T) {
+func TestServer_getRecordFromData(t *testing.T) {
 	s := NewTestServer(t)
 
 	tests := []struct {
-		name    string
-		md      metadata.MD
-		td      storage.TextData
-		wantErr bool
+		name       string
+		rawRecord  interface{}
+		wantRecord *storage.Record
+		wantErr    bool
 	}{
 		{
-			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			td:      storage.TextData{TextData: "td", MetaInfo: "mi1"},
+			name:       "Test 1. Text data",
+			rawRecord:  storage.TextData{ID: 50, TextData: "text data", MetaInfo: "MI", UserID: 100},
+			wantRecord: &storage.Record{ID: 50, RecordType: "text", Content: []byte("text data"), MetaInfo: "MI"},
+			wantErr:    false,
+		},
+		{
+			name: "Test 2. Bank data",
+			rawRecord: storage.BankData{ID: 50, CardNumber: "0011 2233 4455 6677", CardExpire: "09/23", CVV: "333",
+				MetaInfo: "MI", UserID: 100},
+			wantRecord: &storage.Record{ID: 50, RecordType: "bank", Content: []byte("0011 2233 4455 6677,09/23,333"),
+				MetaInfo: "MI"},
 			wantErr: false,
 		},
 		{
-			name:    "Test 2. Unknown user token",
-			md:      metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
-			td:      storage.TextData{TextData: "td", MetaInfo: "mi1"},
-			wantErr: true,
+			name:       "Test 3. Binary data",
+			rawRecord:  storage.BinaryData{ID: 50, BinaryData: []byte("binary data"), MetaInfo: "MI", UserID: 100},
+			wantRecord: &storage.Record{ID: 50, RecordType: "binary", Content: []byte("binary data"), MetaInfo: "MI"},
+			wantErr:    false,
 		},
 		{
-			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			td:      storage.TextData{},
-			wantErr: true,
+			name:       "Test 4. Unknown data type",
+			rawRecord:  100,
+			wantRecord: nil,
+			wantErr:    true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := metadata.NewIncomingContext(context.Background(), tt.md)
-			id, err := s.AddTextData(ctx, tt.td)
-			assert.Equal(t, tt.wantErr, err != nil)
-			assert.Equal(t, err != nil, id == 0)
-		})
-	}
-}
-
-func TestServer_UpdateTextData(t *testing.T) {
-	s := NewTestServer(t)
-
-	tests := []struct {
-		name    string
-		md      metadata.MD
-		td      storage.TextData
-		wantErr bool
-	}{
-		{
-			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			td:      storage.TextData{ID: 200, TextData: "td", MetaInfo: "mi1"},
-			wantErr: false,
-		},
-		{
-			name:    "Test 2. Unknown user token",
-			md:      metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
-			td:      storage.TextData{ID: 200, TextData: "td", MetaInfo: "mi1"},
-			wantErr: true,
-		},
-		{
-			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			td:      storage.TextData{ID: 100, TextData: "td", MetaInfo: "mi1"},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := metadata.NewIncomingContext(context.Background(), tt.md)
-			err := s.UpdateTextData(ctx, tt.td)
-			assert.Equal(t, tt.wantErr, err != nil)
-		})
-	}
-}
-
-func TestServer_DeleteTextData(t *testing.T) {
-	s := NewTestServer(t)
-
-	tests := []struct {
-		name    string
-		md      metadata.MD
-		td      storage.TextData
-		wantErr bool
-	}{
-		{
-			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			td:      storage.TextData{ID: 200},
-			wantErr: false,
-		},
-		{
-			name:    "Test 2. Unknown user token",
-			md:      metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
-			td:      storage.TextData{ID: 200},
-			wantErr: true,
-		},
-		{
-			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			td:      storage.TextData{ID: 100},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := metadata.NewIncomingContext(context.Background(), tt.md)
-			err := s.DeleteTextData(ctx, tt.td)
-			assert.Equal(t, tt.wantErr, err != nil)
-		})
-	}
-}
-
-func TestServer_AddBankData(t *testing.T) {
-	s := NewTestServer(t)
-
-	tests := []struct {
-		name    string
-		md      metadata.MD
-		bd      storage.BankData
-		wantErr bool
-	}{
-		{
-			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			bd:      storage.BankData{CardNumber: "0011334466779900", CardExpire: "00/23", CVV: "252"},
-			wantErr: false,
-		},
-		{
-			name:    "Test 2. Unknown user token",
-			md:      metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
-			bd:      storage.BankData{CardNumber: "0011334466779900", CardExpire: "00/23", CVV: "252"},
-			wantErr: true,
-		},
-		{
-			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			bd:      storage.BankData{CVV: "252"},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := metadata.NewIncomingContext(context.Background(), tt.md)
-			id, err := s.AddBankData(ctx, tt.bd)
-			assert.Equal(t, tt.wantErr, err != nil)
-			assert.Equal(t, err != nil, id == 0)
-		})
-	}
-}
-
-func TestServer_UpdateBankData(t *testing.T) {
-	s := NewTestServer(t)
-
-	tests := []struct {
-		name    string
-		md      metadata.MD
-		bd      storage.BankData
-		wantErr bool
-	}{
-		{
-			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			bd:      storage.BankData{ID: 200, CardNumber: "0011334466779900", CardExpire: "00/23", CVV: "252"},
-			wantErr: false,
-		},
-		{
-			name:    "Test 2. Unknown user token",
-			md:      metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
-			bd:      storage.BankData{ID: 200, CardNumber: "0011334466779900", CardExpire: "00/23", CVV: "252"},
-			wantErr: true,
-		},
-		{
-			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			bd:      storage.BankData{ID: 100, CVV: "252"},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := metadata.NewIncomingContext(context.Background(), tt.md)
-			err := s.UpdateBankData(ctx, tt.bd)
-			assert.Equal(t, tt.wantErr, err != nil)
-		})
-	}
-}
-
-func TestServer_DeleteBankData(t *testing.T) {
-	s := NewTestServer(t)
-
-	tests := []struct {
-		name    string
-		md      metadata.MD
-		bd      storage.BankData
-		wantErr bool
-	}{
-		{
-			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			bd:      storage.BankData{ID: 200},
-			wantErr: false,
-		},
-		{
-			name:    "Test 2. Unknown user token",
-			md:      metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
-			bd:      storage.BankData{ID: 200},
-			wantErr: true,
-		},
-		{
-			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			bd:      storage.BankData{ID: 100},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := metadata.NewIncomingContext(context.Background(), tt.md)
-			err := s.DeleteBankData(ctx, tt.bd)
-			assert.Equal(t, tt.wantErr, err != nil)
-		})
-	}
-}
-
-func TestServer_AddBinaryData(t *testing.T) {
-	s := NewTestServer(t)
-
-	tests := []struct {
-		name    string
-		md      metadata.MD
-		bd      storage.BinaryData
-		wantErr bool
-	}{
-		{
-			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			bd:      storage.BinaryData{BinaryData: []byte("binary data")},
-			wantErr: false,
-		},
-		{
-			name:    "Test 2. Unknown user token",
-			md:      metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
-			bd:      storage.BinaryData{BinaryData: []byte("binary data")},
-			wantErr: true,
-		},
-		{
-			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			bd:      storage.BinaryData{},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := metadata.NewIncomingContext(context.Background(), tt.md)
-			id, err := s.AddBinaryData(ctx, tt.bd)
-			assert.Equal(t, tt.wantErr, err != nil)
-			assert.Equal(t, err != nil, id == 0)
-		})
-	}
-}
-
-func TestServer_UpdateBinaryData(t *testing.T) {
-	s := NewTestServer(t)
-
-	tests := []struct {
-		name    string
-		md      metadata.MD
-		bd      storage.BinaryData
-		wantErr bool
-	}{
-		{
-			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			bd:      storage.BinaryData{ID: 200, BinaryData: []byte("binary data")},
-			wantErr: false,
-		},
-		{
-			name:    "Test 2. Unknown user token",
-			md:      metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
-			bd:      storage.BinaryData{ID: 200, BinaryData: []byte("binary data")},
-			wantErr: true,
-		},
-		{
-			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			bd:      storage.BinaryData{ID: 100, BinaryData: []byte("binary data")},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := metadata.NewIncomingContext(context.Background(), tt.md)
-			err := s.UpdateBinaryData(ctx, tt.bd)
-			assert.Equal(t, tt.wantErr, err != nil)
-		})
-	}
-}
-
-func TestServer_DeleteBinaryData(t *testing.T) {
-	s := NewTestServer(t)
-
-	tests := []struct {
-		name    string
-		md      metadata.MD
-		bd      storage.BinaryData
-		wantErr bool
-	}{
-		{
-			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			bd:      storage.BinaryData{ID: 200},
-			wantErr: false,
-		},
-		{
-			name:    "Test 2. Unknown user token",
-			md:      metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
-			bd:      storage.BinaryData{ID: 200},
-			wantErr: true,
-		},
-		{
-			name:    "Test 3. Repository error",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			bd:      storage.BinaryData{ID: 100},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := metadata.NewIncomingContext(context.Background(), tt.md)
-			err := s.DeleteBinaryData(ctx, tt.bd)
-			assert.Equal(t, tt.wantErr, err != nil)
-		})
-	}
-}
-
-func TestServer_GetAllRecords(t *testing.T) {
-	s := NewTestServer(t)
-
-	tests := []struct {
-		name    string
-		md      metadata.MD
-		wantErr bool
-	}{
-		{
-			name:    "Test 1. Correct request",
-			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
-			wantErr: false,
-		},
-		{
-			name:    "Test 2. Unknown user token",
-			md:      metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := metadata.NewIncomingContext(context.Background(), tt.md)
-			result, err := s.GetAllRecords(ctx)
-			assert.Equal(t, tt.wantErr, err != nil)
-			if !tt.wantErr {
-				require.NotEmpty(t, result)
-				assert.NotEmpty(t, result.TextDataList)
-				assert.NotEmpty(t, result.BankDataList)
-				assert.NotEmpty(t, result.BinaryDataList)
+			gotRecord, err := s.getRecordFromData(tt.rawRecord)
+			if gotRecord != nil {
+				gotRecord.Content, err = s.decoder.Decode(gotRecord.Content)
+				require.NoError(t, err)
 			}
+			assert.Equal(t, tt.wantErr, err != nil)
+			assert.Equal(t, tt.wantRecord, gotRecord)
 		})
 	}
+}
+
+func TestServer_AddRecord(t *testing.T) {
+	s := NewTestServer(t)
+
+	tests := []struct {
+		name       string
+		md         metadata.MD
+		dataRecord interface{}
+		wantErr    bool
+	}{
+		{
+			name:       "Test 1. Correct request",
+			md:         metadata.New(map[string]string{ctxTokenParam: testToken}),
+			dataRecord: storage.TextData{TextData: "textData", MetaInfo: "MI1"},
+			wantErr:    false,
+		},
+		{
+			name:       "Test 2. Unknown user",
+			md:         metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
+			dataRecord: storage.TextData{TextData: "textData", MetaInfo: "MI1"},
+			wantErr:    true,
+		},
+		{
+			name:       "Test 3. Unknown(nil) data type",
+			md:         metadata.New(map[string]string{ctxTokenParam: testToken}),
+			dataRecord: nil,
+			wantErr:    true,
+		},
+		{
+			name:       "Test 4. Trigger storage error",
+			md:         metadata.New(map[string]string{ctxTokenParam: testErrToken}),
+			dataRecord: storage.TextData{TextData: "textData", MetaInfo: "MI1"},
+			wantErr:    true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := metadata.NewIncomingContext(context.Background(), tt.md)
+			_, err := s.AddRecord(ctx, tt.dataRecord)
+			assert.Equal(t, tt.wantErr, err != nil)
+		})
+	}
+}
+
+func TestServer_UpdateRecord(t *testing.T) {
+	s := NewTestServer(t)
+
+	tests := []struct {
+		name       string
+		md         metadata.MD
+		dataRecord interface{}
+		wantErr    bool
+	}{
+		{
+			name:       "Test 1. Correct request",
+			md:         metadata.New(map[string]string{ctxTokenParam: testToken}),
+			dataRecord: storage.TextData{ID: 150, TextData: "textData", MetaInfo: "MI1"},
+			wantErr:    false,
+		},
+		{
+			name:       "Test 2. Unknown user",
+			md:         metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
+			dataRecord: storage.TextData{ID: 150, TextData: "textData", MetaInfo: "MI1"},
+			wantErr:    true,
+		},
+		{
+			name:       "Test 3. Unknown(nil) data type",
+			md:         metadata.New(map[string]string{ctxTokenParam: testToken}),
+			dataRecord: nil,
+			wantErr:    true,
+		},
+		{
+			name:       "Test 4. Trigger storage error",
+			md:         metadata.New(map[string]string{ctxTokenParam: testErrToken}),
+			dataRecord: storage.TextData{ID: 150, TextData: "textData", MetaInfo: "MI1"},
+			wantErr:    true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := metadata.NewIncomingContext(context.Background(), tt.md)
+			err := s.UpdateRecord(ctx, tt.dataRecord)
+			assert.Equal(t, tt.wantErr, err != nil)
+		})
+	}
+}
+func TestServer_DeleteRecord(t *testing.T) {
+	s := NewTestServer(t)
+
+	tests := []struct {
+		name       string
+		md         metadata.MD
+		dataRecord interface{}
+		wantErr    bool
+	}{
+		{
+			name:       "Test 1. Correct request",
+			md:         metadata.New(map[string]string{ctxTokenParam: testToken}),
+			dataRecord: storage.TextData{ID: 150},
+			wantErr:    false,
+		},
+		{
+			name:       "Test 2. Unknown user",
+			md:         metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
+			dataRecord: storage.TextData{ID: 150},
+			wantErr:    true,
+		},
+		{
+			name:       "Test 3. Unknown(nil) data type",
+			md:         metadata.New(map[string]string{ctxTokenParam: testToken}),
+			dataRecord: nil,
+			wantErr:    true,
+		},
+		{
+			name:       "Test 4. Trigger storage error",
+			md:         metadata.New(map[string]string{ctxTokenParam: testErrToken}),
+			dataRecord: storage.TextData{ID: 150},
+			wantErr:    true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := metadata.NewIncomingContext(context.Background(), tt.md)
+			err := s.DeleteRecord(ctx, tt.dataRecord)
+			assert.Equal(t, tt.wantErr, err != nil)
+		})
+	}
+}
+
+// todo: implement me!
+func TestServer_GetAllRecords(t *testing.T) {
 }
