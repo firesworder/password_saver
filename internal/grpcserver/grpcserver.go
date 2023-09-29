@@ -5,13 +5,14 @@ package grpcserver
 
 import (
 	"context"
-	"fmt"
 	"github.com/firesworder/password_saver/internal/server"
 	"github.com/firesworder/password_saver/internal/server/env"
 	"github.com/firesworder/password_saver/internal/storage"
 	pb "github.com/firesworder/password_saver/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/status"
 )
 
 // GRPCService экземпляр grpc сервиса для запуска в grpc.NewServer.
@@ -46,7 +47,7 @@ func (gs *GRPCService) PrepareServer(env *env.Environment) (*grpc.Server, error)
 // Если переданы пустой логин или пароль - возвращает ошибку.
 func (gs *GRPCService) RegisterUser(ctx context.Context, request *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
 	if request.Login == "" || request.Password == "" {
-		return nil, fmt.Errorf("login and password fields can not be empty")
+		return nil, status.Error(codes.InvalidArgument, "login and password fields can not be empty")
 	}
 
 	rUser := storage.User{Login: request.Login, HashedPassword: request.Password}
@@ -63,7 +64,7 @@ func (gs *GRPCService) RegisterUser(ctx context.Context, request *pb.RegisterUse
 // Если переданы пустой логин или пароль - возвращает ошибку.
 func (gs *GRPCService) LoginUser(ctx context.Context, request *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
 	if request.Login == "" || request.Password == "" {
-		return nil, fmt.Errorf("login and password fields can not be empty")
+		return nil, status.Error(codes.InvalidArgument, "login and password fields can not be empty")
 	}
 
 	rUser := storage.User{Login: request.Login, HashedPassword: request.Password}
