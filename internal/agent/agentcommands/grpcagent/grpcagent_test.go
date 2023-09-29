@@ -16,6 +16,6 @@ func TestNewGRPCAgent(t *testing.T) {
 	err = ga.Close()
 	require.NoError(t, err)
 
-	ga, err = NewGRPCAgent("localhost:8080", "")
+	_, err = NewGRPCAgent("localhost:8080", "")
 	require.NotEqual(t, nil, err)
 }
