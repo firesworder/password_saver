@@ -55,6 +55,9 @@ func TestServer_RegisterUser(t *testing.T) {
 func TestServer_LoginUser(t *testing.T) {
 	s := NewTestServer(t)
 
+	_, err := s.RegisterUser(context.Background(), storage.User{Login: "uslog", HashedPassword: "uspass"})
+	require.NoError(t, err)
+
 	tests := []struct {
 		name    string
 		u       storage.User

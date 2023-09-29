@@ -29,8 +29,8 @@ func NewTestServer(t *testing.T) *Server {
 	}
 	s, _ := NewServer(testEnv)
 	s.ssql = &sqlstorage.Storage{
-		UserRep:   &mocks.UserRepository{},
-		RecordRep: &mocks.RecordRepository{},
+		UserRep:   mocks.NewUR(),
+		RecordRep: mocks.NewRR(),
 	}
 	s.authUsers = map[string]storage.User{testToken: testUser, testErrToken: errUser}
 	return s
@@ -246,7 +246,13 @@ func TestServer_AddRecord(t *testing.T) {
 }
 
 func TestServer_UpdateRecord(t *testing.T) {
+	ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{ctxTokenParam: testToken}))
 	s := NewTestServer(t)
+
+	rid, err := s.AddRecord(ctx, storage.TextData{TextData: "old", MetaInfo: "MI"})
+	require.NoError(t, err)
+	_, err = s.AddRecord(ctx, storage.TextData{TextData: "old td 2", MetaInfo: "MI2"})
+	require.NoError(t, err)
 
 	tests := []struct {
 		name       string
@@ -257,7 +263,7 @@ func TestServer_UpdateRecord(t *testing.T) {
 		{
 			name:       "Test 1. Correct request",
 			md:         metadata.New(map[string]string{ctxTokenParam: testToken}),
-			dataRecord: storage.TextData{ID: 150, TextData: "textData", MetaInfo: "MI1"},
+			dataRecord: storage.TextData{ID: rid, TextData: "textData", MetaInfo: "MI1"},
 			wantErr:    false,
 		},
 		{
@@ -287,8 +293,15 @@ func TestServer_UpdateRecord(t *testing.T) {
 		})
 	}
 }
+
 func TestServer_DeleteRecord(t *testing.T) {
+	ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{ctxTokenParam: testToken}))
 	s := NewTestServer(t)
+
+	rid, err := s.AddRecord(ctx, storage.TextData{TextData: "old", MetaInfo: "MI"})
+	require.NoError(t, err)
+	_, err = s.AddRecord(ctx, storage.TextData{TextData: "old td 2", MetaInfo: "MI2"})
+	require.NoError(t, err)
 
 	tests := []struct {
 		name       string
@@ -299,7 +312,7 @@ func TestServer_DeleteRecord(t *testing.T) {
 		{
 			name:       "Test 1. Correct request",
 			md:         metadata.New(map[string]string{ctxTokenParam: testToken}),
-			dataRecord: storage.TextData{ID: 150},
+			dataRecord: storage.TextData{ID: rid},
 			wantErr:    false,
 		},
 		{
@@ -330,6 +343,49 @@ func TestServer_DeleteRecord(t *testing.T) {
 	}
 }
 
-// todo: implement me!
 func TestServer_GetAllRecords(t *testing.T) {
+	ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{ctxTokenParam: testToken}))
+	s := NewTestServer(t)
+
+	var err error
+	_, err = s.AddRecord(ctx, storage.TextData{TextData: "text data 1", MetaInfo: "MI1"})
+	require.NoError(t, err)
+	_, err = s.AddRecord(ctx, storage.TextData{TextData: "text data 2", MetaInfo: "MI2"})
+	require.NoError(t, err)
+	_, err = s.AddRecord(ctx, storage.BinaryData{BinaryData: []byte("binary data"), MetaInfo: "MI1"})
+	require.NoError(t, err)
+
+	tests := []struct {
+		name    string
+		md      metadata.MD
+		wantErr bool
+	}{
+		{
+			name:    "Test 1. Correct request",
+			md:      metadata.New(map[string]string{ctxTokenParam: testToken}),
+			wantErr: false,
+		},
+		{
+			name:    "Test 2. Unknown user",
+			md:      metadata.New(map[string]string{ctxTokenParam: "unknown_token"}),
+			wantErr: true,
+		},
+		{
+			name:    "Test 3. Trigger storage error",
+			md:      metadata.New(map[string]string{ctxTokenParam: testErrToken}),
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx = metadata.NewIncomingContext(context.Background(), tt.md)
+			records, err := s.GetAllRecords(ctx)
+			assert.Equal(t, tt.wantErr, err != nil)
+
+			if records != nil {
+				assert.Len(t, records.TextDataList, 2)
+				assert.Len(t, records.BinaryDataList, 1)
+			}
+		})
+	}
 }

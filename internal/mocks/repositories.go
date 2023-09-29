@@ -7,13 +7,18 @@ import (
 )
 
 type UserRepository struct {
+	users map[string]storage.User
+}
+
+func NewUR() *UserRepository {
+	return &UserRepository{users: map[string]storage.User{}}
 }
 
 func (ur *UserRepository) CreateUser(ctx context.Context, u storage.User) (*storage.User, error) {
 	if u.Login == "demo" {
 		return nil, fmt.Errorf("test error")
 	}
-	u.ID = 1
+	ur.users[u.Login] = u
 	return &u, nil
 }
 
@@ -21,24 +26,40 @@ func (ur *UserRepository) GetUser(ctx context.Context, u storage.User) (*storage
 	if u.Login == "demo" {
 		return nil, fmt.Errorf("test error")
 	}
-	// для пароля "uspass"
-	return &storage.User{ID: u.ID, Login: u.Login, HashedPassword: "$2a$08$4IS/HXcjs27KmlB08EJRn.51YB3c6cokW.xZZdVOrw0VtcEG/opBa"}, nil
+	uInBD, ok := ur.users[u.Login]
+	if !ok {
+		return nil, storage.ErrLoginNotExist
+	}
+	return &uInBD, nil
 }
 
 type RecordRepository struct {
+	records map[int]storage.Record
+	id      int
+}
+
+func NewRR() *RecordRepository {
+	return &RecordRepository{records: map[int]storage.Record{}, id: 0}
 }
 
 func (rr *RecordRepository) AddRecord(ctx context.Context, r storage.Record, uid int) (int, error) {
 	if uid == -1 {
 		return 0, fmt.Errorf("test error")
 	}
-	return 100, nil
+	rr.id++
+	r.ID = rr.id
+	rr.records[rr.id] = r
+	return rr.id, nil
 }
 
 func (rr *RecordRepository) UpdateRecord(ctx context.Context, r storage.Record, uid int) error {
 	if uid == -1 {
 		return fmt.Errorf("test error")
 	}
+	if _, ok := rr.records[r.ID]; !ok {
+		return storage.ErrElementNotFound
+	}
+	rr.records[r.ID] = r
 	return nil
 }
 
@@ -46,6 +67,10 @@ func (rr *RecordRepository) DeleteRecord(ctx context.Context, r storage.Record, 
 	if uid == -1 {
 		return fmt.Errorf("test error")
 	}
+	if _, ok := rr.records[r.ID]; !ok {
+		return storage.ErrElementNotFound
+	}
+	delete(rr.records, r.ID)
 	return nil
 }
 
@@ -53,10 +78,9 @@ func (rr *RecordRepository) GetAll(ctx context.Context, uid int) ([]storage.Reco
 	if uid == -1 {
 		return nil, fmt.Errorf("test error")
 	}
-	return []storage.Record{
-		{ID: 100, RecordType: "text", Content: []byte("test content 1"), MetaInfo: "MI1"},
-		{ID: 150, RecordType: "text", Content: []byte("test content 2"), MetaInfo: "MI2"},
-		{ID: 200, RecordType: "bank", Content: []byte("bank content 1"), MetaInfo: "MI3"},
-		{ID: 250, RecordType: "binary", Content: []byte("binary content 1"), MetaInfo: "MI4"},
-	}, nil
+	r := make([]storage.Record, 0)
+	for _, elem := range rr.records {
+		r = append(r, elem)
+	}
+	return r, nil
 }
