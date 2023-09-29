@@ -88,7 +88,7 @@ func TestParseEnvArgs(t *testing.T) {
 			initCmdArgs()
 
 			// сама проверка корректности парсинга
-			require.NotPanics(t, ParseEnvArgs)
+			require.NoError(t, ParseEnvArgs())
 			assert.Equal(t, tt.wantEnv, Env)
 		})
 	}
