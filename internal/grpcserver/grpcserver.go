@@ -80,7 +80,7 @@ func (gs *GRPCService) LoginUser(ctx context.Context, request *pb.LoginUserReque
 // AddTextDataRecord создает текстовую запись данных.
 // Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) AddTextDataRecord(ctx context.Context, request *pb.AddTextDataRequest) (*pb.AddTextDataResponse, error) {
-	id, err := gs.serv.AddTextData(ctx, storage.TextData{
+	id, err := gs.serv.AddRecord(ctx, storage.TextData{
 		TextData: request.TextData.TextData,
 		MetaInfo: request.TextData.MetaInfo,
 	})
@@ -95,7 +95,7 @@ func (gs *GRPCService) AddTextDataRecord(ctx context.Context, request *pb.AddTex
 // UpdateTextDataRecord обновляет текстовую запись данных.
 // Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) UpdateTextDataRecord(ctx context.Context, request *pb.UpdateTextDataRequest) (*pb.UpdateTextDataResponse, error) {
-	err := gs.serv.UpdateTextData(ctx, storage.TextData{
+	err := gs.serv.UpdateRecord(ctx, storage.TextData{
 		ID:       int(request.TextData.Id),
 		TextData: request.TextData.TextData,
 		MetaInfo: request.TextData.MetaInfo,
@@ -111,7 +111,7 @@ func (gs *GRPCService) UpdateTextDataRecord(ctx context.Context, request *pb.Upd
 // DeleteTextDataRecord удаляет текстовую запись данных.
 // Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) DeleteTextDataRecord(ctx context.Context, request *pb.DeleteTextDataRequest) (*pb.DeleteTextDataResponse, error) {
-	err := gs.serv.DeleteTextData(ctx, storage.TextData{
+	err := gs.serv.DeleteRecord(ctx, storage.TextData{
 		ID: int(request.Id),
 	})
 	if err != nil {
@@ -125,7 +125,7 @@ func (gs *GRPCService) DeleteTextDataRecord(ctx context.Context, request *pb.Del
 // AddBankDataRecord добавляет банковскую запись данных.
 // Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) AddBankDataRecord(ctx context.Context, request *pb.AddBankDataRequest) (*pb.AddBankDataResponse, error) {
-	id, err := gs.serv.AddBankData(ctx, storage.BankData{
+	id, err := gs.serv.AddRecord(ctx, storage.BankData{
 		CardNumber: request.BankData.CardNumber,
 		CardExpire: request.BankData.CardExpiry,
 		CVV:        request.BankData.Cvv,
@@ -142,7 +142,7 @@ func (gs *GRPCService) AddBankDataRecord(ctx context.Context, request *pb.AddBan
 // UpdateBankDataRecord обновляет банковскую запись данных.
 // Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) UpdateBankDataRecord(ctx context.Context, request *pb.UpdateBankDataRequest) (*pb.UpdateBankDataResponse, error) {
-	err := gs.serv.UpdateBankData(ctx, storage.BankData{
+	err := gs.serv.UpdateRecord(ctx, storage.BankData{
 		ID:         int(request.BankData.Id),
 		CardNumber: request.BankData.CardNumber,
 		CardExpire: request.BankData.CardExpiry,
@@ -160,7 +160,7 @@ func (gs *GRPCService) UpdateBankDataRecord(ctx context.Context, request *pb.Upd
 // DeleteBankDataRecord удаляет банковскую запись данных.
 // Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) DeleteBankDataRecord(ctx context.Context, request *pb.DeleteBankDataRequest) (*pb.DeleteBankDataResponse, error) {
-	err := gs.serv.DeleteBankData(ctx, storage.BankData{
+	err := gs.serv.DeleteRecord(ctx, storage.BankData{
 		ID: int(request.Id),
 	})
 	if err != nil {
@@ -174,7 +174,7 @@ func (gs *GRPCService) DeleteBankDataRecord(ctx context.Context, request *pb.Del
 // AddBinaryDataRecord добавляет бинарную запись данных.
 // Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) AddBinaryDataRecord(ctx context.Context, request *pb.AddBinaryDataRequest) (*pb.AddBinaryDataResponse, error) {
-	id, err := gs.serv.AddBinaryData(ctx, storage.BinaryData{
+	id, err := gs.serv.AddRecord(ctx, storage.BinaryData{
 		BinaryData: request.BinaryData.BinaryData,
 		MetaInfo:   request.BinaryData.MetaInfo,
 	})
@@ -189,7 +189,7 @@ func (gs *GRPCService) AddBinaryDataRecord(ctx context.Context, request *pb.AddB
 // UpdateBinaryDataRecord обновляет бинарную запись данных.
 // Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) UpdateBinaryDataRecord(ctx context.Context, request *pb.UpdateBinaryDataRequest) (*pb.UpdateBinaryDataResponse, error) {
-	err := gs.serv.UpdateBinaryData(ctx, storage.BinaryData{
+	err := gs.serv.UpdateRecord(ctx, storage.BinaryData{
 		ID:         int(request.BinaryData.Id),
 		BinaryData: request.BinaryData.BinaryData,
 		MetaInfo:   request.BinaryData.MetaInfo,
@@ -205,7 +205,7 @@ func (gs *GRPCService) UpdateBinaryDataRecord(ctx context.Context, request *pb.U
 // DeleteBinaryDataRecord удаляет бинарную запись данных.
 // Требуется в контексте передать токен пользователя!
 func (gs *GRPCService) DeleteBinaryDataRecord(ctx context.Context, request *pb.DeleteBinaryDataRequest) (*pb.DeleteBinaryDataResponse, error) {
-	err := gs.serv.DeleteBinaryData(ctx, storage.BinaryData{
+	err := gs.serv.DeleteRecord(ctx, storage.BinaryData{
 		ID: int(request.Id),
 	})
 	if err != nil {

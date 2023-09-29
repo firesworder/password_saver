@@ -23,65 +23,56 @@ func (s *Server) LoginUser(ctx context.Context, user storage.User) (string, erro
 	return "some_token", nil
 }
 
-func (s *Server) AddTextData(ctx context.Context, textData storage.TextData) (int, error) {
-	if textData.TextData == "" {
-		return 0, fmt.Errorf("test_error")
+func (s *Server) AddRecord(ctx context.Context, rawRecord interface{}) (int, error) {
+	switch v := rawRecord.(type) {
+	case storage.TextData:
+		if v.TextData == "" {
+			return 0, fmt.Errorf("test error")
+		}
+	case storage.BankData:
+		if v.CVV == "" {
+			return 0, fmt.Errorf("test error")
+		}
+	case storage.BinaryData:
+		if v.BinaryData == nil {
+			return 0, fmt.Errorf("test error")
+		}
 	}
-	return 1, nil
+	return 0, nil
 }
 
-func (s *Server) UpdateTextData(ctx context.Context, textData storage.TextData) error {
-	if textData.ID == 100 {
-		return fmt.Errorf("test_error")
-	}
-	return nil
-}
-
-func (s *Server) DeleteTextData(ctx context.Context, textData storage.TextData) error {
-	if textData.ID == 100 {
-		return fmt.Errorf("test_error")
-	}
-	return nil
-}
-
-func (s *Server) AddBankData(ctx context.Context, bankData storage.BankData) (int, error) {
-	if bankData.CardNumber == "" || bankData.CardExpire == "" || bankData.CVV == "" || bankData.CVV == "000" {
-		return 0, fmt.Errorf("test_error")
-	}
-	return 1, nil
-}
-
-func (s *Server) UpdateBankData(ctx context.Context, bankData storage.BankData) error {
-	if bankData.ID == 100 {
-		return fmt.Errorf("test_error")
-	}
-	return nil
-}
-
-func (s *Server) DeleteBankData(ctx context.Context, bankData storage.BankData) error {
-	if bankData.ID == 100 {
-		return fmt.Errorf("test_error")
+func (s *Server) UpdateRecord(ctx context.Context, rawRecord interface{}) error {
+	switch v := rawRecord.(type) {
+	case storage.TextData:
+		if v.ID == 100 {
+			return fmt.Errorf("test error")
+		}
+	case storage.BankData:
+		if v.ID == 100 {
+			return fmt.Errorf("test error")
+		}
+	case storage.BinaryData:
+		if v.ID == 100 {
+			return fmt.Errorf("test error")
+		}
 	}
 	return nil
 }
 
-func (s *Server) AddBinaryData(ctx context.Context, binaryData storage.BinaryData) (int, error) {
-	if len(binaryData.BinaryData) == 0 {
-		return 0, fmt.Errorf("test_error")
-	}
-	return 1, nil
-}
-
-func (s *Server) UpdateBinaryData(ctx context.Context, binaryData storage.BinaryData) error {
-	if binaryData.ID == 100 {
-		return fmt.Errorf("test_error")
-	}
-	return nil
-}
-
-func (s *Server) DeleteBinaryData(ctx context.Context, binaryData storage.BinaryData) error {
-	if binaryData.ID == 100 {
-		return fmt.Errorf("test_error")
+func (s *Server) DeleteRecord(ctx context.Context, rawRecord interface{}) error {
+	switch v := rawRecord.(type) {
+	case storage.TextData:
+		if v.ID == 100 {
+			return fmt.Errorf("test error")
+		}
+	case storage.BankData:
+		if v.ID == 100 {
+			return fmt.Errorf("test error")
+		}
+	case storage.BinaryData:
+		if v.ID == 100 {
+			return fmt.Errorf("test error")
+		}
 	}
 	return nil
 }
