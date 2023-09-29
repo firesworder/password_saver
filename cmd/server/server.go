@@ -10,13 +10,13 @@ import (
 )
 
 var (
-	buildVersion = "0.0.1"
-	buildDate    = "N/A"
-	buildCommit  = "N/A"
+	BuildVersion = "N/A"
+	BuildDate    = "N/A"
+	BuildCommit  = "N/A"
 )
 
 func main() {
-	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
+	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", BuildVersion, BuildDate, BuildCommit)
 	if err := env.ParseEnvArgs(); err != nil {
 		log.Fatal(err)
 	}
