@@ -62,11 +62,11 @@ func (ac *AgentCommands) OpenBinaryData(recordID int) {
 	}
 
 	f, err := os.OpenFile(strings.TrimSpace(fp), os.O_WRONLY|os.O_CREATE, 0644)
-	defer f.Close()
 	if err != nil {
 		ac.writer.WriteErrorString(err.Error())
 		return
 	}
+	defer f.Close()
 
 	v, err := ac.state.Get(recordID, "binary")
 	if err != nil {
