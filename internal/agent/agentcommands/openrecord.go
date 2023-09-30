@@ -73,7 +73,10 @@ func (ac *AgentCommands) OpenBinaryData(recordID int) {
 		ac.writer.WriteErrorString(err.Error())
 		return
 	}
-	bd := v.(storage.BinaryData)
+	bd, ok := v.(storage.BinaryData)
+	if !ok {
+		ac.writer.WriteErrorString("type assertion error")
+	}
 
 	if _, err = f.Write(bd.BinaryData); err != nil {
 		ac.writer.WriteErrorString(err.Error())
