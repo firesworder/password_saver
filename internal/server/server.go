@@ -9,6 +9,7 @@ import (
 	"github.com/firesworder/password_saver/internal/storage/sqlstorage"
 	"google.golang.org/grpc/metadata"
 	"strings"
+	"sync"
 )
 
 const ctxTokenParam = "userToken"
@@ -17,7 +18,7 @@ const ctxTokenParam = "userToken"
 // Объект типа хранит в себе хранилище(map) токенов и ассоц. с этими токенами авториз. пользователями,
 // ссылки на объекты репозиториев данных(от SQL подключения) и сгенерированная соль для генерации новых токенов.
 type Server struct {
-	authUsers map[string]storage.User
+	authUsers sync.Map
 	encoder   *crypt.Encoder
 	decoder   *crypt.Decoder
 	ssql      *sqlstorage.Storage
@@ -32,7 +33,7 @@ func NewServer(env *env.Environment) (*Server, error) {
 	}
 
 	var err error
-	s := &Server{authUsers: map[string]storage.User{}}
+	s := &Server{}
 	if s.ssql, err = sqlstorage.NewStorage(env.DSN); err != nil {
 		return nil, err
 	}
@@ -66,9 +67,13 @@ func (s *Server) getUserFromContext(ctx context.Context) (*storage.User, error) 
 		return nil, fmt.Errorf("userToken is not set")
 	}
 
-	user, ok := s.authUsers[token]
+	v, ok := s.authUsers.Load(token)
 	if !ok {
 		return nil, fmt.Errorf("user is not auth")
+	}
+	user, ok := v.(storage.User)
+	if !ok {
+		return nil, fmt.Errorf("type assertion error: can not cast %T to %T", v, user)
 	}
 	return &user, nil
 }

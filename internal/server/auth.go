@@ -60,7 +60,7 @@ func (s *Server) RegisterUser(ctx context.Context, user storage.User) (string, e
 	}
 	uToken := hex.EncodeToString(uTokenBytes)
 
-	s.authUsers[uToken] = *newUser
+	s.authUsers.Store(uToken, *newUser)
 	return uToken, nil
 }
 
@@ -83,6 +83,6 @@ func (s *Server) LoginUser(ctx context.Context, user storage.User) (string, erro
 	}
 	uToken := hex.EncodeToString(uTokenBytes)
 
-	s.authUsers[uToken] = *bdUser
+	s.authUsers.Store(uToken, *bdUser)
 	return uToken, nil
 }

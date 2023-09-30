@@ -46,7 +46,8 @@ func TestServer_RegisterUser(t *testing.T) {
 			assert.Equal(t, tt.wantErr, err != nil)
 			if !tt.wantErr {
 				assert.NotEqual(t, "", token)
-				assert.Contains(t, s.authUsers, token)
+				_, ok := s.authUsers.Load(token)
+				assert.True(t, ok)
 			}
 		})
 	}
@@ -80,7 +81,8 @@ func TestServer_LoginUser(t *testing.T) {
 			assert.Equal(t, tt.wantErr, err != nil)
 			if !tt.wantErr {
 				assert.NotEqual(t, "", token)
-				assert.Contains(t, s.authUsers, token)
+				_, ok := s.authUsers.Load(token)
+				assert.True(t, ok)
 			}
 		})
 	}

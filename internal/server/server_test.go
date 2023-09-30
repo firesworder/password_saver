@@ -30,7 +30,8 @@ func NewTestServer(t *testing.T) *Server {
 		UserRep:   mocks.NewUR(),
 		RecordRep: mocks.NewRR(),
 	}
-	s.authUsers = map[string]storage.User{testToken: testUser, testErrToken: errUser}
+	s.authUsers.Store(testToken, testUser)
+	s.authUsers.Store(testErrToken, errUser)
 	return s
 }
 
