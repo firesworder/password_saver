@@ -32,7 +32,7 @@ func NewServer(env *env.Environment) (*Server, error) {
 	}
 
 	var err error
-	s := &Server{}
+	s := &Server{authUsers: map[string]storage.User{}}
 	if s.ssql, err = sqlstorage.NewStorage(env.DSN); err != nil {
 		return nil, err
 	}
