@@ -78,6 +78,8 @@ func (s *Server) getUserFromContext(ctx context.Context) (*storage.User, error) 
 	return &user, nil
 }
 
+// функция возвращает объект storage.Record, получая данные из объекта типа данных rawRecord.
+// Функции известны только типы перечисленные в пакете `storage`.
 func (s *Server) getRecordFromData(rawRecord interface{}) (r *storage.Record, err error) {
 	switch v := rawRecord.(type) {
 	case storage.TextData:
@@ -97,6 +99,9 @@ func (s *Server) getRecordFromData(rawRecord interface{}) (r *storage.Record, er
 	return r, nil
 }
 
+// AddRecord добавляет запись данных в БД(после шифрования) данного пользователя.
+// В rawRecord нужно передать объект данных.
+// Пользователь определяется по токену полученному из контекста.
 func (s *Server) AddRecord(ctx context.Context, rawRecord interface{}) (int, error) {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
@@ -110,6 +115,9 @@ func (s *Server) AddRecord(ctx context.Context, rawRecord interface{}) (int, err
 	return s.ssql.RecordRep.AddRecord(ctx, *r, u.ID)
 }
 
+// UpdateRecord обновляет запись данных в БД(после шифрования) данного пользователя.
+// В rawRecord нужно передать id обновляемой записи, а также новые поля данных.
+// Пользователь определяется по токену полученному из контекста.
 func (s *Server) UpdateRecord(ctx context.Context, rawRecord interface{}) error {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
@@ -123,6 +131,9 @@ func (s *Server) UpdateRecord(ctx context.Context, rawRecord interface{}) error 
 	return s.ssql.RecordRep.UpdateRecord(ctx, *r, u.ID)
 }
 
+// DeleteRecord удаляет запись данных из БД данного пользователя.
+// В rawRecord нужно передать id записи.
+// Пользователь определяется по токену полученному из контекста.
 func (s *Server) DeleteRecord(ctx context.Context, rawRecord interface{}) error {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {
@@ -136,7 +147,7 @@ func (s *Server) DeleteRecord(ctx context.Context, rawRecord interface{}) error 
 	return s.ssql.RecordRep.DeleteRecord(ctx, *r, u.ID)
 }
 
-// GetAllRecords возвращает все записи пользователей.
+// GetAllRecords дешифрует и возвращает все записи данного пользователя.
 func (s *Server) GetAllRecords(ctx context.Context) (*storage.RecordsList, error) {
 	u, err := s.getUserFromContext(ctx)
 	if err != nil {

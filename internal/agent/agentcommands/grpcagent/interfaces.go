@@ -2,6 +2,7 @@ package grpcagent
 
 import "github.com/firesworder/password_saver/internal/storage"
 
+// IGRPCAgent Интерфейс grpc-агента. (основное назначение - подмена моком, при тестировании)
 type IGRPCAgent interface {
 	RegisterUser(login, password string) error
 	LoginUser(login, password string) error

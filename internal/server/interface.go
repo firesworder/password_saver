@@ -5,6 +5,7 @@ import (
 	"github.com/firesworder/password_saver/internal/storage"
 )
 
+// IServer интерфейс к Server(основное назначение - подмена моком, при тестировании)
 type IServer interface {
 	RegisterUser(ctx context.Context, user storage.User) (string, error)
 	LoginUser(ctx context.Context, user storage.User) (string, error)

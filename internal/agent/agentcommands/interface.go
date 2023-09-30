@@ -1,5 +1,6 @@
 package agentcommands
 
+// IAgentCommands интерфейс к AgentCommands (основное назначение - подмена моком, при тестировании)
 type IAgentCommands interface {
 	RegisterUser()
 	LoginUser()
