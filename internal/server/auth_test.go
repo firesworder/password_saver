@@ -1,0 +1,91 @@
+package server
+
+import (
+	"context"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/firesworder/password_saver/internal/storage"
+)
+
+func Test_generateRandom(t *testing.T) {
+	token, err := generateRandom(genTokenSize)
+	assert.NoError(t, err)
+	assert.Equal(t, 32, len(token))
+}
+
+func TestServer_generateToken(t *testing.T) {
+	s := NewTestServer(t)
+	token, err := s.generateToken()
+	require.NoError(t, err)
+	assert.Equal(t, 32, len(token))
+}
+
+func TestServer_RegisterUser(t *testing.T) {
+	s := NewTestServer(t)
+
+	tests := []struct {
+		name    string
+		u       storage.User
+		wantErr bool
+	}{
+		{
+			name:    "Test 1. Correct request",
+			u:       storage.User{Login: "uslog", HashedPassword: "uspass"},
+			wantErr: false,
+		},
+		{
+			name:    "Test 2. Server error",
+			u:       storage.User{Login: "demo", HashedPassword: "demo"},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			token, err := s.RegisterUser(context.Background(), tt.u)
+			assert.Equal(t, tt.wantErr, err != nil)
+			if !tt.wantErr {
+				assert.NotEqual(t, "", token)
+				_, ok := s.authUsers.Load(token)
+				assert.True(t, ok)
+			}
+		})
+	}
+}
+
+func TestServer_LoginUser(t *testing.T) {
+	s := NewTestServer(t)
+
+	_, err := s.RegisterUser(context.Background(), storage.User{Login: "uslog", HashedPassword: "uspass"})
+	require.NoError(t, err)
+
+	tests := []struct {
+		name    string
+		u       storage.User
+		wantErr bool
+	}{
+		{
+			name:    "Test 1. Correct request",
+			u:       storage.User{Login: "uslog", HashedPassword: "uspass"},
+			wantErr: false,
+		},
+		{
+			name:    "Test 2. Server error",
+			u:       storage.User{Login: "demo", HashedPassword: "demo"},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			token, err := s.LoginUser(context.Background(), tt.u)
+			assert.Equal(t, tt.wantErr, err != nil)
+			if !tt.wantErr {
+				assert.NotEqual(t, "", token)
+				_, ok := s.authUsers.Load(token)
+				assert.True(t, ok)
+			}
+		})
+	}
+}

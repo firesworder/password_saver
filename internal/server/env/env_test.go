@@ -2,14 +2,17 @@ package env
 
 import (
 	"flag"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-var testEnvVars = []string{"ADDRESS"}
+var testEnvVars = []string{
+	"ADDRESS", "DATABASE_DSN", "CERT_FILE", "PRIVATE_KEY_FILE",
+}
 
 func SaveOSVarsState(testEnvVars []string) map[string]string {
 	osEnvVarsState := map[string]string{}
@@ -49,33 +52,43 @@ func TestParseEnvArgs(t *testing.T) {
 			cmdStr:  "file.exe",
 			envVars: map[string]string{},
 			wantEnv: Environment{
-				ServerAddress: "localhost:8080",
+				ServerAddress:  "localhost:8080",
+				DSN:            "",
+				CertFile:       "",
+				PrivateKeyFile: "",
 			},
 		},
-
-		// 2 server address
 		{
-			name:    "Test 2.1. 'ServerAddress'. Set by cmd",
-			cmdStr:  "file.exe -a=cmd.site",
+			name:    "Test 2. CMD args",
+			cmdStr:  "file.exe -a=localhost:3030 -d=demoDSN -c=cert.pem -pk=pkcert.pem",
 			envVars: map[string]string{},
 			wantEnv: Environment{
-				ServerAddress: "cmd.site",
+				ServerAddress:  "localhost:3030",
+				DSN:            "demoDSN",
+				CertFile:       "cert.pem",
+				PrivateKeyFile: "pkcert.pem",
 			},
 		},
 		{
-			name:    "Test 2.2. 'ServerAddress'. Set by ENV",
-			cmdStr:  "file.exe",
-			envVars: map[string]string{"ADDRESS": "env.site"},
+			name:   "Test 3. CMD and ENV args",
+			cmdStr: "file.exe -a=localhost:3030 -d=demoDSN -c=cert.pem -pk=pkcert.pem",
+			envVars: map[string]string{"ADDRESS": "localhost:4545", "DATABASE_DSN": "demoDSN",
+				"CERT_FILE": "envcert.pem", "PRIVATE_KEY_FILE": "envpkcert.pem"},
 			wantEnv: Environment{
-				ServerAddress: "env.site",
+				ServerAddress:  "localhost:4545",
+				DSN:            "demoDSN",
+				CertFile:       "envcert.pem",
+				PrivateKeyFile: "envpkcert.pem",
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Устанавливаю env в дефолтные значения
 			Env = Environment{
-				ServerAddress: "localhost:8080",
+				ServerAddress:  "",
+				DSN:            "",
+				CertFile:       "",
+				PrivateKeyFile: "",
 			}
 
 			UpdateOSEnvState(t, testEnvVars, tt.envVars)
@@ -85,7 +98,7 @@ func TestParseEnvArgs(t *testing.T) {
 			initCmdArgs()
 
 			// сама проверка корректности парсинга
-			require.NotPanics(t, ParseEnvArgs)
+			require.NoError(t, ParseEnvArgs())
 			assert.Equal(t, tt.wantEnv, Env)
 		})
 	}

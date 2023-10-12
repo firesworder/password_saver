@@ -2,25 +2,16 @@ package storage
 
 import "context"
 
+// UserRepository интерфейс доступа к данным пользователей.
 type UserRepository interface {
-	CreateUser(ctx context.Context, u User) error
+	CreateUser(ctx context.Context, u User) (*User, error)
 	GetUser(ctx context.Context, u User) (*User, error)
 }
 
-type TextDataRepository interface {
-	AddTextData(ctx context.Context, td TextData) error
-	UpdateTextData(ctx context.Context, td TextData) error
-	DeleteTextData(ctx context.Context, td TextData) error
-}
-
-type BankDataRepository interface {
-	AddBankData(ctx context.Context, bd BankData) error
-	UpdateBankData(ctx context.Context, bd BankData) error
-	DeleteBankData(ctx context.Context, bd BankData) error
-}
-
-type BinaryDataRepository interface {
-	AddBinaryData(ctx context.Context, bd BinaryData) error
-	UpdateBinaryData(ctx context.Context, bd BinaryData) error
-	DeleteBinaryData(ctx context.Context, bd BinaryData) error
+// RecordRepository интерфей доступа к данным записей пользователей.
+type RecordRepository interface {
+	AddRecord(ctx context.Context, r Record, uid int) (int, error)
+	UpdateRecord(ctx context.Context, r Record, uid int) error
+	DeleteRecord(ctx context.Context, r Record, uid int) error
+	GetAll(ctx context.Context, uid int) ([]Record, error)
 }
