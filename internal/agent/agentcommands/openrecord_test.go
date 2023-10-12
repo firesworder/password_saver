@@ -2,11 +2,13 @@ package agentcommands
 
 import (
 	"fmt"
-	"github.com/firesworder/password_saver/internal/storage"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/firesworder/password_saver/internal/storage"
 )
 
 func TestAgentCommands_OpenTextData(t *testing.T) {

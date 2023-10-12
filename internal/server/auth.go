@@ -7,8 +7,10 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
-	"github.com/firesworder/password_saver/internal/storage"
+
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/firesworder/password_saver/internal/storage"
 )
 
 var ErrWrongPassword = errors.New("wrong password")

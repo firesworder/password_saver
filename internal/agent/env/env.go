@@ -4,6 +4,7 @@ package env
 
 import (
 	"flag"
+
 	"github.com/caarlos0/env/v7"
 )
 

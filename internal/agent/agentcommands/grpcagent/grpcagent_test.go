@@ -1,9 +1,10 @@
 package grpcagent
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestNewGRPCAgent(t *testing.T) {

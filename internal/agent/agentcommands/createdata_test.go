@@ -2,12 +2,14 @@ package agentcommands
 
 import (
 	"fmt"
-	"github.com/firesworder/password_saver/internal/mocks"
-	"github.com/firesworder/password_saver/internal/storage"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"io"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/firesworder/password_saver/internal/mocks"
+	"github.com/firesworder/password_saver/internal/storage"
 )
 
 func TestAgentCommands_CreateTextDataCommand(t *testing.T) {

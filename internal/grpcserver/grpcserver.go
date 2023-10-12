@@ -5,14 +5,16 @@ package grpcserver
 
 import (
 	"context"
-	"github.com/firesworder/password_saver/internal/server"
-	"github.com/firesworder/password_saver/internal/server/env"
-	"github.com/firesworder/password_saver/internal/storage"
-	pb "github.com/firesworder/password_saver/proto"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
+
+	"github.com/firesworder/password_saver/internal/server"
+	"github.com/firesworder/password_saver/internal/server/env"
+	"github.com/firesworder/password_saver/internal/storage"
+	pb "github.com/firesworder/password_saver/proto"
 )
 
 // GRPCService экземпляр grpc сервиса для запуска в grpc.NewServer.

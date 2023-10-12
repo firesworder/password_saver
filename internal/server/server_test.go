@@ -2,14 +2,16 @@ package server
 
 import (
 	"context"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/metadata"
+
 	"github.com/firesworder/password_saver/internal/mocks"
 	"github.com/firesworder/password_saver/internal/server/env"
 	"github.com/firesworder/password_saver/internal/storage"
 	"github.com/firesworder/password_saver/internal/storage/sqlstorage"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/metadata"
-	"testing"
 )
 
 var testUser = storage.User{ID: 100, Login: "user", HashedPassword: "password1"}

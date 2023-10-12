@@ -2,11 +2,13 @@ package grpcserver
 
 import (
 	"context"
-	"github.com/firesworder/password_saver/internal/mocks"
-	pb "github.com/firesworder/password_saver/proto"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
+
+	"github.com/firesworder/password_saver/internal/mocks"
+	pb "github.com/firesworder/password_saver/proto"
 )
 
 func NewTestGRPCServer(t *testing.T) *GRPCService {

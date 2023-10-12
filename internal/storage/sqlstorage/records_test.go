@@ -2,11 +2,13 @@ package sqlstorage
 
 import (
 	"context"
-	"github.com/firesworder/password_saver/internal/storage"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"sort"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/firesworder/password_saver/internal/storage"
 )
 
 func TestRecordRepository(t *testing.T) {

@@ -3,6 +3,7 @@ package mocks
 import (
 	"context"
 	"fmt"
+
 	pb "github.com/firesworder/password_saver/proto"
 )
 

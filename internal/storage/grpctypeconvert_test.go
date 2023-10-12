@@ -1,9 +1,11 @@
 package storage
 
 import (
-	pb "github.com/firesworder/password_saver/proto"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	pb "github.com/firesworder/password_saver/proto"
 )
 
 func TestBankDataFromGRPC(t *testing.T) {

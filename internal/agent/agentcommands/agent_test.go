@@ -3,11 +3,13 @@ package agentcommands
 import (
 	"bufio"
 	"bytes"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"github.com/firesworder/password_saver/internal/agent/agentreader"
 	"github.com/firesworder/password_saver/internal/agent/agentwriter"
 	"github.com/firesworder/password_saver/internal/mocks"
-	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func createMockAgentCommands(t *testing.T) (*AgentCommands, *bytes.Buffer, *bytes.Buffer) {

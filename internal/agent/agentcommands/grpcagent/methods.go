@@ -2,9 +2,11 @@ package grpcagent
 
 import (
 	"context"
+
+	"google.golang.org/grpc/metadata"
+
 	"github.com/firesworder/password_saver/internal/storage"
 	pb "github.com/firesworder/password_saver/proto"
-	"google.golang.org/grpc/metadata"
 )
 
 const ctxTokenParam = "userToken"

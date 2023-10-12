@@ -2,11 +2,13 @@ package agentcommands
 
 import (
 	"fmt"
-	"github.com/firesworder/password_saver/internal/mocks"
-	"github.com/firesworder/password_saver/internal/storage"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
+
+	"github.com/firesworder/password_saver/internal/mocks"
+	"github.com/firesworder/password_saver/internal/storage"
 )
 
 func TestAgentCommands_DeleteTextData(t *testing.T) {

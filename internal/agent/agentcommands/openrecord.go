@@ -2,9 +2,10 @@ package agentcommands
 
 import (
 	"fmt"
-	"github.com/firesworder/password_saver/internal/storage"
 	"os"
 	"strings"
+
+	"github.com/firesworder/password_saver/internal/storage"
 )
 
 // OpenTextData выводит текстовую запись в консоль.

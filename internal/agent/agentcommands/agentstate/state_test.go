@@ -2,9 +2,11 @@ package agentstate
 
 import (
 	"fmt"
-	"github.com/firesworder/password_saver/internal/storage"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/firesworder/password_saver/internal/storage"
 )
 
 func TestNewState(t *testing.T) {

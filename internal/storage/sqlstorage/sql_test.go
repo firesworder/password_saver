@@ -3,10 +3,12 @@ package sqlstorage
 import (
 	"context"
 	"database/sql"
-	"github.com/firesworder/password_saver/internal/storage"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
+
+	"github.com/firesworder/password_saver/internal/storage"
 )
 
 func devStorage(t *testing.T) *Storage {

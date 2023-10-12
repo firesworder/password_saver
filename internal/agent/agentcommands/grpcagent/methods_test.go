@@ -2,16 +2,18 @@ package grpcagent
 
 import (
 	"context"
-	"github.com/firesworder/password_saver/internal/mocks"
-	"github.com/firesworder/password_saver/internal/storage"
-	pb "github.com/firesworder/password_saver/proto"
+	"net"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
-	"net"
-	"testing"
+
+	"github.com/firesworder/password_saver/internal/mocks"
+	"github.com/firesworder/password_saver/internal/storage"
+	pb "github.com/firesworder/password_saver/proto"
 )
 
 func startTestServer(t *testing.T) (pb.PasswordSaverClient, func()) {

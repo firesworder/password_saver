@@ -3,8 +3,10 @@ package sqlstorage
 import (
 	"context"
 	"database/sql"
-	"github.com/firesworder/password_saver/internal/storage"
+
 	_ "github.com/jackc/pgx/v5/stdlib"
+
+	"github.com/firesworder/password_saver/internal/storage"
 )
 
 // Storage основной тип пакета.

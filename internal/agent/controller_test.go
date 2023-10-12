@@ -5,13 +5,15 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/firesworder/password_saver/internal/agent/agentreader"
-	"github.com/firesworder/password_saver/internal/agent/agentwriter"
-	"github.com/firesworder/password_saver/internal/mocks"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/firesworder/password_saver/internal/agent/agentreader"
+	"github.com/firesworder/password_saver/internal/agent/agentwriter"
+	"github.com/firesworder/password_saver/internal/mocks"
 )
 
 func createMockAgent(t *testing.T) (*Agent, *bytes.Buffer, *bytes.Buffer) {

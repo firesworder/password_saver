@@ -1,9 +1,10 @@
 package grpcagent
 
 import (
-	pb "github.com/firesworder/password_saver/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+
+	pb "github.com/firesworder/password_saver/proto"
 )
 
 // GRPCAgent основной тип пакета, реализующий функционал grpc агента.

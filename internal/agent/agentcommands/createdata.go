@@ -2,11 +2,12 @@ package agentcommands
 
 import (
 	"errors"
-	"github.com/firesworder/password_saver/internal/storage"
 	"io"
 	"io/fs"
 	"os"
 	"strings"
+
+	"github.com/firesworder/password_saver/internal/storage"
 )
 
 // CreateTextData создает текстовую запись на сервере.

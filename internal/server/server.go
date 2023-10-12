@@ -3,13 +3,15 @@ package server
 import (
 	"context"
 	"fmt"
+	"strings"
+	"sync"
+
+	"google.golang.org/grpc/metadata"
+
 	"github.com/firesworder/password_saver/internal/crypt"
 	"github.com/firesworder/password_saver/internal/server/env"
 	"github.com/firesworder/password_saver/internal/storage"
 	"github.com/firesworder/password_saver/internal/storage/sqlstorage"
-	"google.golang.org/grpc/metadata"
-	"strings"
-	"sync"
 )
 
 const ctxTokenParam = "userToken"

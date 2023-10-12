@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/firesworder/password_saver/internal/storage"
+
 	"github.com/jackc/pgx/v5/pgconn"
+
+	"github.com/firesworder/password_saver/internal/storage"
 )
 
 // User репозиторий пользователей.

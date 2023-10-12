@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"fmt"
+
 	"github.com/firesworder/password_saver/internal/storage"
 )
 

@@ -10,10 +10,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+
 	"github.com/firesworder/password_saver/internal/agent"
 	"github.com/firesworder/password_saver/internal/agent/agentcommands/grpcagent"
 	"github.com/firesworder/password_saver/internal/agent/env"
-	"log"
 )
 
 var (

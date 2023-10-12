@@ -15,13 +15,14 @@ import (
 	"bufio"
 	"context"
 	"errors"
+	"io"
+	"os"
+	"strconv"
+
 	"github.com/firesworder/password_saver/internal/agent/agentcommands"
 	"github.com/firesworder/password_saver/internal/agent/agentcommands/grpcagent"
 	"github.com/firesworder/password_saver/internal/agent/agentreader"
 	"github.com/firesworder/password_saver/internal/agent/agentwriter"
-	"io"
-	"os"
-	"strconv"
 )
 
 const enterDT = "Choose data type(enter name type): text, bank or binary"

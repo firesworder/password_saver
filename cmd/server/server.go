@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net"
+
 	"github.com/firesworder/password_saver/internal/grpcserver"
 	"github.com/firesworder/password_saver/internal/server"
 	"github.com/firesworder/password_saver/internal/server/env"
-	"log"
-	"net"
 )
 
 var (
